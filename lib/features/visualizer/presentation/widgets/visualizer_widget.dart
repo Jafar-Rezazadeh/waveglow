@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
+import 'package:waveglow/features/visualizer/visualizer_exports.dart';
 
 class VisualizerWidget extends StatefulWidget {
   const VisualizerWidget({super.key});
@@ -15,6 +16,8 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
   late final AnimationController animationController;
   late final Animation animation;
+
+  late final _controller = Get.find<VisualizerStateController>();
 
   @override
   void initState() {
@@ -34,17 +37,33 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return CustomPaint(
-          size: const Size(300, 300),
-          painter: VisualizerPainter(
-            // radiusModifier: animation.value,
-            colorPalette: _colorPalette,
-          ),
-        );
-      },
+    return Column(
+      children: [
+        AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return CustomPaint(
+              size: const Size(300, 300),
+              painter: VisualizerPainter(
+                // radiusModifier: animation.value,
+                colorPalette: _colorPalette,
+              ),
+            );
+          },
+        ),
+        TextButton(
+          onPressed: () {
+            _controller.startListeningToAudio();
+          },
+          child: const Text("start"),
+        ),
+        TextButton(
+          onPressed: () {
+            _controller.stopListeningToAudio();
+          },
+          child: const Text("stop"),
+        ),
+      ],
     );
   }
 }
