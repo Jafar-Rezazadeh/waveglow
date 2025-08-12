@@ -41,7 +41,8 @@ private:
     bool InitializeWASAPILoopback();
 
     void ApplyHannWindow(std::vector<double> &samples);
-    void CaptureAndSend();
+    void CaptureAndSend64Bar();
+    void CaptureAndSend128WithMoreLowFrequenciesBar();
 
     // Stop capturing and clean up resources
     void stop();

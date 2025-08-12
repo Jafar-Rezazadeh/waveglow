@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
 import 'package:waveglow/features/visualizer/visualizer_exports.dart';
@@ -45,7 +44,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
             return CustomPaint(
               size: const Size(300, 300),
               painter: VisualizerPainter(
-                // radiusModifier: animation.value,
+                magnitudesOf128Bars: [],
                 colorPalette: _colorPalette,
               ),
             );
@@ -69,10 +68,15 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 }
 
 class VisualizerPainter extends CustomPainter {
-  final double radiusModifier;
   final AppColorPalette colorPalette;
+  final List<double> magnitudesOf128Bars;
+  final double radiusModifier = 1;
 
-  VisualizerPainter({super.repaint, required this.colorPalette, this.radiusModifier = 1});
+  VisualizerPainter({
+    super.repaint,
+    required this.colorPalette,
+    required this.magnitudesOf128Bars,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {

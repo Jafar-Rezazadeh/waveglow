@@ -11,6 +11,8 @@ Future<void> main() async {
   runApp(const WaveGlowScreen());
 }
 
+// TODO: make a design - find and implement music player package for flutter windows
+
 class WaveGlowScreen extends StatelessWidget {
   const WaveGlowScreen({super.key});
 

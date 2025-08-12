@@ -20,7 +20,7 @@ std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> AudioEvent
             if (!InitializeWASAPILoopback()) {
                 return; // If WASAPI setup failed, exit thread
             }
-            CaptureAndSend(); });
+            CaptureAndSend128WithMoreLowFrequenciesBar(); });
 
     return nullptr;
 }
@@ -114,7 +114,7 @@ void AudioEventStreamer::ApplyHannWindow(std::vector<double> &samples)
     }
 }
 
-void AudioEventStreamer::CaptureAndSend()
+void AudioEventStreamer::CaptureAndSend64Bar()
 {
     UINT32 packetLength = 0;
     std::vector<float> samples_f(FFT_SIZE);  // Temporary float buffer
@@ -203,6 +203,139 @@ void AudioEventStreamer::CaptureAndSend()
             pCaptureClient->GetNextPacketSize(&packetLength);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30)); // ~33 FPS
+    }
+
+    // Cleanup FFT resources
+    fftw_destroy_plan(plan);
+    fftw_free(out);
+}
+
+void AudioEventStreamer::CaptureAndSend128WithMoreLowFrequenciesBar()
+{
+    UINT32 packetLength = 0;
+    std::vector<float> samples_f(FFT_SIZE);  // Temporary float buffer for raw WASAPI audio
+    std::vector<double> samples_d(FFT_SIZE); // Double buffer for FFT input
+
+    // === FFTW setup ===
+    fftw_complex *out = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * FFT_SIZE);
+    fftw_plan plan = fftw_plan_dft_r2c_1d(FFT_SIZE, samples_d.data(), out, FFTW_ESTIMATE);
+
+    // Get the sample rate from WASAPI format
+    double sampleRate = static_cast<double>(pwfx->nSamplesPerSec);
+    double freqPerBin = sampleRate / FFT_SIZE; // Frequency step between FFT bins
+
+    while (running_)
+    {
+        // Check if audio data is available
+        pCaptureClient->GetNextPacketSize(&packetLength);
+        while (packetLength != 0)
+        {
+            BYTE *pData = nullptr;
+            UINT32 numFramesAvailable = 0;
+            DWORD flags = 0;
+
+            // Retrieve audio buffer from WASAPI
+            HRESULT hr = pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, nullptr, nullptr);
+            if (FAILED(hr) || pData == nullptr || numFramesAvailable == 0)
+            {
+                pCaptureClient->ReleaseBuffer(0);
+                break;
+            }
+
+            int numChannels = pwfx->nChannels;
+            int samplesToCopy = std::min((int)numFramesAvailable, FFT_SIZE);
+
+            // === Step 1: Copy only the first channel (mono) ===
+            const float *floatData = (const float *)pData;
+            for (int i = 0; i < samplesToCopy; ++i)
+            {
+                samples_f[i] = floatData[i * numChannels];
+            }
+
+            pCaptureClient->ReleaseBuffer(numFramesAvailable);
+
+            // === Step 2: Convert float → double for FFT ===
+            for (int i = 0; i < samplesToCopy; ++i)
+            {
+                samples_d[i] = static_cast<double>(samples_f[i]);
+            }
+
+            // Zero-fill the rest if less than FFT_SIZE
+            for (int i = samplesToCopy; i < FFT_SIZE; ++i)
+            {
+                samples_d[i] = 0.0;
+            }
+
+            // === Step 3: Apply window function (reduces spectral leakage) ===
+            ApplyHannWindow(samples_d);
+
+            // === Step 4: Perform FFT ===
+            fftw_execute(plan);
+
+            // === Step 5: Compute magnitude spectrum ===
+            std::vector<double> magnitudes(FFT_SIZE / 2);
+            double maxMagnitude = 0.0;
+            for (int i = 0; i < FFT_SIZE / 2; ++i)
+            {
+                double mag = sqrt(out[i][0] * out[i][0] + out[i][1] * out[i][1]) / (FFT_SIZE / 2);
+                magnitudes[i] = mag;
+                if (mag > maxMagnitude)
+                    maxMagnitude = mag; // Track max for normalization
+            }
+
+            // === Step 6: Logarithmic binning to 128 bars ===
+            int bars = 128;
+            double minFreq = 20.0;             // Lower bound for visualization
+            double maxFreq = sampleRate / 2.0; // Nyquist frequency
+            double logMin = log10(minFreq);
+            double logMax = log10(maxFreq);
+
+            flutter::EncodableList barData;
+            barData.reserve(bars);
+
+            for (int i = 0; i < bars; ++i)
+            {
+                // Calculate frequency range for this bar (logarithmic spacing)
+                double startFreq = pow(10.0, logMin + (logMax - logMin) * (static_cast<double>(i) / bars));
+                double endFreq = pow(10.0, logMin + (logMax - logMin) * (static_cast<double>(i + 1) / bars));
+
+                int startBin = static_cast<int>(std::floor(startFreq / freqPerBin));
+                int endBin = static_cast<int>(std::ceil(endFreq / freqPerBin));
+
+                if (startBin < 0)
+                    startBin = 0;
+                if (endBin > static_cast<int>(magnitudes.size()))
+                    endBin = static_cast<int>(magnitudes.size());
+
+                // Average magnitudes in this frequency range
+                double sum = 0.0;
+                int count = 0;
+                for (int bin = startBin; bin < endBin; ++bin)
+                {
+                    sum += magnitudes[bin];
+                    ++count;
+                }
+
+                double avgMagnitude = (count > 0) ? (sum / count) : 0.0;
+
+                // === Step 7: Normalize to range 0–1 ===
+                double normalized = (maxMagnitude > 0) ? (avgMagnitude / maxMagnitude) : 0.0;
+
+                barData.push_back(flutter::EncodableValue(normalized));
+            }
+
+            // === Step 8: Send normalized bar data to Flutter ===
+            if (sink_)
+            {
+                sink_->Success(flutter::EncodableValue(barData));
+            }
+
+            // Check for more data
+            pCaptureClient->GetNextPacketSize(&packetLength);
+        }
+
+        // Limit update rate (~33 FPS)
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     // Cleanup FFT resources
