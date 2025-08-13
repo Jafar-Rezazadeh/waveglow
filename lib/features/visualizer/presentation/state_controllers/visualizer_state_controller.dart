@@ -14,6 +14,10 @@ class VisualizerStateController extends GetxController {
 
   StreamSubscription<List<double>>? _liveAudio64Bar;
 
+  final _magnitudes = Rx<List<double>>([]);
+
+  List<double> get magnitudes => _magnitudes.value;
+
   Future<void> startListeningToAudio() async {
     final result = await _getLiveOutPutAudioStreamUC.call(NoParams());
 
@@ -22,7 +26,7 @@ class VisualizerStateController extends GetxController {
       (stream) {
         _liveAudio64Bar = stream.listen(
           (event) {
-            print(event.length);
+            _magnitudes.value = event;
           },
         );
       },
@@ -30,6 +34,7 @@ class VisualizerStateController extends GetxController {
   }
 
   void stopListeningToAudio() {
+    _magnitudes.value = [];
     _liveAudio64Bar?.cancel();
     _liveAudio64Bar = null;
   }

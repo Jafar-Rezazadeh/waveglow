@@ -20,7 +20,7 @@ std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> AudioEvent
             if (!InitializeWASAPILoopback()) {
                 return; // If WASAPI setup failed, exit thread
             }
-            CaptureAndSend128WithMoreLowFrequenciesBar(); });
+            CaptureAndSendAllBars(); });
 
     return nullptr;
 }
@@ -112,6 +112,94 @@ void AudioEventStreamer::ApplyHannWindow(std::vector<double> &samples)
     {
         samples[i] *= 0.5 * (1 - cos(2 * M_PI * i / (N - 1)));
     }
+}
+
+void AudioEventStreamer::CaptureAndSendAllBars()
+{
+    UINT32 packetLength = 0;
+    std::vector<float> samples_f(FFT_SIZE);  // Temporary float buffer
+    std::vector<double> samples_d(FFT_SIZE); // Double buffer for FFT
+
+    // FFTW setup
+    fftw_complex *out = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * FFT_SIZE);
+    fftw_plan plan = fftw_plan_dft_r2c_1d(FFT_SIZE, samples_d.data(), out, FFTW_ESTIMATE);
+
+    while (running_)
+    {
+        // See if there’s any audio data available
+        pCaptureClient->GetNextPacketSize(&packetLength);
+        while (packetLength != 0)
+        {
+            BYTE *pData = nullptr;
+            UINT32 numFramesAvailable = 0;
+            DWORD flags = 0;
+
+            // Get buffer from WASAPI
+            HRESULT hr = pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, nullptr, nullptr);
+            if (FAILED(hr) || pData == nullptr || numFramesAvailable == 0)
+            {
+                pCaptureClient->ReleaseBuffer(0);
+                break;
+            }
+
+            int numChannels = pwfx->nChannels;
+            int samplesToCopy = std::min((int)numFramesAvailable, FFT_SIZE);
+
+            // Copy only the first channel (mono)
+            const float *floatData = (const float *)pData;
+            for (int i = 0; i < samplesToCopy; ++i)
+            {
+                samples_f[i] = floatData[i * numChannels];
+            }
+
+            pCaptureClient->ReleaseBuffer(numFramesAvailable);
+
+            // Convert float → double
+            for (int i = 0; i < samplesToCopy; ++i)
+            {
+                samples_d[i] = static_cast<double>(samples_f[i]);
+            }
+            // Zero-fill if less than FFT_SIZE
+            for (int i = samplesToCopy; i < FFT_SIZE; ++i)
+            {
+                samples_d[i] = 0.0;
+            }
+
+            // Apply window function
+            ApplyHannWindow(samples_d);
+
+            // Perform FFT
+            fftw_execute(plan);
+
+            // Compute magnitude spectrum
+            std::vector<double> magnitudes(FFT_SIZE / 2);
+            for (int i = 0; i < FFT_SIZE / 2; ++i)
+            {
+                magnitudes[i] = sqrt(out[i][0] * out[i][0] + out[i][1] * out[i][1]) / (FFT_SIZE / 2);
+            }
+
+            flutter::EncodableList barData;
+            barData.reserve(magnitudes.size());
+            for (size_t i = 0; i < magnitudes.size(); ++i)
+            {
+                barData.push_back(flutter::EncodableValue(magnitudes[i]));
+            }
+
+            // Send to Flutter via EventChannel
+            if (sink_)
+            {
+                sink_->Success(flutter::EncodableValue(barData));
+            }
+
+            // Check for more data
+            pCaptureClient->GetNextPacketSize(&packetLength);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(15)); // ~66 FPS
+    }
+
+    // Cleanup FFT resources
+    fftw_destroy_plan(plan);
+    fftw_free(out);
 }
 
 void AudioEventStreamer::CaptureAndSend64Bar()

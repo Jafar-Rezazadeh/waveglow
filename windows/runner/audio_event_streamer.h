@@ -43,6 +43,7 @@ private:
     void ApplyHannWindow(std::vector<double> &samples);
     void CaptureAndSend64Bar();
     void CaptureAndSend128WithMoreLowFrequenciesBar();
+    void CaptureAndSendAllBars();
 
     // Stop capturing and clean up resources
     void stop();
