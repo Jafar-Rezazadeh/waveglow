@@ -18,6 +18,8 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
   double smoothedBass = 0;
   double smoothingFactor = 0.015;
+  double smoothBarsFactor = 0.1;
+  List<double> smoothedMagnitudes = [];
 
   late final Ticker _ticker;
 
@@ -25,18 +27,35 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
   void initState() {
     super.initState();
     _ticker = createTicker((elapsed) {
-      if (_controller.magnitudes.isNotEmpty) {
-        final sublist = _controller.magnitudes.sublist(0, 15);
+      final mags = _controller.magnitudes;
+
+      if (mags.isNotEmpty) {
+        // Smooth bass
+        final sublist = _controller.magnitudes.sublist(1, 5);
 
         final bass = sublist.reduce((a, b) => a + b) / sublist.length;
-
         smoothedBass = (smoothedBass + (bass - smoothedBass) * smoothingFactor).clamp(0, 1);
-        print(smoothedBass);
-      }
 
+        // Smooth all magnitudes
+        _smoothEachBar(mags);
+      } else {
+        smoothedMagnitudes = [];
+      }
       setState(() {});
     });
     _ticker.start();
+  }
+
+  void _smoothEachBar(List<double> mags) {
+    if (smoothedMagnitudes.length != mags.length) {
+      smoothedMagnitudes = List<double>.from(mags);
+    } else {
+      for (int i = 0; i < mags.length; i++) {
+        smoothedMagnitudes[i] =
+            (smoothedMagnitudes[i] + (mags[i] - smoothedMagnitudes[i]) * smoothBarsFactor)
+                .clamp(0, 1);
+      }
+    }
   }
 
   @override
@@ -49,17 +68,15 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Obx(
-        //   () =>
         CustomPaint(
           size: const Size(1200, 300),
           painter: VisualizerPainter(
             colorPalette: _colorPalette,
             radiusValue: smoothedBass,
-            magnitudes: _controller.magnitudes,
+            magnitudes:
+                smoothedMagnitudes.isNotEmpty ? smoothedMagnitudes.getRange(0, 200).toList() : [],
           ),
         ),
-        // ),
         TextButton(
           onPressed: () {
             _controller.startListeningToAudio();
@@ -111,10 +128,11 @@ class VisualizerPainter extends CustomPainter {
         final magnitude = magnitudes[i];
         final barHeight = magnitude * 1000; // Scale for visibility
         final x = i * barWidth;
-        canvas.drawRect(
+        final barRect = RRect.fromRectAndRadius(
           Rect.fromLTWH(x, size.height - barHeight, barWidth * 0.8, barHeight),
-          paint,
+          Radius.circular(barWidth * 0.4), // Half the bar width for full roundness
         );
+        canvas.drawRRect(barRect, paint);
       }
     }
   }
