@@ -13,10 +13,11 @@ Future<void> visualizerInjection() async {
   );
 
   // useCases
-  final getLiveOutPutAudioStreamUC = VisualizerGetLiveOutPutAudioStreamUC(repository: repository);
-
+  final getVisualizerLiveBandsUC = GetVisualizerPerceptualBandsStreamUC(repository: repository);
   // controllers
   Get.put(
-    VisualizerStateController(getLiveOutPutAudioStreamUC: getLiveOutPutAudioStreamUC),
+    VisualizerStateController(
+      getVisualizerPerceptualBandsStreamUC: getVisualizerLiveBandsUC,
+    ),
   );
 }

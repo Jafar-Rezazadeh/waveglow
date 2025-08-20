@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:waveglow/features/visualizer/data/data-sources/impl/visualizer_platform_data_source_impl.dart';
+import 'package:waveglow/features/visualizer/visualizer_exports.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +52,39 @@ void main() {
 
       //assert
       expect(await stream.first, mockData);
+    });
+  });
+
+  group("getBandsStream -", () {
+    test("should return expected result when success ", () async {
+      //arrange
+      final resData = {
+        "Sub-bass": 0.35,
+        "Bass": 0.58,
+        "Low-mid": 0.42,
+        "Mid": 0.30,
+        "High-mid": 0.27,
+        "Presence": 0.19,
+        "Brilliance": 0.14,
+        "Loudness": 0.41
+      };
+      TestWidgetsFlutterBinding.instance.defaultBinaryMessenger.setMockStreamHandler(
+        platformDataSource.eventChannel,
+        MockStreamHandler.inline(
+          onListen: (arguments, events) {
+            events.success(resData);
+            events.endOfStream();
+          },
+        ),
+      );
+
+      //act
+      final result = await platformDataSource.getPerceptualBandsStream();
+      final firstElement = await result.first;
+
+      //assert
+      expect(firstElement, isA<VisualizerBandsModel>());
+      expect(firstElement.bass, resData["Bass"]);
     });
   });
 }

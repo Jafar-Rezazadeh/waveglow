@@ -8,6 +8,15 @@ class VisualizerPlatformDataSourceImpl implements VisualizerPlatformDataSource {
 
   @override
   Future<Stream<List<double>>> getOutPutAudioStream() async {
-    return eventChannel.receiveBroadcastStream().map((event) => (event as List).cast<double>());
+    return eventChannel
+        .receiveBroadcastStream("all-bars")
+        .map((event) => (event as List).cast<double>());
+  }
+
+  @override
+  Future<Stream<VisualizerBandsModel>> getPerceptualBandsStream() async {
+    return eventChannel
+        .receiveBroadcastStream("perceptual-bands")
+        .map((map) => VisualizerBandsModel.fromMap(map));
   }
 }

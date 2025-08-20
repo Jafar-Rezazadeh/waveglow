@@ -22,4 +22,14 @@ class VisualizerRepositoryImpl implements VisualizerRepository {
       return left(_failureFactory.createFailure(e, s));
     }
   }
+
+  @override
+  Future<Either<Failure, Stream<VisualizerBandsModel>>> getPerceptualBandsStream() async {
+    try {
+      final result = await _platformDataSource.getPerceptualBandsStream();
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
 }

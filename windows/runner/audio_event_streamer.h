@@ -41,9 +41,20 @@ private:
     bool InitializeWASAPILoopback();
 
     void ApplyHannWindow(std::vector<double> &samples);
-    void CaptureAndSend64Bar();
-    void CaptureAndSend128WithMoreLowFrequenciesBar();
+
     void CaptureAndSendAllBars();
+
+    /// @brief example result: {
+    /// "Sub-bass": 0.35,
+    /// "Bass": 0.58,
+    /// "Low-mid": 0.42,
+    /// "Mid": 0.30,
+    /// "High-mid": 0.27,
+    /// "Presence": 0.19,
+    /// "Brilliance": 0.14,
+    /// "Loudness": 0.41
+    /// }
+    void CaptureAndSendBandsAsMap();
 
     // Stop capturing and clean up resources
     void stop();

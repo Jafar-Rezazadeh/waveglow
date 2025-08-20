@@ -3,30 +3,30 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/contracts/use_case.dart';
-import 'package:waveglow/features/visualizer/domain/use_cases/visualizer_get_live_output_audio_stream.dart';
+import 'package:waveglow/features/visualizer/visualizer_exports.dart';
 
 class VisualizerStateController extends GetxController {
-  final VisualizerGetLiveOutPutAudioStreamUC _getLiveOutPutAudioStreamUC;
+  final GetVisualizerPerceptualBandsStreamUC _getVisualizerLiveBandsUC;
 
   VisualizerStateController({
-    required VisualizerGetLiveOutPutAudioStreamUC getLiveOutPutAudioStreamUC,
-  }) : _getLiveOutPutAudioStreamUC = getLiveOutPutAudioStreamUC;
+    required GetVisualizerPerceptualBandsStreamUC getVisualizerPerceptualBandsStreamUC,
+  }) : _getVisualizerLiveBandsUC = getVisualizerPerceptualBandsStreamUC;
 
-  StreamSubscription<List<double>>? _liveAudio64Bar;
+  StreamSubscription<VisualizerBandsEntity>? _perceptualBandsStream;
 
-  final _magnitudes = Rx<List<double>>([]);
+  final _perceptualBands = Rx<VisualizerBandsEntity?>(null);
 
-  List<double> get magnitudes => _magnitudes.value;
+  VisualizerBandsEntity? get perceptualBands => _perceptualBands.value;
 
   Future<void> startListeningToAudio() async {
-    final result = await _getLiveOutPutAudioStreamUC.call(NoParams());
+    final bandsResult = await _getVisualizerLiveBandsUC.call(NoParams());
 
-    result.fold(
+    bandsResult.fold(
       (failure) => debugPrint(failure.message),
       (stream) {
-        _liveAudio64Bar = stream.listen(
+        _perceptualBandsStream = stream.listen(
           (event) {
-            _magnitudes.value = event;
+            _perceptualBands.value = event;
           },
         );
       },
@@ -34,8 +34,8 @@ class VisualizerStateController extends GetxController {
   }
 
   void stopListeningToAudio() {
-    _magnitudes.value = [];
-    _liveAudio64Bar?.cancel();
-    _liveAudio64Bar = null;
+    _perceptualBandsStream?.cancel();
+    _perceptualBandsStream = null;
+    _perceptualBands.value = null;
   }
 }

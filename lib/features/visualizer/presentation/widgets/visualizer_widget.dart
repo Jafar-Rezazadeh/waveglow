@@ -16,46 +16,53 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
   late final _controller = Get.find<VisualizerStateController>();
 
-  double smoothedBass = 0;
-  double smoothingFactor = 0.015;
-  double smoothBarsFactor = 0.1;
-  List<double> smoothedMagnitudes = [];
-
   late final Ticker _ticker;
+  VisualizerBandsEntity smoothedBands = VisualizerBandsEntity(
+    subBass: 0,
+    bass: 0,
+    lowMid: 0,
+    mid: 0,
+    highMid: 0,
+    presence: 0,
+    brilliance: 0,
+    loudness: 0,
+  );
 
   @override
   void initState() {
     super.initState();
     _ticker = createTicker((elapsed) {
-      final mags = _controller.magnitudes;
+      final currentBands = _controller.perceptualBands; // the latest values from your EventChannel
 
-      if (mags.isNotEmpty) {
-        // Smooth bass
-        final sublist = _controller.magnitudes.sublist(1, 5);
+      smoothedBands = smoothBands(previous: smoothedBands, current: currentBands);
 
-        final bass = sublist.reduce((a, b) => a + b) / sublist.length;
-        smoothedBass = (smoothedBass + (bass - smoothedBass) * smoothingFactor).clamp(0, 1);
-
-        // Smooth all magnitudes
-        _smoothEachBar(mags);
-      } else {
-        smoothedMagnitudes = [];
-      }
       setState(() {});
     });
     _ticker.start();
   }
 
-  void _smoothEachBar(List<double> mags) {
-    if (smoothedMagnitudes.length != mags.length) {
-      smoothedMagnitudes = List<double>.from(mags);
-    } else {
-      for (int i = 0; i < mags.length; i++) {
-        smoothedMagnitudes[i] =
-            (smoothedMagnitudes[i] + (mags[i] - smoothedMagnitudes[i]) * smoothBarsFactor)
-                .clamp(0, 1);
-      }
+  VisualizerBandsEntity smoothBands({
+    required VisualizerBandsEntity previous,
+    VisualizerBandsEntity? current, // nullable
+    double attack = 0.3,
+    double decay = 0.1,
+  }) {
+    double smooth(double prev, double? cur) {
+      if (cur == null) return prev;
+      if (cur > prev) return prev * (1 - attack) + cur * attack;
+      return prev * (1 - decay) + cur * decay;
     }
+
+    return VisualizerBandsEntity(
+      subBass: smooth(previous.subBass, current?.subBass),
+      bass: smooth(previous.bass, current?.bass),
+      lowMid: smooth(previous.lowMid, current?.lowMid),
+      mid: smooth(previous.mid, current?.mid),
+      highMid: smooth(previous.highMid, current?.highMid),
+      presence: smooth(previous.presence, current?.presence),
+      brilliance: smooth(previous.brilliance, current?.brilliance),
+      loudness: smooth(previous.loudness, current?.loudness),
+    );
   }
 
   @override
@@ -72,9 +79,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
           size: const Size(1200, 300),
           painter: VisualizerPainter(
             colorPalette: _colorPalette,
-            radiusValue: smoothedBass,
-            magnitudes:
-                smoothedMagnitudes.isNotEmpty ? smoothedMagnitudes.getRange(0, 200).toList() : [],
+            perceptualBands: smoothedBands,
           ),
         ),
         TextButton(
@@ -96,44 +101,18 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
 class VisualizerPainter extends CustomPainter {
   final AppColorPalette colorPalette;
-  final double radiusValue;
-  final List<double> magnitudes;
+  final VisualizerBandsEntity? perceptualBands;
 
   VisualizerPainter({
     super.repaint,
     required this.colorPalette,
-    required this.magnitudes,
-    this.radiusValue = 1,
+    required this.perceptualBands,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scaledRadius = (radiusValue * 2000);
-
-    final paint = Paint()..color = Colors.blue;
-    canvas.drawColor(Colors.pink.withAlpha(scaledRadius.toInt()), BlendMode.srcIn);
-    _outerCircle(size, canvas, scaledRadius);
-
-    // print(scaledRadius);
-    // canvas.drawCircle(
-    //   Offset(size.width / 2, size.height / 2),
-    //   scaledRadius,
-    //   paint,
-    // );
-
-    final barWidth = size.width / magnitudes.length;
-
-    if (magnitudes.isNotEmpty) {
-      for (int i = 0; i < magnitudes.length; i++) {
-        final magnitude = magnitudes[i];
-        final barHeight = magnitude * 1000; // Scale for visibility
-        final x = i * barWidth;
-        final barRect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(x, size.height - barHeight, barWidth * 0.8, barHeight),
-          Radius.circular(barWidth * 0.4), // Half the bar width for full roundness
-        );
-        canvas.drawRRect(barRect, paint);
-      }
+    if (perceptualBands != null) {
+      _outerCircle(size, canvas, perceptualBands!.bass * 100);
     }
   }
 

@@ -64,4 +64,42 @@ void main() {
       expect(rightValue, isA<Stream<List<double>>>());
     });
   });
+
+  group("getBandsStream -", () {
+    test(
+        "should call $FailureFactory.createFailure and return kind of Failure when any object is thrown ",
+        () async {
+      //arrange
+      when(
+        () => mockFailureFactory.createFailure(any(), any()),
+      ).thenAnswer((_) => FakeFailure());
+      when(
+        () => mockVisualizerPlatformDataSource.getPerceptualBandsStream(),
+      ).thenAnswer((_) async => throw TypeError());
+
+      //act
+      final result = await repositoryImpl.getPerceptualBandsStream();
+      final leftValue = result.fold((l) => l, (r) => null);
+
+      //assert
+      verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+      expect(result.isLeft(), true);
+      expect(leftValue, isA<Failure>());
+    });
+
+    test("should return Stream<$VisualizerBandsEntity> when success", () async {
+      //arrange
+      when(
+        () => mockVisualizerPlatformDataSource.getPerceptualBandsStream(),
+      ).thenAnswer((_) async => const Stream.empty());
+
+      //act
+      final result = await repositoryImpl.getPerceptualBandsStream();
+      final rightValue = result.fold((l) => null, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<Stream<VisualizerBandsEntity>>());
+    });
+  });
 }
