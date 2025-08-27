@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -44,8 +46,8 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
   VisualizerBandsEntity smoothBands({
     required VisualizerBandsEntity previous,
     VisualizerBandsEntity? current, // nullable
-    double attack = 0.3,
-    double decay = 0.1,
+    double attack = 0.4,
+    double decay = 0.05,
   }) {
     double smooth(double prev, double? cur) {
       if (cur == null) return prev;
@@ -102,23 +104,121 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 class VisualizerPainter extends CustomPainter {
   final AppColorPalette colorPalette;
   final VisualizerBandsEntity? perceptualBands;
+  final double circleRadius;
 
   VisualizerPainter({
     super.repaint,
     required this.colorPalette,
     required this.perceptualBands,
+    this.circleRadius = 90.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (perceptualBands != null) {
-      _outerCircle(size, canvas, perceptualBands!.bass * 100);
+      final subBassScaled = (perceptualBands!.subBass * 100);
+      final bassScaled = (perceptualBands!.bass * 100);
+
+      _subBass(size, subBassScaled, canvas);
+      _bass(size, bassScaled, canvas);
+      _baseCircle(size, canvas, circleRadius);
+      // TODO: connect them to make it better
     }
   }
 
-  void _outerCircle(Size size, Canvas canvas, double scaledRadius) {
+  void _subBass(Size size, double subBassScaled, Canvas canvas) {
+    final paint = Paint()
+      ..color = colorPalette.softPinkAccent
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 20;
+    final path = Path();
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final controlOffset = circleRadius * 1.33;
+    final endOffset = circleRadius * 0.90;
+    final topY = center.dy - circleRadius;
+    final controlY = center.dy - circleRadius + (circleRadius * -1.01); // similar to previous 10
+    final endY = center.dy - circleRadius + (circleRadius * 0.60); // similar to previous -20
+
+    // Right side
+    path.moveTo(center.dx, topY);
+    path.conicTo(
+      center.dx + controlOffset,
+      controlY,
+      center.dx + endOffset,
+      endY,
+      subBassScaled / 50,
+    );
+
+    // Left side (mirror)
+    path.moveTo(center.dx, topY);
+    path.conicTo(
+      center.dx - controlOffset,
+      controlY,
+      center.dx - endOffset,
+      endY,
+      subBassScaled / 50,
+    );
+
+    // Blur/glow paint
+    final blurRadius = (subBassScaled / 10).clamp(2, 30).toDouble(); // dynamic blur
+    final glowPaint = Paint()
+      ..color = colorPalette.accent2.withOpacity((subBassScaled / 100).clamp(0.2, 0.7))
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
+
+    canvas.drawPath(path, glowPaint);
+
+    canvas.drawPath(path, paint);
+  }
+
+  void _bass(Size size, double bassScaled, Canvas canvas) {
+    final paint = Paint()
+      ..color = colorPalette.accent2
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 20;
+    final path = Path();
+
+    final spaceFromCenterStart = circleRadius * 0.9;
+    final center = Offset(size.width / 2, size.height / 2);
+    final startY = center.dy - circleRadius * 0.4;
+    final controlX = circleRadius * 1.9;
+    final endX = circleRadius * 1;
+    final controlY = center.dy - (circleRadius * 0.7);
+    final endY = center.dy + (circleRadius * 0.1);
+
+    // Right side
+    path.moveTo(center.dx + spaceFromCenterStart, startY);
+    path.conicTo(
+      center.dx + controlX,
+      controlY,
+      center.dx + endX,
+      endY,
+      bassScaled / 50,
+    );
+
+    // Left side (mirror)
+    path.moveTo(center.dx - spaceFromCenterStart, startY);
+    path.conicTo(
+      center.dx - controlX,
+      controlY,
+      center.dx - endX,
+      endY,
+      bassScaled / 50,
+    );
+
+    // Blur/glow paint
+    final blurRadius = (bassScaled / 10).clamp(2, 30).toDouble();
+    final glowPaint = Paint()
+      ..color = colorPalette.softPinkAccent.withOpacity((bassScaled / 100).clamp(0.2, 0.7))
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
+
+    canvas.drawPath(path, glowPaint);
+    canvas.drawPath(path, paint);
+  }
+
+  void _baseCircle(Size size, Canvas canvas, double scaledRadius) {
     final outerCirclePaint = Paint()
-      ..style = PaintingStyle.stroke
+      ..style = PaintingStyle.fill
       ..strokeWidth = 2;
 
     final rect = Rect.fromCircle(center: size.center(Offset.zero), radius: scaledRadius);
@@ -137,5 +237,6 @@ class VisualizerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(VisualizerPainter oldDelegate) => true;
+  bool shouldRepaint(VisualizerPainter oldDelegate) =>
+      perceptualBands != oldDelegate.perceptualBands;
 }
