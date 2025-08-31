@@ -78,7 +78,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
     return Column(
       children: [
         CustomPaint(
-          size: const Size(1200, 300),
+          size: const Size(300, 300),
           painter: VisualizerPainter(
             colorPalette: _colorPalette,
             perceptualBands: smoothedBands,
@@ -110,130 +110,163 @@ class VisualizerPainter extends CustomPainter {
     super.repaint,
     required this.colorPalette,
     required this.perceptualBands,
-    this.circleRadius = 90.0,
+    this.circleRadius = 110,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     if (perceptualBands != null) {
-      final subBassScaled = (perceptualBands!.subBass * 100);
-      final bassScaled = (perceptualBands!.bass * 100);
-
-      _subBass(size, subBassScaled, canvas);
-      _bass(size, bassScaled, canvas);
+      _fullDynamicWaveCircle(size, canvas, circleRadius);
       _baseCircle(size, canvas, circleRadius);
-      // TODO: connect them to make it better
     }
   }
 
-  void _subBass(Size size, double subBassScaled, Canvas canvas) {
-    final paint = Paint()
-      ..color = colorPalette.softPinkAccent
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 20;
+  void _fullDynamicWaveCircle(Size size, Canvas canvas, double circleRadius) {
+    // bumpAngles sum should be 1
+    final fullBass = (perceptualBands!.bass * perceptualBands!.subBass);
+
+    final List<({double amplitude, double bumpAngle})> bumpDatas = [
+      (
+        amplitude: fullBass * 200,
+        bumpAngle: pi * 0.3,
+      ),
+      (
+        amplitude: perceptualBands!.lowMid * 100,
+        bumpAngle: pi * 0.2,
+      ),
+      (
+        amplitude: perceptualBands!.mid * 200,
+        bumpAngle: pi * 0.2,
+      ),
+      (
+        amplitude: perceptualBands!.highMid * 600,
+        bumpAngle: pi * 0.2,
+      ),
+      (
+        amplitude: perceptualBands!.presence * 800,
+        bumpAngle: pi * 0.11,
+      ),
+    ];
+
     final path = Path();
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final controlOffset = circleRadius * 1.33;
-    final endOffset = circleRadius * 0.90;
-    final topY = center.dy - circleRadius;
-    final controlY = center.dy - circleRadius + (circleRadius * -1.01); // similar to previous 10
-    final endY = center.dy - circleRadius + (circleRadius * 0.60); // similar to previous -20
 
-    // Right side
-    path.moveTo(center.dx, topY);
-    path.conicTo(
-      center.dx + controlOffset,
-      controlY,
-      center.dx + endOffset,
-      endY,
-      subBassScaled / 50,
+    const double angleOffset = -pi / 2; // start at top
+
+    // Precompute cumulative angles for easier lookup
+    List<double> cumulativeAngles = [];
+    double sum = 0;
+    for (double a in bumpDatas.map((e) => e.bumpAngle)) {
+      sum += a;
+      cumulativeAngles.add(sum);
+    }
+
+    double angleStep = 0.001; // small step for smoothness
+
+    // Half circle: 0 -> pi
+    for (double angle = 0; angle <= pi + 0.01; angle += angleStep) {
+      // Find which bump this angle is in
+      int bumpIndex = 0;
+      for (int i = 0; i < cumulativeAngles.length; i++) {
+        if (angle <= cumulativeAngles[i]) {
+          bumpIndex = i;
+          break;
+        }
+      }
+      double amp = bumpDatas[bumpIndex].amplitude;
+
+      // Compute local angle inside this bump for sine wave
+      double startAngle = bumpIndex == 0 ? 0 : cumulativeAngles[bumpIndex - 1];
+      double localAngle = (angle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
+      double r = circleRadius + sin(localAngle) * amp;
+
+      double x = center.dx + r * cos(angle + angleOffset);
+      double y = center.dy + r * sin(angle + angleOffset);
+
+      if (angle == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    // Mirror second half (π -> 2π)
+    for (double angle = pi; angle <= 2 * pi + 0.01; angle += angleStep) {
+      double mirroredAngle = 2 * pi - angle;
+
+      int bumpIndex = 0;
+      for (int i = 0; i < cumulativeAngles.length; i++) {
+        if (mirroredAngle <= cumulativeAngles[i]) {
+          bumpIndex = i;
+          break;
+        }
+      }
+
+      double amp = bumpDatas[bumpIndex].amplitude;
+
+      double startAngle = bumpIndex == 0 ? 0 : cumulativeAngles[bumpIndex - 1];
+      double localAngle = (mirroredAngle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
+      double r = circleRadius + sin(localAngle) * amp;
+
+      double x = center.dx + r * cos(angle + angleOffset);
+      double y = center.dy + r * sin(angle + angleOffset);
+
+      path.lineTo(x, y);
+    }
+
+    path.close();
+
+    // gloving shadow
+    final fullBaseScaled = (fullBass * 1000).clamp(0, 255).toInt();
+
+    final shadowColor = colorPalette.softPinkAccent.withAlpha(fullBaseScaled);
+
+    canvas.save();
+    canvas.translate(0, -fullBaseScaled.toDouble() / 4);
+    canvas.drawShadow(
+      path,
+      shadowColor,
+      fullBaseScaled.toDouble().clamp(0, 50),
+      false,
     );
-
-    // Left side (mirror)
-    path.moveTo(center.dx, topY);
-    path.conicTo(
-      center.dx - controlOffset,
-      controlY,
-      center.dx - endOffset,
-      endY,
-      subBassScaled / 50,
+    canvas.drawShadow(
+      path,
+      shadowColor,
+      fullBaseScaled.toDouble().clamp(0, 50),
+      false,
     );
+    canvas.restore();
 
-    // Blur/glow paint
-    final blurRadius = (subBassScaled / 10).clamp(2, 30).toDouble(); // dynamic blur
-    final glowPaint = Paint()
-      ..color = colorPalette.accent2.withOpacity((subBassScaled / 100).clamp(0.2, 0.7))
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
-
-    canvas.drawPath(path, glowPaint);
-
-    canvas.drawPath(path, paint);
-  }
-
-  void _bass(Size size, double bassScaled, Canvas canvas) {
-    final paint = Paint()
-      ..color = colorPalette.accent2
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 20;
-    final path = Path();
-
-    final spaceFromCenterStart = circleRadius * 0.9;
-    final center = Offset(size.width / 2, size.height / 2);
-    final startY = center.dy - circleRadius * 0.4;
-    final controlX = circleRadius * 1.9;
-    final endX = circleRadius * 1;
-    final controlY = center.dy - (circleRadius * 0.7);
-    final endY = center.dy + (circleRadius * 0.1);
-
-    // Right side
-    path.moveTo(center.dx + spaceFromCenterStart, startY);
-    path.conicTo(
-      center.dx + controlX,
-      controlY,
-      center.dx + endX,
-      endY,
-      bassScaled / 50,
-    );
-
-    // Left side (mirror)
-    path.moveTo(center.dx - spaceFromCenterStart, startY);
-    path.conicTo(
-      center.dx - controlX,
-      controlY,
-      center.dx - endX,
-      endY,
-      bassScaled / 50,
-    );
-
-    // Blur/glow paint
-    final blurRadius = (bassScaled / 10).clamp(2, 30).toDouble();
-    final glowPaint = Paint()
-      ..color = colorPalette.softPinkAccent.withOpacity((bassScaled / 100).clamp(0.2, 0.7))
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
-
-    canvas.drawPath(path, glowPaint);
     canvas.drawPath(path, paint);
   }
 
   void _baseCircle(Size size, Canvas canvas, double scaledRadius) {
-    final outerCirclePaint = Paint()
+    final outerBorderCirclePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = Colors.white
+      ..strokeWidth = 5;
+
+    final innerCirclePaint = Paint()
       ..style = PaintingStyle.fill
+      ..color = colorPalette.backGround
       ..strokeWidth = 2;
 
-    final rect = Rect.fromCircle(center: size.center(Offset.zero), radius: scaledRadius);
-    final gradient = LinearGradient(
-      colors: [
-        colorPalette.accent2,
-        colorPalette.softPinkAccent,
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-    outerCirclePaint.shader = gradient.createShader(rect);
+    final shadowPaint = Paint()
+      ..color = Colors.white.withOpacity(0.2)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
-    canvas.drawCircle(size.center(Offset.zero), scaledRadius, outerCirclePaint);
-    canvas.drawCircle(size.center(Offset.zero), scaledRadius, outerCirclePaint);
+    canvas.drawCircle(size.center(Offset.zero), scaledRadius + 2, shadowPaint);
+    canvas.drawCircle(size.center(Offset.zero), scaledRadius, innerCirclePaint);
+
+    canvas.drawCircle(
+      size.center(Offset.zero),
+      circleRadius - 2,
+      outerBorderCirclePaint,
+    );
   }
 
   @override
