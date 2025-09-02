@@ -127,24 +127,20 @@ class VisualizerPainter extends CustomPainter {
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
       (
-        amplitude: fullBass * 200,
+        amplitude: fullBass * 170,
+        bumpAngle: pi * 0.5,
+      ),
+      (
+        amplitude: perceptualBands!.lowMid * 50,
+        bumpAngle: pi * 0.2,
+      ),
+      (
+        amplitude: (perceptualBands!.mid * perceptualBands!.highMid) * 500,
+        bumpAngle: pi * 0.2,
+      ),
+      (
+        amplitude: perceptualBands!.presence * 400,
         bumpAngle: pi * 0.3,
-      ),
-      (
-        amplitude: perceptualBands!.lowMid * 100,
-        bumpAngle: pi * 0.2,
-      ),
-      (
-        amplitude: perceptualBands!.mid * 200,
-        bumpAngle: pi * 0.2,
-      ),
-      (
-        amplitude: perceptualBands!.highMid * 600,
-        bumpAngle: pi * 0.2,
-      ),
-      (
-        amplitude: perceptualBands!.presence * 800,
-        bumpAngle: pi * 0.11,
       ),
     ];
 
