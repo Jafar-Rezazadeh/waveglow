@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
-import 'package:waveglow/injection.dart';
+import 'package:waveglow/init_bindings.dart';
 
 import 'shared/routing/routes.dart';
 
 Future<void> main() async {
-  await initInjections();
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
 
   runApp(const WaveGlowScreen());
 }
-
-// TODO: make a design - find and implement music player package for flutter windows
 
 class WaveGlowScreen extends StatelessWidget {
   const WaveGlowScreen({super.key});
@@ -21,6 +21,7 @@ class WaveGlowScreen extends StatelessWidget {
     return GetMaterialApp(
       initialRoute: homeRoute,
       getPages: getXRoutes,
+      initialBinding: InitBindings(),
       theme: CustomTheme.neonTheme,
     );
   }

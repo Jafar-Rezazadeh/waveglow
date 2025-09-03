@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
-import 'package:waveglow/features/visualizer/presentation/widgets/visualizer_widget.dart';
+import 'package:waveglow/features/home/presentation/widgets/visualizer_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
