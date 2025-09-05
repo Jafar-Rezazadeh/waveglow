@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
-import 'package:waveglow/init_bindings.dart';
 
 import 'shared/routing/routes.dart';
 
@@ -19,9 +18,8 @@ class WaveGlowScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      initialRoute: homeRoute,
+      initialRoute: mainScreenRoute,
       getPages: getXRoutes,
-      initialBinding: InitBindings(),
       theme: CustomTheme.neonTheme,
     );
   }

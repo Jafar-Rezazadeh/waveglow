@@ -3,10 +3,10 @@ import 'package:waveglow/features/home/home_exports.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  late VisualizerPlatformDataSourceImpl platformDataSource;
+  late HomeVisualizerPlatformDataSourceImpl platformDataSource;
 
   setUp(() {
-    platformDataSource = VisualizerPlatformDataSourceImpl();
+    platformDataSource = HomeVisualizerPlatformDataSourceImpl();
   });
 
   group("getOutPutAudioStream -", () {

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerPlatformDataSourceImpl implements VisualizerPlatformDataSource {
+class HomeVisualizerPlatformDataSourceImpl implements HomeVisualizerPlatformDataSource {
   @visibleForTesting
   final eventChannel = const EventChannel("com.waveglow.eventChannel/live_audio_fft");
 

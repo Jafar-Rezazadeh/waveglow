@@ -4,15 +4,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/contracts/use_case.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class MockVisualizerRepository extends Mock implements VisualizerRepository {}
+class MockVisualizerRepository extends Mock implements HomeVisualizerRepository {}
 
 void main() {
   late MockVisualizerRepository mockVisualizerRepository;
-  late VisualizerGetLiveOutPutAudioStreamUC visualizerGetLiveOutPutAudioStreamUC;
+  late GetHomeVisualizerLiveOutPutAudioStreamUC visualizerGetLiveOutPutAudioStreamUC;
 
   setUp(() {
     mockVisualizerRepository = MockVisualizerRepository();
-    visualizerGetLiveOutPutAudioStreamUC = VisualizerGetLiveOutPutAudioStreamUC(
+    visualizerGetLiveOutPutAudioStreamUC = GetHomeVisualizerLiveOutPutAudioStreamUC(
       repository: mockVisualizerRepository,
     );
   });

@@ -2,12 +2,12 @@ import 'package:dartz/dartz.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerRepositoryImpl implements VisualizerRepository {
-  final VisualizerPlatformDataSource _platformDataSource;
+class VisualizerRepositoryImpl implements HomeVisualizerRepository {
+  final HomeVisualizerPlatformDataSource _platformDataSource;
   final FailureFactory _failureFactory;
 
   VisualizerRepositoryImpl({
-    required VisualizerPlatformDataSource platformDataSource,
+    required HomeVisualizerPlatformDataSource platformDataSource,
     required FailureFactory failureFactory,
   })  : _platformDataSource = platformDataSource,
         _failureFactory = failureFactory;

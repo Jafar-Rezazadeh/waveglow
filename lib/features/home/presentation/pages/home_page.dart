@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
-import 'package:waveglow/features/home/presentation/widgets/visualizer_widget.dart';
+import 'package:waveglow/features/home/presentation/widgets/home_visualizer_widget.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
 
   @override
@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            VisualizerWidget(),
+            HomeVisualizerWidget(),
           ],
         ),
       ),

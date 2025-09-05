@@ -71,5 +71,6 @@
     "xutility": "cpp",
     "stop_token": "cpp",
     "thread": "cpp"
-  }
+  },
+  "todo-tree.tree.showBadges": false
 }

@@ -1,4 +1,4 @@
-class VisualizerBandsEntity {
+class HomeVisualizerBandsEntity {
   final double subBass;
   final double bass;
   final double lowMid;
@@ -8,7 +8,7 @@ class VisualizerBandsEntity {
   final double brilliance;
   final double loudness;
 
-  VisualizerBandsEntity({
+  HomeVisualizerBandsEntity({
     required this.subBass,
     required this.bass,
     required this.lowMid,

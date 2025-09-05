@@ -1,6 +1,6 @@
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerBandsModel extends VisualizerBandsEntity {
+class VisualizerBandsModel extends HomeVisualizerBandsEntity {
   VisualizerBandsModel({
     required super.subBass,
     required super.bass,

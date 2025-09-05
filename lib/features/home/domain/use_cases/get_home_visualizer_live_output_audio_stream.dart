@@ -3,11 +3,11 @@ import 'package:waveglow/core/contracts/use_case.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerGetLiveOutPutAudioStreamUC implements UseCase<Stream<List<double>>, NoParams> {
-  final VisualizerRepository _repository;
+class GetHomeVisualizerLiveOutPutAudioStreamUC implements UseCase<Stream<List<double>>, NoParams> {
+  final HomeVisualizerRepository _repository;
 
-  VisualizerGetLiveOutPutAudioStreamUC({
-    required VisualizerRepository repository,
+  GetHomeVisualizerLiveOutPutAudioStreamUC({
+    required HomeVisualizerRepository repository,
   }) : _repository = repository;
 
   @override

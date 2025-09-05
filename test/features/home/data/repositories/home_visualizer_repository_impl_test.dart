@@ -3,7 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class MockVisualizerPlatformDataSource extends Mock implements VisualizerPlatformDataSource {}
+class MockVisualizerPlatformDataSource extends Mock implements HomeVisualizerPlatformDataSource {}
 
 class MockFailureFactory extends Mock implements FailureFactory {}
 
@@ -87,7 +87,7 @@ void main() {
       expect(leftValue, isA<Failure>());
     });
 
-    test("should return Stream<$VisualizerBandsEntity> when success", () async {
+    test("should return Stream<$HomeVisualizerBandsEntity> when success", () async {
       //arrange
       when(
         () => mockVisualizerPlatformDataSource.getPerceptualBandsStream(),
@@ -99,7 +99,7 @@ void main() {
 
       //assert
       expect(result.isRight(), true);
-      expect(rightValue, isA<Stream<VisualizerBandsEntity>>());
+      expect(rightValue, isA<Stream<HomeVisualizerBandsEntity>>());
     });
   });
 }

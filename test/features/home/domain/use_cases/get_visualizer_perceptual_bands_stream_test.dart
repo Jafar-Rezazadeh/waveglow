@@ -5,18 +5,18 @@ import 'package:waveglow/core/contracts/use_case.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class MockVisualizerRepository extends Mock implements VisualizerRepository {}
+class MockVisualizerRepository extends Mock implements HomeVisualizerRepository {}
 
 class FakeFailure extends Fake implements Failure {}
 
 void main() {
   late MockVisualizerRepository mockVisualizerRepository;
-  late GetVisualizerPerceptualBandsStreamUC getVisualizerLiveBandsUC;
+  late GetHomeVisualizerPerceptualBandsStreamUC getVisualizerLiveBandsUC;
 
   setUp(() {
     mockVisualizerRepository = MockVisualizerRepository();
     getVisualizerLiveBandsUC =
-        GetVisualizerPerceptualBandsStreamUC(repository: mockVisualizerRepository);
+        GetHomeVisualizerPerceptualBandsStreamUC(repository: mockVisualizerRepository);
   });
 
   test("should call expected method ", () async {

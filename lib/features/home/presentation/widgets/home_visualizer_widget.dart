@@ -4,25 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:waveglow/core/services/main_service.dart';
+import 'package:waveglow/core/services/music_player_service.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerWidget extends StatefulWidget {
-  const VisualizerWidget({super.key});
+class HomeVisualizerWidget extends StatefulWidget {
+  const HomeVisualizerWidget({super.key});
 
   @override
-  State<VisualizerWidget> createState() => _VisualizerWidgetState();
+  State<HomeVisualizerWidget> createState() => _HomeVisualizerWidgetState();
 }
 
-class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerProviderStateMixin {
+class _HomeVisualizerWidgetState extends State<HomeVisualizerWidget>
+    with SingleTickerProviderStateMixin {
   final _colorPalette = Get.theme.extension<AppColorPalette>()!;
 
-  late final _controller = Get.find<VisualizerStateController>();
-  late final _mainService = Get.find<MainService>();
+  late final _controller = Get.find<HomeVisualizerStateController>();
+  late final _musicPlayer = Get.find<MusicPlayerService>();
 
   late final Ticker _ticker;
-  VisualizerBandsEntity smoothedBands = VisualizerBandsEntity(
+  HomeVisualizerBandsEntity smoothedBands = HomeVisualizerBandsEntity(
     subBass: 0,
     bass: 0,
     lowMid: 0,
@@ -36,10 +37,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _mainService.audioPlayer.open(
-      Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3'),
-      play: false,
-    );
+    _musicPlayer.open(Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3'));
     _setTicker();
   }
 
@@ -54,9 +52,9 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
     _ticker.start();
   }
 
-  VisualizerBandsEntity smoothBands({
-    required VisualizerBandsEntity previous,
-    VisualizerBandsEntity? current, // nullable
+  HomeVisualizerBandsEntity smoothBands({
+    required HomeVisualizerBandsEntity previous,
+    HomeVisualizerBandsEntity? current, // nullable
     double attack = 0.4,
     double decay = 0.05,
   }) {
@@ -66,7 +64,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
       return prev * (1 - decay) + cur * decay;
     }
 
-    return VisualizerBandsEntity(
+    return HomeVisualizerBandsEntity(
       subBass: smooth(previous.subBass, current?.subBass),
       bass: smooth(previous.bass, current?.bass),
       lowMid: smooth(previous.lowMid, current?.lowMid),
@@ -97,14 +95,14 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
         ),
         TextButton(
           onPressed: () async {
-            _mainService.audioPlayer.play();
+            _musicPlayer.playOrPause();
             _controller.startListeningToAudio();
           },
           child: const Text("start"),
         ),
         TextButton(
           onPressed: () {
-            _mainService.audioPlayer.playOrPause();
+            _musicPlayer.playOrPause();
             _controller.stopListeningToAudio();
           },
           child: const Text("stop"),
@@ -116,7 +114,7 @@ class _VisualizerWidgetState extends State<VisualizerWidget> with SingleTickerPr
 
 class VisualizerPainter extends CustomPainter {
   final AppColorPalette colorPalette;
-  final VisualizerBandsEntity? perceptualBands;
+  final HomeVisualizerBandsEntity? perceptualBands;
   final double circleRadius;
 
   VisualizerPainter({

@@ -5,18 +5,18 @@ import 'package:get/get.dart';
 import 'package:waveglow/core/contracts/use_case.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-class VisualizerStateController extends GetxController {
-  final GetVisualizerPerceptualBandsStreamUC _getVisualizerLiveBandsUC;
+class HomeVisualizerStateController extends GetxController {
+  final GetHomeVisualizerPerceptualBandsStreamUC _getVisualizerLiveBandsUC;
 
-  VisualizerStateController({
-    required GetVisualizerPerceptualBandsStreamUC getVisualizerPerceptualBandsStreamUC,
+  HomeVisualizerStateController({
+    required GetHomeVisualizerPerceptualBandsStreamUC getVisualizerPerceptualBandsStreamUC,
   }) : _getVisualizerLiveBandsUC = getVisualizerPerceptualBandsStreamUC;
 
-  StreamSubscription<VisualizerBandsEntity>? _perceptualBandsStream;
+  StreamSubscription<HomeVisualizerBandsEntity>? _perceptualBandsStream;
 
-  final _perceptualBands = Rx<VisualizerBandsEntity?>(null);
+  final _perceptualBands = Rx<HomeVisualizerBandsEntity?>(null);
 
-  VisualizerBandsEntity? get perceptualBands => _perceptualBands.value;
+  HomeVisualizerBandsEntity? get perceptualBands => _perceptualBands.value;
 
   Future<void> startListeningToAudio() async {
     final bandsResult = await _getVisualizerLiveBandsUC.call(NoParams());
@@ -36,7 +36,7 @@ class VisualizerStateController extends GetxController {
   void stopListeningToAudio() {
     _perceptualBandsStream?.cancel();
     _perceptualBandsStream = null;
-    _perceptualBands.value = VisualizerBandsEntity(
+    _perceptualBands.value = HomeVisualizerBandsEntity(
       subBass: 0,
       bass: 0,
       lowMid: 0,

@@ -6,7 +6,7 @@ class HomeBindings extends Bindings {
   @override
   void dependencies() {
     // dataSources
-    final platformDataSource = VisualizerPlatformDataSourceImpl();
+    final platformDataSource = HomeVisualizerPlatformDataSourceImpl();
 
     // repositories
     final repository = VisualizerRepositoryImpl(
@@ -14,11 +14,11 @@ class HomeBindings extends Bindings {
 
     // useCases
     final getVisualizerPerceptualBandsStreamUC =
-        GetVisualizerPerceptualBandsStreamUC(repository: repository);
+        GetHomeVisualizerPerceptualBandsStreamUC(repository: repository);
 
     // Controllers
     Get.put(
-      VisualizerStateController(
+      HomeVisualizerStateController(
         getVisualizerPerceptualBandsStreamUC: getVisualizerPerceptualBandsStreamUC,
       ),
     );
