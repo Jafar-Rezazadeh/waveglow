@@ -157,7 +157,7 @@ class VisualizerPainter extends CustomPainter {
 
     final path = Path();
     final paint = Paint()
-      ..color = Colors.white
+      ..color = colorPalette.neutral50
       ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -230,7 +230,7 @@ class VisualizerPainter extends CustomPainter {
     // gloving shadow
     final fullBaseScaled = (fullBass * 1000).clamp(0, 255).toInt();
 
-    final shadowColor = colorPalette.softPinkAccent.withAlpha(fullBaseScaled);
+    final shadowColor = colorPalette.surface.withAlpha(fullBaseScaled);
 
     canvas.save();
     canvas.translate(0, -fullBaseScaled.toDouble() / 4);
@@ -254,16 +254,16 @@ class VisualizerPainter extends CustomPainter {
   void _baseCircle(Size size, Canvas canvas, double scaledRadius) {
     final outerBorderCirclePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Colors.white
+      ..color = colorPalette.neutral50
       ..strokeWidth = 5;
 
     final innerCirclePaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = colorPalette.backGround
+      ..color = colorPalette.background
       ..strokeWidth = 2;
 
     final shadowPaint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
+      ..color = colorPalette.neutral50.withOpacity(0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
     canvas.drawCircle(size.center(Offset.zero), scaledRadius + 2, shadowPaint);

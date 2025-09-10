@@ -9,7 +9,7 @@ const homeRoute = "/home_route";
 final getXRoutes = [
   GetPage(
     name: mainScreenRoute,
-    page: () => const MainScreen(),
+    page: () => MainScreen(),
     bindings: [
       MusicPlayerServiceBindings(),
       HomeBindings(),
