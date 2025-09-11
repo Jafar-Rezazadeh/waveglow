@@ -8,6 +8,8 @@ import 'package:waveglow/core/services/music_player_service.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
+// TODO: clean this one
+
 class HomeVisualizerWidget extends StatefulWidget {
   const HomeVisualizerWidget({super.key});
 
@@ -55,7 +57,7 @@ class _HomeVisualizerWidgetState extends State<HomeVisualizerWidget>
   HomeVisualizerBandsEntity smoothBands({
     required HomeVisualizerBandsEntity previous,
     HomeVisualizerBandsEntity? current, // nullable
-    double attack = 0.4,
+    double attack = 0.3,
     double decay = 0.05,
   }) {
     double smooth(double prev, double? cur) {
@@ -85,9 +87,10 @@ class _HomeVisualizerWidgetState extends State<HomeVisualizerWidget>
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CustomPaint(
-          size: const Size(300, 300),
+          // size: const Size(300, 300),
           painter: VisualizerPainter(
             colorPalette: _colorPalette,
             perceptualBands: smoothedBands,
@@ -112,7 +115,30 @@ class _HomeVisualizerWidgetState extends State<HomeVisualizerWidget>
   }
 }
 
+// Particle class for visualizer
+class _Particle {
+  Offset position;
+  Offset velocity;
+  Color color;
+  double life;
+  double size;
+  _Particle({
+    required this.position,
+    required this.velocity,
+    required this.color,
+    required this.life,
+    required this.size,
+  });
+}
+
 class VisualizerPainter extends CustomPainter {
+  // Simple particle system: particles move from center to edges
+  static final List<_Particle> _particles = [];
+  static int _lastTick = 0;
+  static int _lastParticleSpawn = 0;
+  final particleCount = 15;
+
+  // Particle class
   final AppColorPalette colorPalette;
   final HomeVisualizerBandsEntity? perceptualBands;
   final double circleRadius;
@@ -127,31 +153,80 @@ class VisualizerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (perceptualBands != null) {
-      _fullDynamicWaveCircle(size, canvas, circleRadius);
+      _drawParticles(canvas, size);
+      _fullWaveCircleWithAmplitudeBumps(size, canvas, circleRadius);
       _baseCircle(size, canvas, circleRadius);
     }
   }
 
-  void _fullDynamicWaveCircle(Size size, Canvas canvas, double circleRadius) {
+  void _drawParticles(Canvas canvas, Size size) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final dt = (_lastTick == 0) ? 0.016 : (now - _lastTick) / 1000.0;
+    _lastTick = now;
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Emit new particles continuously at a fixed interval (e.g., every 80ms)
+    const spawnIntervalMs = 300;
+    if (now - _lastParticleSpawn > spawnIntervalMs && perceptualBands!.loudness > 0) {
+      _lastParticleSpawn = now;
+      for (int i = 0; i < particleCount; i++) {
+        final angle = Random().nextDouble() * 2 * pi;
+        const speed = 80.0;
+        final size = 2.5 + Random().nextDouble() * 3;
+        _particles.add(
+          _Particle(
+            position: center,
+            velocity: Offset(cos(angle), sin(angle)) * speed,
+            color: colorPalette.neutral50,
+            life: 3,
+            size: size,
+          ),
+        );
+      }
+    }
+
+    // Update and draw particles
+    for (final p in _particles) {
+      p.position += p.velocity * dt * (perceptualBands!.loudness * 35);
+      p.life -= dt * 0.7;
+    }
+
+    // Remove particles that are out of bounds or dead
+    _particles.removeWhere((p) => p.life <= 0);
+
+    for (final p in _particles) {
+      final paint = Paint()
+        ..color = p.color.withOpacity(p.life.clamp(0, 1))
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(p.position, p.size, paint);
+    }
+  }
+
+  void _fullWaveCircleWithAmplitudeBumps(Size size, Canvas canvas, double circleRadius) {
     // bumpAngles sum should be 1
     final fullBass = (perceptualBands!.bass * perceptualBands!.subBass);
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
       (
         amplitude: fullBass * 170,
-        bumpAngle: pi * 0.5,
+        bumpAngle: pi * 0.4,
       ),
       (
-        amplitude: perceptualBands!.lowMid * 50,
+        amplitude: (perceptualBands!.mid * perceptualBands!.lowMid) * 300,
+        bumpAngle: pi * 0.1,
+      ),
+      (
+        amplitude: (perceptualBands!.highMid) * 100,
         bumpAngle: pi * 0.2,
       ),
       (
-        amplitude: (perceptualBands!.mid * perceptualBands!.highMid) * 200,
-        bumpAngle: pi * 0.2,
+        amplitude: (perceptualBands!.presence) * 100,
+        bumpAngle: pi * 0.15,
       ),
       (
-        amplitude: perceptualBands!.presence * 200,
-        bumpAngle: pi * 0.3,
+        amplitude: perceptualBands!.brilliance * 300,
+        bumpAngle: pi * 0.16,
       ),
     ];
 
@@ -228,22 +303,22 @@ class VisualizerPainter extends CustomPainter {
     path.close();
 
     // gloving shadow
-    final fullBaseScaled = (fullBass * 1000).clamp(0, 255).toInt();
+    final loudnessScaled = (perceptualBands!.loudness * 1000).clamp(0, 255).toInt();
 
-    final shadowColor = colorPalette.surface.withAlpha(fullBaseScaled);
+    final shadowColor = colorPalette.surface.withAlpha(loudnessScaled);
 
     canvas.save();
-    canvas.translate(0, -fullBaseScaled.toDouble() / 4);
+    canvas.translate(0, -loudnessScaled.toDouble() / 3);
     canvas.drawShadow(
       path,
       shadowColor,
-      fullBaseScaled.toDouble().clamp(0, 50),
+      loudnessScaled.toDouble().clamp(0, 50),
       false,
     );
     canvas.drawShadow(
       path,
       shadowColor,
-      fullBaseScaled.toDouble().clamp(0, 50),
+      loudnessScaled.toDouble().clamp(0, 50),
       false,
     );
     canvas.restore();
