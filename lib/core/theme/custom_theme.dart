@@ -15,6 +15,15 @@ class CustomTheme {
       surface: AppColorPalette().background,
       onSurface: AppColorPalette().surface,
     ),
+    sliderTheme: SliderThemeData(
+      thumbShape: const RoundSliderThumbShape(
+        disabledThumbRadius: 0,
+        enabledThumbRadius: 0,
+      ),
+      overlayColor: AppColorPalette().primary500,
+      inactiveTrackColor: AppColorPalette().backgroundLow,
+      overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
+    ),
     extensions: [AppColorPalette()],
   );
 }

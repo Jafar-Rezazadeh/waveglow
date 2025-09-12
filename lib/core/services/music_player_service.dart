@@ -1,8 +1,12 @@
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:media_kit/media_kit.dart';
 
 abstract class MusicPlayerService {
   // TODO: consider loading the last played music on app start
-  // TODO: make this class an abstract and implement a feature called main
-  Future<void> open(Media media);
+
+  Metadata? get currentMusicMetaData;
+  bool get isPlaying;
+  Stream<bool> get isPlayingStream;
+  Future<void> open(List<Media> media);
   Future<void> playOrPause();
 }

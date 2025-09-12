@@ -1,116 +1,27 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:waveglow/core/services/music_player_service.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
-// TODO: clean this one
+class HomeVisualizerWidget extends StatelessWidget {
+  HomeVisualizerWidget({super.key});
 
-class HomeVisualizerWidget extends StatefulWidget {
-  const HomeVisualizerWidget({super.key});
-
-  @override
-  State<HomeVisualizerWidget> createState() => _HomeVisualizerWidgetState();
-}
-
-class _HomeVisualizerWidgetState extends State<HomeVisualizerWidget>
-    with SingleTickerProviderStateMixin {
   final _colorPalette = Get.theme.extension<AppColorPalette>()!;
 
   late final _controller = Get.find<HomeVisualizerStateController>();
-  late final _musicPlayer = Get.find<MusicPlayerService>();
-
-  late final Ticker _ticker;
-  HomeVisualizerBandsEntity smoothedBands = HomeVisualizerBandsEntity(
-    subBass: 0,
-    bass: 0,
-    lowMid: 0,
-    mid: 0,
-    highMid: 0,
-    presence: 0,
-    brilliance: 0,
-    loudness: 0,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _musicPlayer.open(Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3'));
-    _setTicker();
-  }
-
-  void _setTicker() {
-    _ticker = createTicker((elapsed) {
-      final currentBands = _controller.perceptualBands; // the latest values from your EventChannel
-
-      smoothedBands = smoothBands(previous: smoothedBands, current: currentBands);
-
-      setState(() {});
-    });
-    _ticker.start();
-  }
-
-  HomeVisualizerBandsEntity smoothBands({
-    required HomeVisualizerBandsEntity previous,
-    HomeVisualizerBandsEntity? current, // nullable
-    double attack = 0.3,
-    double decay = 0.05,
-  }) {
-    double smooth(double prev, double? cur) {
-      if (cur == null) return prev;
-      if (cur > prev) return prev * (1 - attack) + cur * attack;
-      return prev * (1 - decay) + cur * decay;
-    }
-
-    return HomeVisualizerBandsEntity(
-      subBass: smooth(previous.subBass, current?.subBass),
-      bass: smooth(previous.bass, current?.bass),
-      lowMid: smooth(previous.lowMid, current?.lowMid),
-      mid: smooth(previous.mid, current?.mid),
-      highMid: smooth(previous.highMid, current?.highMid),
-      presence: smooth(previous.presence, current?.presence),
-      brilliance: smooth(previous.brilliance, current?.brilliance),
-      loudness: smooth(previous.loudness, current?.loudness),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ticker.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CustomPaint(
-          // size: const Size(300, 300),
-          painter: VisualizerPainter(
-            colorPalette: _colorPalette,
-            perceptualBands: smoothedBands,
-          ),
+    return Obx(
+      () => CustomPaint(
+        // size: const Size(300, 300),
+        painter: VisualizerPainter(
+          colorPalette: _colorPalette,
+          perceptualBands: _controller.smoothedPerceptualBands,
         ),
-        TextButton(
-          onPressed: () async {
-            _musicPlayer.playOrPause();
-            _controller.startListeningToAudio();
-          },
-          child: const Text("start"),
-        ),
-        TextButton(
-          onPressed: () {
-            _musicPlayer.playOrPause();
-            _controller.stopListeningToAudio();
-          },
-          child: const Text("stop"),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -140,7 +51,7 @@ class VisualizerPainter extends CustomPainter {
 
   // Particle class
   final AppColorPalette colorPalette;
-  final HomeVisualizerBandsEntity? perceptualBands;
+  final HomeVisualizerBandsEntity perceptualBands;
   final double circleRadius;
 
   VisualizerPainter({
@@ -152,11 +63,9 @@ class VisualizerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (perceptualBands != null) {
-      _drawParticles(canvas, size);
-      _fullWaveCircleWithAmplitudeBumps(size, canvas, circleRadius);
-      _baseCircle(size, canvas, circleRadius);
-    }
+    _drawParticles(canvas, size);
+    _fullWaveCircleWithAmplitudeBumps(size, canvas, circleRadius);
+    _baseCircle(size, canvas, circleRadius);
   }
 
   void _drawParticles(Canvas canvas, Size size) {
@@ -168,12 +77,13 @@ class VisualizerPainter extends CustomPainter {
 
     // Emit new particles continuously at a fixed interval (e.g., every 80ms)
     const spawnIntervalMs = 300;
-    if (now - _lastParticleSpawn > spawnIntervalMs && perceptualBands!.loudness > 0) {
+    if (now - _lastParticleSpawn > spawnIntervalMs && perceptualBands.loudness > 0) {
       _lastParticleSpawn = now;
       for (int i = 0; i < particleCount; i++) {
         final angle = Random().nextDouble() * 2 * pi;
+        // final speed = 80.0 * Random().nextDouble() * 2;
         const speed = 80.0;
-        final size = 2.5 + Random().nextDouble() * 3;
+        final size = 2 + Random().nextDouble() * 3;
         _particles.add(
           _Particle(
             position: center,
@@ -188,11 +98,11 @@ class VisualizerPainter extends CustomPainter {
 
     // Update and draw particles
     for (final p in _particles) {
-      p.position += p.velocity * dt * (perceptualBands!.loudness * 35);
+      p.position += p.velocity * dt * (perceptualBands.loudness * 35);
       p.life -= dt * 0.7;
     }
 
-    // Remove particles that are out of bounds or dead
+    // Remove particles that are dead
     _particles.removeWhere((p) => p.life <= 0);
 
     for (final p in _particles) {
@@ -205,7 +115,7 @@ class VisualizerPainter extends CustomPainter {
 
   void _fullWaveCircleWithAmplitudeBumps(Size size, Canvas canvas, double circleRadius) {
     // bumpAngles sum should be 1
-    final fullBass = (perceptualBands!.bass * perceptualBands!.subBass);
+    final fullBass = (perceptualBands.bass * perceptualBands.subBass);
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
       (
@@ -213,19 +123,19 @@ class VisualizerPainter extends CustomPainter {
         bumpAngle: pi * 0.4,
       ),
       (
-        amplitude: (perceptualBands!.mid * perceptualBands!.lowMid) * 300,
+        amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300,
         bumpAngle: pi * 0.1,
       ),
       (
-        amplitude: (perceptualBands!.highMid) * 100,
+        amplitude: (perceptualBands.highMid) * 100,
         bumpAngle: pi * 0.2,
       ),
       (
-        amplitude: (perceptualBands!.presence) * 100,
+        amplitude: (perceptualBands.presence) * 100,
         bumpAngle: pi * 0.15,
       ),
       (
-        amplitude: perceptualBands!.brilliance * 300,
+        amplitude: perceptualBands.brilliance * 300,
         bumpAngle: pi * 0.16,
       ),
     ];
@@ -303,7 +213,7 @@ class VisualizerPainter extends CustomPainter {
     path.close();
 
     // gloving shadow
-    final loudnessScaled = (perceptualBands!.loudness * 1000).clamp(0, 255).toInt();
+    final loudnessScaled = (perceptualBands.loudness * 1000).clamp(0, 255).toInt();
 
     final shadowColor = colorPalette.surface.withAlpha(loudnessScaled);
 
@@ -352,5 +262,6 @@ class VisualizerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(VisualizerPainter oldDelegate) => true;
+  bool shouldRepaint(VisualizerPainter oldDelegate) =>
+      oldDelegate.perceptualBands != perceptualBands;
 }

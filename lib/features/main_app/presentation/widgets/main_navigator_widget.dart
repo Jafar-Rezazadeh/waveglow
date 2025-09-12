@@ -8,7 +8,12 @@ import 'package:waveglow/core/theme/color_palette.dart';
 
 class MainNavigatorWidget extends StatelessWidget {
   final int currentIndex;
-  MainNavigatorWidget({super.key, required this.currentIndex});
+  final Function(int index) onTab;
+  MainNavigatorWidget({
+    super.key,
+    required this.currentIndex,
+    required this.onTab,
+  });
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
 
@@ -37,7 +42,9 @@ class MainNavigatorWidget extends StatelessWidget {
   Widget _home() {
     return _navigatorItem(
       svgPath: AssetSvgs.home,
-      onTap: () {},
+      onTap: () {
+        onTab(0);
+      },
       active: currentIndex == 0,
     );
   }
@@ -58,7 +65,9 @@ class MainNavigatorWidget extends StatelessWidget {
   Widget _playlist() {
     return _navigatorItem(
       svgPath: AssetSvgs.musicPlaylist,
-      onTap: () {},
+      onTap: () {
+        onTab(1);
+      },
       active: currentIndex == 1,
     );
   }
@@ -66,7 +75,9 @@ class MainNavigatorWidget extends StatelessWidget {
   Widget _likedMusics() {
     return _navigatorItem(
       svgPath: AssetSvgs.heart,
-      onTap: () {},
+      onTap: () {
+        onTab(2);
+      },
       active: currentIndex == 2,
     );
   }
@@ -74,7 +85,9 @@ class MainNavigatorWidget extends StatelessWidget {
   Widget _settings() {
     return _navigatorItem(
       svgPath: AssetSvgs.setting,
-      onTap: () {},
+      onTap: () {
+        onTab(3);
+      },
       active: currentIndex == 3,
     );
   }

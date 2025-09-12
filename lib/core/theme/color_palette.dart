@@ -30,6 +30,9 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
   final Color neutral200 = const Color(0xFFD4D4D4);
   final Color neutral300 = const Color(0xFFA3A3A3);
   final Color neutral400 = const Color(0xFF737373);
+  final Color neutral500 = const Color(0xFF646464);
+  final Color neutral600 = const Color(0xFF464646);
+  final Color neutral700 = const Color(0xFF292929);
 
   @override
   ThemeExtension<AppColorPalette> copyWith() {

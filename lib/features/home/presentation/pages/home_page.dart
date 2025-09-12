@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:waveglow/core/theme/color_palette.dart';
 import 'package:waveglow/features/home/presentation/widgets/home_visualizer_widget.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
-  late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _colorPalette.background,
-      body: const SizedBox(
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HomeVisualizerWidget(),
-          ],
-        ),
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          HomeVisualizerWidget(),
+        ],
       ),
     );
   }
