@@ -13,7 +13,7 @@ class MainTitleBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _colorPalette.background,
+      color: Colors.transparent,
       padding: const EdgeInsets.only(top: 2),
       alignment: Alignment.center,
       height: 44,

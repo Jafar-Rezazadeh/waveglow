@@ -7,6 +7,13 @@ abstract class MusicPlayerService {
   Metadata? get currentMusicMetaData;
   bool get isPlaying;
   Stream<bool> get isPlayingStream;
+  PlaylistMode get playListMode;
+  double get volume;
+
   Future<void> open(List<Media> media);
   Future<void> playOrPause();
+  Future<void> goPrevious();
+  Future<void> goNext();
+  Future<void> cyclePlayListMode();
+  Future<void> setVolume(double value);
 }

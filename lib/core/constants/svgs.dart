@@ -13,5 +13,6 @@ class AssetSvgs {
   static const random = "assets/svgs/random.svg";
   static const repeatAll = "assets/svgs/repeat-all.svg";
   static const repeatOne = "assets/svgs/repeat-one.svg";
+  static const noRepeat = "assets/svgs/no-repeat.svg";
   static const volumeHigh = "assets/svgs/volume-high.svg";
 }

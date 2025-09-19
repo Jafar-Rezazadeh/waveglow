@@ -4,13 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 
 class MusicPlayerWidget extends StatelessWidget {
   MusicPlayerWidget({super.key});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-  late final _musicPlayer = Get.find<MusicPlayerService>();
+  late final _musicPlayerService = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +73,11 @@ class MusicPlayerWidget extends StatelessWidget {
           color: _colorPalette.neutral600,
           borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
         ),
-        child: _musicPlayer.currentMusicMetaData?.albumArt != null
-            ? Image.memory(_musicPlayer.currentMusicMetaData!.albumArt!)
+        child: _musicPlayerService.currentMusicMetaData?.albumArt != null
+            ? Image.memory(
+                _musicPlayerService.currentMusicMetaData!.albumArt!,
+                fit: BoxFit.fill,
+              )
             : const Icon(Icons.music_note_outlined),
       ),
     );
@@ -85,9 +89,10 @@ class MusicPlayerWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text((_musicPlayer.currentMusicMetaData?.trackName ?? "").ellipsSize(maxLength: 40)),
+          Text((_musicPlayerService.currentMusicMetaData?.trackName ?? "")
+              .ellipsSize(maxLength: 40)),
           Text(
-            _musicPlayer.currentMusicMetaData?.trackArtistNames
+            _musicPlayerService.currentMusicMetaData?.trackArtistNames
                     ?.join(" - ")
                     .ellipsSize(maxLength: 40) ??
                 "",
@@ -106,30 +111,53 @@ class MusicPlayerWidget extends StatelessWidget {
           onPressed: () {},
           icon: SvgPicture.asset(AssetSvgs.random),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset(AssetSvgs.previous),
-        ),
+        _previousBtn(),
         _playPauseBtn(),
-        IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset(AssetSvgs.next),
-        ),
-        IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset(AssetSvgs.repeatOne),
-        ),
+        _nextBtn(),
+        _repeatBtn(),
       ],
+    );
+  }
+
+  Widget _previousBtn() {
+    return IconButton(
+      onPressed: () async => await _musicPlayerService.goPrevious(),
+      icon: SvgPicture.asset(AssetSvgs.previous),
     );
   }
 
   Widget _playPauseBtn() {
     return Obx(
       () => IconButton(
-        onPressed: () => _musicPlayer.playOrPause(),
-        icon: _musicPlayer.isPlaying
+        onPressed: () => _musicPlayerService.playOrPause(),
+        icon: _musicPlayerService.isPlaying
             ? SvgPicture.asset(AssetSvgs.pause)
             : SvgPicture.asset(AssetSvgs.play),
+      ),
+    );
+  }
+
+  Widget _nextBtn() {
+    return IconButton(
+      onPressed: () => _musicPlayerService.goNext(),
+      icon: SvgPicture.asset(AssetSvgs.next),
+    );
+  }
+
+  Widget _repeatBtn() {
+    return IconButton(
+      onPressed: () => _musicPlayerService.cyclePlayListMode(),
+      icon: Obx(
+        () {
+          late String path;
+          path = switch (_musicPlayerService.playListMode) {
+            PlaylistMode.none => AssetSvgs.noRepeat,
+            PlaylistMode.single => AssetSvgs.repeatOne,
+            PlaylistMode.loop => AssetSvgs.repeatAll
+          };
+
+          return SvgPicture.asset(path);
+        },
       ),
     );
   }
@@ -141,11 +169,13 @@ class MusicPlayerWidget extends StatelessWidget {
         SvgPicture.asset(AssetSvgs.volumeHigh),
         SizedBox(
           width: 156,
-          child: Slider(
-            min: 0.0,
-            max: 100.0,
-            value: 50,
-            onChanged: (value) {},
+          child: Obx(
+            () => Slider(
+              min: 0.0,
+              max: 100.0,
+              value: _musicPlayerService.volume,
+              onChanged: (value) => _musicPlayerService.setVolume(value),
+            ),
           ),
         ),
       ],

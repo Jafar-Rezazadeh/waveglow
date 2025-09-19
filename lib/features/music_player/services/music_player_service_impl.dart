@@ -16,6 +16,8 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _currentMedia = Rx<Media?>(null);
   final _currentPlaylist = Rx<Playlist>(const Playlist([]));
   final _isPlaying = RxBool(false);
+  final _playListModel = Rx<PlaylistMode>(PlaylistMode.loop);
+  final _volume = RxDouble(100);
 
   @override
   media_meta_data.Metadata? get currentMusicMetaData => _metaData.value;
@@ -27,12 +29,26 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Stream<bool> get isPlayingStream => _player.stream.playing;
 
   @override
+  PlaylistMode get playListMode => _playListModel.value;
+
+  @override
+  double get volume => _volume.value;
+
+  @override
   void onInit() {
     super.onInit();
+    _initData();
+    _listeners();
+  }
+
+  Future<void> _initData() async {
+    await open([Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3')]);
+  }
+
+  void _listeners() {
     _playListListener();
     _playingListener();
-
-    open([Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3')]);
+    _rxListeners();
   }
 
   void _playListListener() {
@@ -49,6 +65,15 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
         if (isPlaying) {
           await _getMetaData();
         }
+      },
+    );
+  }
+
+  _rxListeners() {
+    ever(
+      _currentMedia,
+      (callback) {
+        _getMetaData();
       },
     );
   }
@@ -72,5 +97,38 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   @override
   Future<void> playOrPause() async {
     await _player.playOrPause();
+  }
+
+  @override
+  Future<void> goPrevious() async {
+    await _player.previous();
+  }
+
+  @override
+  Future<void> goNext() async {
+    await _player.next();
+  }
+
+  @override
+  Future<void> cyclePlayListMode() async {
+    int index = _playListModel.value.index;
+
+    if (index < PlaylistMode.values.length - 1) {
+      index++;
+    } else {
+      index = 0;
+    }
+    _playListModel.value = PlaylistMode.values[index];
+
+    await _player.setPlaylistMode(_playListModel.value);
+  }
+
+  @override
+  Future<void> setVolume(double value) async {
+    value = value.clamp(0.0, 100.0);
+
+    _volume.value = value;
+
+    await _player.setVolume(_volume.value);
   }
 }
