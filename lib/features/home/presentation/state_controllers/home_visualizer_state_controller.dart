@@ -27,17 +27,16 @@ class HomeVisualizerStateController extends GetxController {
   StreamSubscription<HomeVisualizerBandsEntity>? _perceptualBandsStream;
 
   final _perceptualBands = Rx<HomeVisualizerBandsEntity?>(null);
-  final _smoothedPerceptualBands = Rx<HomeVisualizerBandsEntity>(
-    HomeVisualizerBandsEntity(
-      subBass: 0,
-      bass: 0,
-      lowMid: 0,
-      mid: 0,
-      highMid: 0,
-      presence: 0,
-      brilliance: 0,
-      loudness: 0,
-    ),
+  late final _smoothedPerceptualBands = Rx<HomeVisualizerBandsEntity>(_initBandsValue);
+  final _initBandsValue = HomeVisualizerBandsEntity(
+    subBass: 0,
+    bass: 0,
+    lowMid: 0,
+    mid: 0,
+    highMid: 0,
+    presence: 0,
+    brilliance: 0,
+    loudness: 0,
   );
 
   HomeVisualizerBandsEntity get smoothedPerceptualBands => _smoothedPerceptualBands.value;
@@ -110,10 +109,32 @@ class HomeVisualizerStateController extends GetxController {
     double attack = 0.3,
     double decay = 0.05,
   }) {
+    // faster fade when the incoming band value is explicitly zero,
+    // and clamp very small values to 0 to avoid deNormals.
     double smooth(double prev, double? cur) {
+      const double eps = 1e-8; // threshold to clamp tiny values
       if (cur == null) return prev;
-      if (cur > prev) return prev * (1 - attack) + cur * attack;
-      return prev * (1 - decay) + cur * decay;
+
+      // If the current measurement is explicitly zero, fade previous towards zero
+      // slowly so the visualizer goes to silence more gently.
+      if (cur == 0.0) {
+        const double silenceDecayMultiplier = 0.2; // <1 to slow the decay (tweak as needed)
+        final double silenceDecayFactor = (decay * silenceDecayMultiplier).clamp(0.0, 1.0);
+        final double next = prev * (1.0 - silenceDecayFactor);
+        if (next.abs() < eps) return 0.0;
+        return next;
+      }
+
+      // Normal smoothing: attack for rising values, decay for falling values.
+      if (cur > prev) {
+        final double next = prev * (1 - attack) + cur * attack;
+        if (next.abs() < eps) return 0.0;
+        return next;
+      }
+
+      final double next = prev * (1 - decay) + cur * decay;
+      if (next.abs() < eps) return 0.0;
+      return next;
     }
 
     return HomeVisualizerBandsEntity(

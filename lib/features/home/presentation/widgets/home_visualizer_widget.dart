@@ -76,13 +76,13 @@ class VisualizerPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
 
     // Emit new particles continuously at a fixed interval (e.g., every 80ms)
-    const spawnIntervalMs = 300;
+    const spawnIntervalMs = 200;
     if (now - _lastParticleSpawn > spawnIntervalMs && perceptualBands.loudness > 0) {
       _lastParticleSpawn = now;
       for (int i = 0; i < particleCount; i++) {
         final angle = Random().nextDouble() * 2 * pi;
-        // final speed = 80.0 * Random().nextDouble() * 2;
-        const speed = 80.0;
+        final speed = 80.0 * Random().nextDouble() * 1.1;
+        // const speed = 80.0;
         final size = 2 + Random().nextDouble() * 3;
         _particles.add(
           _Particle(
@@ -97,8 +97,12 @@ class VisualizerPainter extends CustomPainter {
     }
 
     // Update and draw particles
+    final loudnessBoost = (perceptualBands.loudness > 0.05
+        ? perceptualBands.loudness * 40
+        : perceptualBands.loudness * 30);
+
     for (final p in _particles) {
-      p.position += p.velocity * dt * (perceptualBands.loudness * 35);
+      p.position += p.velocity * dt * loudnessBoost;
       p.life -= dt * 0.7;
     }
 
@@ -109,6 +113,7 @@ class VisualizerPainter extends CustomPainter {
       final paint = Paint()
         ..color = p.color.withOpacity(p.life.clamp(0, 1))
         ..style = PaintingStyle.fill;
+
       canvas.drawCircle(p.position, p.size, paint);
     }
   }
