@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_media_metadata/flutter_media_metadata.dart' as media_meta_data;
+import 'package:flutter_media_metadata/flutter_media_metadata.dart'
+    as media_meta_data;
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/services/music_player_service.dart';
@@ -18,6 +19,8 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _isPlaying = RxBool(false);
   final _playListModel = Rx<PlaylistMode>(PlaylistMode.loop);
   final _volume = RxDouble(100);
+  final _currentPosition = Rx<Duration?>(null);
+  final _currentDuration = Rx<Duration?>(null);
 
   @override
   media_meta_data.Metadata? get currentMusicMetaData => _metaData.value;
@@ -35,19 +38,29 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   double get volume => _volume.value;
 
   @override
+  Media? get currentMedia => _currentMedia.value;
+
+  @override
+  Duration? get currentMusicPosition => _currentPosition.value;
+
+  @override
+  Duration? get currentMusicDuration => _currentDuration.value;
+
+  @override
   void onInit() {
     super.onInit();
-    _initData();
     _listeners();
+    _initData();
   }
 
   Future<void> _initData() async {
-    await open([Media('F:/projects/Flutter/CrossPlatform/waveglow/test_music.mp3')]);
+    await open([Media('E:/projects/flutter/product/waveglow/test_music.mp3')]);
   }
 
   void _listeners() {
     _playListListener();
     _playingListener();
+    _currentTrackListener();
     _rxListeners();
   }
 
@@ -65,6 +78,19 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
         if (isPlaying) {
           await _getMetaData();
         }
+      },
+    );
+  }
+
+  void _currentTrackListener() {
+    _player.stream.duration.listen(
+      (duration) {
+        _currentDuration.value = duration;
+      },
+    );
+    _player.stream.position.listen(
+      (duration) {
+        _currentPosition.value = duration;
       },
     );
   }
@@ -96,7 +122,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
   @override
   Future<void> playOrPause() async {
-    await _player.playOrPause();
+    if (_player.state.playlist.medias.isNotEmpty) {
+      await _player.playOrPause();
+    }
   }
 
   @override

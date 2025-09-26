@@ -189,14 +189,20 @@ class MusicPlayerWidget extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: SizedBox(
         height: 20,
-        child: Slider(
-          min: 0.0,
-          max: 100.0,
-          value: 50,
-          onChangeEnd: (value) {
-            // TODO: set the music progress in this event
-          },
-          onChanged: (value) {},
+        child: Obx(
+          () => Slider(
+            min: 0.0,
+            max: _musicPlayerService.currentMusicDuration?.inSeconds
+                    .toDouble() ??
+                0.0,
+            value: _musicPlayerService.currentMusicPosition?.inSeconds
+                    .toDouble() ??
+                0.0,
+            onChangeEnd: (value) {
+              // TODO: set the music progress in this event
+            },
+            onChanged: (value) {},
+          ),
         ),
       ),
     );

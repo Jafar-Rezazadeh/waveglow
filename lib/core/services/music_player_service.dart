@@ -9,6 +9,9 @@ abstract class MusicPlayerService {
   Stream<bool> get isPlayingStream;
   PlaylistMode get playListMode;
   double get volume;
+  Media? get currentMedia;
+  Duration? get currentMusicPosition;
+  Duration? get currentMusicDuration;
 
   Future<void> open(List<Media> media);
   Future<void> playOrPause();
