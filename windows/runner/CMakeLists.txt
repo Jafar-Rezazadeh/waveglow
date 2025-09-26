@@ -21,7 +21,8 @@ add_executable(${BINARY_NAME} WIN32
   )
 
 # Set FFTW root folder
-set(FFTW_ROOT "C:/cpp_libs/fftw-3.3.5-dll64")
+set(FFTW_ROOT "E:/projects/flutter/product/waveglow/fftw-3.3.5-dll64")
+
 
 # Add include directory for FFTW headers
 include_directories(${FFTW_ROOT})
