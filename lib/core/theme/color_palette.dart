@@ -1,60 +1,46 @@
 import 'package:flutter/material.dart';
 
 class AppColorPalette extends ThemeExtension<AppColorPalette> {
-  final Color backGround;
-  final Color primary;
-  final Color accent;
-  final Color accent2;
-  final Color softPinkAccent;
-  final Color textColor;
+  // Primary (Heavy Blue scale)
+  final Color primary500 = const Color(0xFF3464FC); // Main Primary
+  final Color primary600 = const Color(0xFF264ED6);
+  final Color primary700 = const Color(0xFF1A39A8);
+  final Color primary800 = const Color(0xFF102379);
+  final Color primary900 = const Color(0xFF0A154D);
 
-  AppColorPalette({
-    required this.backGround,
-    required this.primary,
-    required this.accent,
-    required this.accent2,
-    required this.softPinkAccent,
-    required this.textColor,
-  });
+  // Secondary (Neons & Brand accents)
+  final Color neonPink = const Color(0xFFEF0AE4);
+  final Color hotMagenta = const Color(0xFFFF1B6B);
+  final Color neonPurple = const Color(0xFFB026FF);
+  final Color electricBlue = const Color(0xFF00FFFF);
+
+  // Backgrounds
+  final Color background = const Color(0xFF0A0D14);
+  final Color backgroundLow = const Color(0xFF12141C);
+  final Color surface = const Color(0xFFFAFAFA);
+
+  // Functional accents
+  final Color success = const Color(0xFF00FFAA);
+  final Color warning = const Color(0xFFFFC107);
+  final Color danger = const Color(0xFFFF1744);
+
+  // Text
+  final Color neutral50 = const Color(0xFFF5F5F5);
+  final Color neutral100 = const Color(0xFFE5E5E5);
+  final Color neutral200 = const Color(0xFFD4D4D4);
+  final Color neutral300 = const Color(0xFFA3A3A3);
+  final Color neutral400 = const Color(0xFF737373);
+  final Color neutral500 = const Color(0xFF646464);
+  final Color neutral600 = const Color(0xFF464646);
+  final Color neutral700 = const Color(0xFF292929);
 
   @override
-  AppColorPalette copyWith({
-    Color? backGround,
-    Color? primary,
-    Color? accent,
-    Color? accent2,
-    Color? softPinkAccent,
-    Color? textColor,
-  }) {
-    return AppColorPalette(
-      backGround: backGround ?? this.backGround,
-      primary: primary ?? this.primary,
-      accent: accent ?? this.accent,
-      accent2: accent2 ?? this.accent2,
-      softPinkAccent: softPinkAccent ?? this.softPinkAccent,
-      textColor: textColor ?? this.textColor,
-    );
+  ThemeExtension<AppColorPalette> copyWith() {
+    return this;
   }
 
   @override
-  AppColorPalette lerp(covariant ThemeExtension<AppColorPalette>? other, double t) {
-    if (other is! AppColorPalette) return this;
-    return AppColorPalette(
-      backGround: Color.lerp(backGround, other.backGround, t)!,
-      primary: Color.lerp(primary, other.primary, t)!,
-      accent: Color.lerp(accent, other.accent, t)!,
-      accent2: Color.lerp(accent2, other.accent2, t)!,
-      softPinkAccent: Color.lerp(softPinkAccent, other.softPinkAccent, t)!,
-      textColor: Color.lerp(textColor, other.textColor, t)!,
-    );
+  ThemeExtension<AppColorPalette> lerp(covariant ThemeExtension<AppColorPalette>? other, double t) {
+    return this;
   }
 }
-
-final neonPalette = AppColorPalette(
-  backGround: const Color(0xFF0b0b0c),
-  primary: const Color(0xFF6b5cff),
-  accent: const Color(0xFF00f0ff),
-  accent2: const Color.fromARGB(255, 0, 118, 253),
-  softPinkAccent: const Color.fromARGB(255, 255, 25, 156),
-  textColor: const Color(0xFFfdfdfd),
-);
