@@ -57,9 +57,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     _initData();
   }
 
-  Future<void> _initData() async {
-    await open([Media('E:/projects/flutter/product/waveglow/test_music.mp3')]);
-  }
+  Future<void> _initData() async {}
 
   void _listeners() {
     _playListListener();
@@ -127,7 +125,11 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   @override
   Future<void> playOrPause() async {
     if (_player.state.playlist.medias.isNotEmpty) {
-      await _player.playOrPause();
+      if (_player.state.playing) {
+        await _player.pause();
+      } else {
+        await _player.play();
+      }
     }
   }
 

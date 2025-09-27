@@ -2,25 +2,38 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:waveglow/core/theme/color_palette.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
 class HomeVisualizerWidget extends StatelessWidget {
   HomeVisualizerWidget({super.key});
 
   final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-
   late final _controller = Get.find<HomeVisualizerStateController>();
+  late final _musicPlayer = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => CustomPaint(
-        // size: const Size(300, 300),
         painter: VisualizerPainter(
           colorPalette: _colorPalette,
           perceptualBands: _controller.smoothedPerceptualBands,
+          circleRadius: 110,
         ),
+        child: _musicPlayer.currentMusicMetaData?.albumArt != null
+            ? CircleAvatar(
+                radius: 106,
+                backgroundColor: _colorPalette.background,
+                child: ClipRRect(
+                  borderRadius: BorderRadiusGeometry.circular(1000),
+                  child: Image.memory(
+                    _musicPlayer.currentMusicMetaData!.albumArt!,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              )
+            : null,
       ),
     );
   }
@@ -98,7 +111,7 @@ class VisualizerPainter extends CustomPainter {
     }
 
     // Update and draw particles
-    final loudnessBoost = (perceptualBands.loudness > 0.05
+    final loudnessBoost = (perceptualBands.loudness > 0.04
         ? perceptualBands.loudness * 40
         : perceptualBands.loudness * 30);
 

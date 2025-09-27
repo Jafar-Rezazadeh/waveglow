@@ -21,13 +21,15 @@ class HomeVisualizerStateController extends GetxController {
   late final _musicPlayer = Get.find<MusicPlayerService>();
 
   HomeVisualizerStateController({
-    required GetHomeVisualizerPerceptualBandsStreamUC getVisualizerPerceptualBandsStreamUC,
+    required GetHomeVisualizerPerceptualBandsStreamUC
+        getVisualizerPerceptualBandsStreamUC,
   }) : _getVisualizerLiveBandsUC = getVisualizerPerceptualBandsStreamUC;
 
   StreamSubscription<HomeVisualizerBandsEntity>? _perceptualBandsStream;
 
   final _perceptualBands = Rx<HomeVisualizerBandsEntity?>(null);
-  late final _smoothedPerceptualBands = Rx<HomeVisualizerBandsEntity>(_initBandsValue);
+  late final _smoothedPerceptualBands =
+      Rx<HomeVisualizerBandsEntity>(_initBandsValue);
   final _initBandsValue = HomeVisualizerBandsEntity(
     subBass: 0,
     bass: 0,
@@ -39,7 +41,8 @@ class HomeVisualizerStateController extends GetxController {
     loudness: 0,
   );
 
-  HomeVisualizerBandsEntity get smoothedPerceptualBands => _smoothedPerceptualBands.value;
+  HomeVisualizerBandsEntity get smoothedPerceptualBands =>
+      _smoothedPerceptualBands.value;
 
   @override
   void onInit() {
@@ -59,8 +62,12 @@ class HomeVisualizerStateController extends GetxController {
   void _setTicker() {
     _ticker = _CustomTicker().createTicker(
       (elapsed) {
-        _smoothedPerceptualBands.value =
-            _smoothBands(previous: _smoothedPerceptualBands.value, current: _perceptualBands.value);
+        _smoothedPerceptualBands.value = _smoothBands(
+          previous: _smoothedPerceptualBands.value,
+          current: _perceptualBands.value,
+          attack: 0.5,
+          decay: 0.5,
+        );
       },
     );
 
@@ -118,8 +125,10 @@ class HomeVisualizerStateController extends GetxController {
       // If the current measurement is explicitly zero, fade previous towards zero
       // slowly so the visualizer goes to silence more gently.
       if (cur == 0.0) {
-        const double silenceDecayMultiplier = 0.2; // <1 to slow the decay (tweak as needed)
-        final double silenceDecayFactor = (decay * silenceDecayMultiplier).clamp(0.0, 1.0);
+        const double silenceDecayMultiplier =
+            0.2; // <1 to slow the decay (tweak as needed)
+        final double silenceDecayFactor =
+            (decay * silenceDecayMultiplier).clamp(0.0, 1.0);
         final double next = prev * (1.0 - silenceDecayFactor);
         if (next.abs() < eps) return 0.0;
         return next;
