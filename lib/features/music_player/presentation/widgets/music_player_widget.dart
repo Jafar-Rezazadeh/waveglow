@@ -198,10 +198,7 @@ class MusicPlayerWidget extends StatelessWidget {
             value: _musicPlayerService.currentMusicPosition?.inSeconds
                     .toDouble() ??
                 0.0,
-            onChangeEnd: (value) {
-              // TODO: set the music progress in this event
-            },
-            onChanged: (value) {},
+            onChanged: (value) => _musicPlayerService.setPosition(value),
           ),
         ),
       ),

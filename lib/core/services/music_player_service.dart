@@ -19,4 +19,5 @@ abstract class MusicPlayerService {
   Future<void> goNext();
   Future<void> cyclePlayListMode();
   Future<void> setVolume(double value);
+  Future<void> setPosition(double value);
 }

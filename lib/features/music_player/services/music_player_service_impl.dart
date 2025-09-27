@@ -159,4 +159,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
     await _player.setVolume(_volume.value);
   }
+
+  @override
+  Future<void> setPosition(double value) async {
+    await _player.seek(Duration(seconds: value.toInt()));
+  }
 }
