@@ -12,6 +12,7 @@ abstract class MusicPlayerService {
   Media? get currentMedia;
   Duration? get currentMusicPosition;
   Duration? get currentMusicDuration;
+  bool get isShuffle;
 
   Future<void> open(List<Media> media);
   Future<void> playOrPause();
@@ -20,4 +21,5 @@ abstract class MusicPlayerService {
   Future<void> cyclePlayListMode();
   Future<void> setVolume(double value);
   Future<void> setPosition(double value);
+  Future<void> toggleShuffle();
 }

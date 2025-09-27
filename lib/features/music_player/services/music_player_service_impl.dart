@@ -21,6 +21,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _volume = RxDouble(100);
   final _currentPosition = Rx<Duration?>(null);
   final _currentDuration = Rx<Duration?>(null);
+  final _isShuffle = false.obs;
 
   @override
   media_meta_data.Metadata? get currentMusicMetaData => _metaData.value;
@@ -45,6 +46,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
   @override
   Duration? get currentMusicDuration => _currentDuration.value;
+
+  @override
+  bool get isShuffle => _isShuffle.value;
 
   @override
   void onInit() {
@@ -163,5 +167,11 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   @override
   Future<void> setPosition(double value) async {
     await _player.seek(Duration(seconds: value.toInt()));
+  }
+
+  @override
+  Future<void> toggleShuffle() async {
+    _isShuffle.value = !_isShuffle.value;
+    await _player.setShuffle(_isShuffle.value);
   }
 }

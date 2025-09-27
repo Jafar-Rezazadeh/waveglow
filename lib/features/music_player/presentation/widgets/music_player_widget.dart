@@ -107,15 +107,25 @@ class MusicPlayerWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        IconButton(
-          onPressed: () {},
-          icon: SvgPicture.asset(AssetSvgs.random),
-        ),
+        _toggleShuffle(),
         _previousBtn(),
         _playPauseBtn(),
         _nextBtn(),
         _repeatBtn(),
       ],
+    );
+  }
+
+  Widget _toggleShuffle() {
+    return Obx(
+      () => IconButton(
+        onPressed: () async => await _musicPlayerService.toggleShuffle(),
+        style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(
+          _musicPlayerService.isShuffle ? _colorPalette.neutral600 : null,
+        )),
+        icon: SvgPicture.asset(AssetSvgs.random),
+      ),
     );
   }
 
