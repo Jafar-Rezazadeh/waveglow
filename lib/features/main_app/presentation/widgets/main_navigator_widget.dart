@@ -49,18 +49,17 @@ class MainNavigatorWidget extends StatelessWidget {
     );
   }
 
-  _navigatorItem(
-      {required String svgPath,
-      required VoidCallback onTap,
-      required bool active}) {
+  _navigatorItem({
+    required String svgPath,
+    required VoidCallback onTap,
+    required bool active,
+  }) {
     return IconButton(
       onPressed: onTap,
       icon: SvgPicture.asset(
         svgPath,
         colorFilter: ColorFilter.mode(
-          active
-              ? _colorPalette.surface
-              : _colorPalette.neutral400.withValues(alpha: 0.5),
+          active ? _colorPalette.surface : _colorPalette.neutral400.withValues(alpha: 0.5),
           BlendMode.srcIn,
         ),
       ),

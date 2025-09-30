@@ -7,6 +7,7 @@ import 'package:waveglow/features/home/presentation/pages/home_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
 import 'package:waveglow/features/music_player/presentation/widgets/music_player_widget.dart';
+import 'package:waveglow/features/tracks_list/presentation/pages/tracks_list_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -80,11 +81,11 @@ class _MainScreenState extends State<MainScreen> {
       controller: pageViewController,
       scrollDirection: Axis.vertical,
       physics: const NeverScrollableScrollPhysics(),
-      children: const [
-        HomePage(),
-        Text("musicPlaylist"),
-        Text("favorites"),
-        Text("setting"),
+      children: [
+        const HomePage(),
+        TracksListPage(),
+        const Text("favorites"),
+        const Text("setting"),
       ],
     );
   }
