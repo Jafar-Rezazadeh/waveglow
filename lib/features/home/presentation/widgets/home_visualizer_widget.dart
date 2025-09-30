@@ -77,8 +77,7 @@ class VisualizerPainter extends CustomPainter {
 
     // Emit new particles continuously at a fixed interval (e.g., every 80ms)
     const spawnIntervalMs = 200;
-    if (now - _lastParticleSpawn > spawnIntervalMs &&
-        perceptualBands.loudness > 0) {
+    if (now - _lastParticleSpawn > spawnIntervalMs && perceptualBands.loudness > 0) {
       _lastParticleSpawn = now;
       for (int i = 0; i < particleCount; i++) {
         final angle = Random().nextDouble() * 2 * pi;
@@ -119,8 +118,7 @@ class VisualizerPainter extends CustomPainter {
     }
   }
 
-  void _fullWaveCircleWithAmplitudeBumps(
-      Size size, Canvas canvas, double circleRadius) {
+  void _fullWaveCircleWithAmplitudeBumps(Size size, Canvas canvas, double circleRadius) {
     // bumpAngles sum should be 1
     final fullBass = (perceptualBands.bass * perceptualBands.subBass);
 
@@ -180,8 +178,7 @@ class VisualizerPainter extends CustomPainter {
 
       // Compute local angle inside this bump for sine wave
       double startAngle = bumpIndex == 0 ? 0 : cumulativeAngles[bumpIndex - 1];
-      double localAngle =
-          (angle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
+      double localAngle = (angle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
       double r = circleRadius + sin(localAngle) * amp;
 
       double x = center.dx + r * cos(angle + angleOffset);
@@ -209,8 +206,7 @@ class VisualizerPainter extends CustomPainter {
       double amp = bumpDatas[bumpIndex].amplitude;
 
       double startAngle = bumpIndex == 0 ? 0 : cumulativeAngles[bumpIndex - 1];
-      double localAngle =
-          (mirroredAngle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
+      double localAngle = (mirroredAngle - startAngle) / bumpDatas[bumpIndex].bumpAngle * pi;
       double r = circleRadius + sin(localAngle) * amp;
 
       double x = center.dx + r * cos(angle + angleOffset);
@@ -222,8 +218,7 @@ class VisualizerPainter extends CustomPainter {
     path.close();
 
     // gloving shadow
-    final loudnessScaled =
-        (perceptualBands.loudness * 1000).clamp(0, 255).toInt();
+    final loudnessScaled = (perceptualBands.loudness * 1000).clamp(0, 255).toInt();
 
     final shadowColor = colorPalette.surface.withAlpha(loudnessScaled);
 
