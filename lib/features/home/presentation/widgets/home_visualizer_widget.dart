@@ -110,9 +110,7 @@ class VisualizerPainter extends CustomPainter {
     }
 
     // Update and draw particles
-    final loudnessBoost = (perceptualBands.loudness > 0.04
-        ? perceptualBands.loudness * 40
-        : perceptualBands.loudness * 30);
+    final loudnessBoost = (perceptualBands.loudness > 0.03 ? 2.0 : perceptualBands.loudness * 30);
 
     for (final p in _particles) {
       p.position += p.velocity * dt * loudnessBoost;
