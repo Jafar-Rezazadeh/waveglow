@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListPage extends StatelessWidget {
   TracksListPage({super.key});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+  late final _controller = Get.find<TracksListStateController>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +31,19 @@ class TracksListPage extends StatelessWidget {
       margin: const EdgeInsets.only(top: AppSizes.toolBarSize),
       child: Row(
         children: [
-          TabBar(
-            dividerColor: Colors.transparent,
-            tabAlignment: TabAlignment.start,
-            unselectedLabelColor: _colorPalette.neutral500,
-            labelColor: _colorPalette.neutral100,
-            isScrollable: true,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            tabs: [
-              Text("tab1".capitalizeFirst ?? ""),
-              Text("tab2".capitalizeFirst ?? ""),
-            ],
+          Obx(
+            () => TabBar(
+              dividerColor: Colors.transparent,
+              tabAlignment: TabAlignment.start,
+              unselectedLabelColor: _colorPalette.neutral500,
+              labelColor: _colorPalette.neutral100,
+              isScrollable: true,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              tabs: const [
+                Text("tab1"),
+                Text("tab2"),
+              ],
+            ),
           ),
           IconButton(
             onPressed: () {},

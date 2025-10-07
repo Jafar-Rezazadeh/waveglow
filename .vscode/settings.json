@@ -73,5 +73,5 @@
     "thread": "cpp"
   },
   "todo-tree.tree.showBadges": false,
-  "cSpell.words": ["waveglow"]
+  "cSpell.words": ["flac", "waveglow"]
 }

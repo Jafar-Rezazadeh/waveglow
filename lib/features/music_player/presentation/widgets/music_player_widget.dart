@@ -202,12 +202,8 @@ class MusicPlayerWidget extends StatelessWidget {
         child: Obx(
           () => Slider(
             min: 0.0,
-            max: _musicPlayerService.currentMusicDuration?.inSeconds
-                    .toDouble() ??
-                0.0,
-            value: _musicPlayerService.currentMusicPosition?.inSeconds
-                    .toDouble() ??
-                0.0,
+            max: _musicPlayerService.currentMusicDuration?.inSeconds.toDouble() ?? 0.0,
+            value: _musicPlayerService.currentMusicPosition?.inSeconds.toDouble() ?? 0.0,
             onChanged: (value) => _musicPlayerService.setPosition(value),
           ),
         ),
