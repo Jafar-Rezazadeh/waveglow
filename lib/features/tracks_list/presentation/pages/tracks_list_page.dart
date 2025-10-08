@@ -1,3 +1,4 @@
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -12,15 +13,17 @@ class TracksListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 90),
-        child: Column(
-          children: [
-            _tabBar(),
-            Expanded(child: _tabView()),
-          ],
+    return Obx(
+      () => DefaultTabController(
+        length: _controller.allDirectories.length,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 90),
+          child: Column(
+            children: [
+              _tabBar(),
+              Expanded(child: _tabView()),
+            ],
+          ),
         ),
       ),
     );
@@ -39,14 +42,11 @@ class TracksListPage extends StatelessWidget {
               labelColor: _colorPalette.neutral100,
               isScrollable: true,
               labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              tabs: const [
-                Text("tab1"),
-                Text("tab2"),
-              ],
+              tabs: _controller.allDirectories.map((e) => _tabItem(e)).toList(),
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () => _controller.pickDirectory(),
             icon: const Icon(FontAwesomeIcons.plus),
             iconSize: 16,
             style: ButtonStyle(iconColor: WidgetStateColor.resolveWith(
@@ -63,16 +63,35 @@ class TracksListPage extends StatelessWidget {
     );
   }
 
-  Widget _tabView() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 26, horizontal: 16),
-      child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
-        children: [
-          Text("tab 1"),
-          Text("tab 2"),
+  Widget _tabItem(TracksListDirectoryEntity e) {
+    return ContextMenuRegion(
+      contextMenu: GenericContextMenu(
+        buttonConfigs: [
+          ContextMenuButtonConfig(
+            'حذف',
+            onPressed: () => _controller.removeDirectory(e),
+          )
         ],
       ),
+      child: Text(e.directoryName),
+    );
+  }
+
+  Widget _tabView() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
+      child: Obx(
+        () => TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          children: _controller.allDirectories.map((e) => _tabViewItem(e)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _tabViewItem(TracksListDirectoryEntity e) {
+    return ListView(
+      children: e.audios.map((e) => Text(e.trackName?.removeAllWhitespace ?? "")).toList(),
     );
   }
 }

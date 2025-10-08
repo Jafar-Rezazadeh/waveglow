@@ -40,7 +40,7 @@ void main() {
       //arrange
       when(
         () => mockFilePicker.getDirectoryPath(),
-      ).thenAnswer((_) async => "c:/testFolder");
+      ).thenAnswer((_) async => null);
 
       //act
       await dataSourceImpl.pickDirectory();
@@ -62,19 +62,35 @@ void main() {
       expect(result, null);
     });
 
-    test("should set the full directoryPath and directoryName to result", () async {
+    test("should set the full directoryPath and directoryName(first char upperCase) to result",
+        () async {
       //arrange
-      const directoryPath = "c:/testFolder";
+      const directoryPath = "c:\\testFolder";
       when(
         () => mockFilePicker.getDirectoryPath(),
       ).thenAnswer((_) async => directoryPath);
+
+      when(
+        () => mockDirectory.list(recursive: true, followLinks: false),
+      ).thenAnswer(
+        (_) => Stream.fromIterable([
+          _FakeFileSystemEntity(tPath: "c:\\test\\file1.mp3"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file2.wav"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file3.aac"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file4.m4a"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file5.flac"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file6.ogg"),
+        ]),
+      );
+
+      _mockMetaDataReceiverMethodChannel();
 
       //act
       final result = await dataSourceImpl.pickDirectory();
 
       //assert
       expect(result?.directoryPath, directoryPath);
-      expect(result?.directoryName, "testFolder");
+      expect(result?.directoryName, "Testfolder");
     });
 
     test("should call the expected directory function in case of getting audios inside ", () async {
@@ -107,12 +123,12 @@ void main() {
         () => mockDirectory.list(recursive: true, followLinks: false),
       ).thenAnswer(
         (_) => Stream.fromIterable([
-          _FakeFileSystemEntity(tPath: "c:/test/file1.mp3"),
-          _FakeFileSystemEntity(tPath: "c:/test/file2.wav"),
-          _FakeFileSystemEntity(tPath: "c:/test/file3.aac"),
-          _FakeFileSystemEntity(tPath: "c:/test/file4.m4a"),
-          _FakeFileSystemEntity(tPath: "c:/test/file5.flac"),
-          _FakeFileSystemEntity(tPath: "c:/test/file6.ogg"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file1.mp3"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file2.wav"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file3.aac"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file4.m4a"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file5.flac"),
+          _FakeFileSystemEntity(tPath: "c:\\test\\file6.ogg"),
         ]),
       );
 
@@ -176,7 +192,7 @@ void _mockMetaDataReceiverMethodChannel() {
           },
           'genre': 'Pop',
           'albumArt': null,
-          'filePath': 'c:/test/file1.mp3',
+          'filePath': 'c:\\test\\file1.mp3',
         });
       }
       return null;

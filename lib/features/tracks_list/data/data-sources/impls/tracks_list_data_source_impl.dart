@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:waveglow/features/tracks_list/data/models/tracks_list_audio_item_model.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -39,9 +40,16 @@ class TracksListDataSourceImpl implements TracksListDataSource {
         tracks.add(TracksListAudioItemModel.fromMetaData(metaData, file.path));
       }
     }
+    final indexFolderNameStart = directoryPath.lastIndexOf("\\");
+    String directoryName = "";
+    if (indexFolderNameStart != -1) {
+      directoryName = directoryPath.substring(indexFolderNameStart).replaceAll("\\", "");
+    } else {
+      directoryName = directoryPath;
+    }
 
     return TracksListDirectoryModel(
-      directoryName: directoryPath.substring(directoryPath.lastIndexOf("/")).replaceAll("/", ""),
+      directoryName: directoryName.capitalizeFirst ?? "",
       directoryPath: directoryPath,
       audios: tracks.toList(),
     );

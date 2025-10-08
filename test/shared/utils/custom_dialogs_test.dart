@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/route_manager.dart';
 import 'package:waveglow/core/core_exports.dart';
-import 'package:waveglow/core/errors/failures.dart';
-import 'package:waveglow/shared/utils/custom_dialogs.dart';
 
 class _FakeFailure extends Fake implements Failure {}
 

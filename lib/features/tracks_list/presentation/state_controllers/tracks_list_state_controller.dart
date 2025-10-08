@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
@@ -14,9 +15,15 @@ class TracksListStateController extends GetxController {
 
   final _allDirectories = RxList<TracksListDirectoryEntity>([]);
 
+  @visibleForTesting
+  set setAllDirectories(List<TracksListDirectoryEntity> list) {
+    _allDirectories.value = list;
+  }
+
   List<TracksListDirectoryEntity> get allDirectories => _allDirectories;
 
   Future<void> pickDirectory() async {
+    // TODO: add a loading
     final result = await _pickTracksListDirectoryUC.call(NoParams());
 
     result.fold(
@@ -27,5 +34,9 @@ class TracksListStateController extends GetxController {
         }
       },
     );
+  }
+
+  void removeDirectory(TracksListDirectoryEntity dir) {
+    _allDirectories.remove(dir);
   }
 }

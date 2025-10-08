@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
-import 'package:waveglow/core/errors/failures.dart';
 
 class CustomDialogs {
   Future<void> showFailure(Failure failure) async {

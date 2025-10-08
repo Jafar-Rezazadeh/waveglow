@@ -75,4 +75,18 @@ void main() {
       expect(controller.allDirectories, isNotEmpty);
     });
   });
+
+  group("deleteDirectory -", () {
+    test("should should remove the given directory from directories ", () {
+      //arrange
+      final directory = _FakeTracksListDirectoryEntity();
+      controller.setAllDirectories = [directory];
+
+      //act
+      controller.removeDirectory(directory);
+
+      //assert
+      expect(controller.allDirectories, isEmpty);
+    });
+  });
 }

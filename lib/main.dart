@@ -1,8 +1,10 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
 
 import 'shared/routing/routes.dart';
@@ -28,11 +30,29 @@ class WaveGlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      child: GetMaterialApp(
-        initialRoute: mainScreenRoute,
-        debugShowCheckedModeBanner: false,
-        getPages: getXRoutes,
-        theme: CustomTheme.neonTheme,
+      child: ContextMenuOverlay(
+        buttonStyle: ContextMenuButtonStyle(
+          fgColor: AppColorPalette().neutral50,
+          hoverFgColor: AppColorPalette().neutral50,
+          hoverBgColor: AppColorPalette().neutral700,
+        ),
+        cardBuilder: (context, children) => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
+            color: AppColorPalette().backgroundLow,
+          ),
+          clipBehavior: Clip.antiAlias,
+          width: 200,
+          child: Column(
+            children: children,
+          ),
+        ),
+        child: GetMaterialApp(
+          initialRoute: mainScreenRoute,
+          debugShowCheckedModeBanner: false,
+          getPages: getXRoutes,
+          theme: CustomTheme.neonTheme,
+        ),
       ),
     );
   }
