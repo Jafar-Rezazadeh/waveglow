@@ -71,7 +71,7 @@ void main() {
       ).thenAnswer((_) async => directoryPath);
 
       when(
-        () => mockDirectory.list(recursive: true, followLinks: false),
+        () => mockDirectory.list(recursive: false, followLinks: false),
       ).thenAnswer(
         (_) => Stream.fromIterable([
           _FakeFileSystemEntity(tPath: "c:\\test\\file1.mp3"),
@@ -100,14 +100,14 @@ void main() {
       ).thenAnswer((_) async => "c:/test");
 
       when(
-        () => mockDirectory.list(recursive: true, followLinks: false),
+        () => mockDirectory.list(recursive: false, followLinks: false),
       ).thenAnswer((_) => Stream.fromIterable([_FakeFileSystemEntity()]));
 
       //act
       await dataSourceImpl.pickDirectory();
 
       //assert
-      verify(() => mockDirectory.list(recursive: true, followLinks: false)).called(1);
+      verify(() => mockDirectory.list(recursive: false, followLinks: false)).called(1);
     });
 
     test(
@@ -120,7 +120,7 @@ void main() {
         () => mockFilePicker.getDirectoryPath(),
       ).thenAnswer((_) async => "c:/test");
       when(
-        () => mockDirectory.list(recursive: true, followLinks: false),
+        () => mockDirectory.list(recursive: false, followLinks: false),
       ).thenAnswer(
         (_) => Stream.fromIterable([
           _FakeFileSystemEntity(tPath: "c:\\test\\file1.mp3"),
@@ -149,7 +149,7 @@ void main() {
       ).thenAnswer((_) async => "c:/test");
 
       when(
-        () => mockDirectory.list(recursive: true, followLinks: false),
+        () => mockDirectory.list(recursive: false, followLinks: false),
       ).thenAnswer(
         (_) => Stream.fromIterable([
           _FakeFileSystemEntity(tPath: "c:/test/file1.mp3"),

@@ -31,7 +31,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
     final Set<TracksListAudioItemModel> tracks = {};
 
-    await for (var file in _directory!.list(recursive: true, followLinks: false)) {
+    await for (var file in _directory!.list(recursive: false, followLinks: false)) {
       final ext = file.path.toLowerCase();
 
       if (audioExtensions.any((e) => ext.endsWith(e))) {
