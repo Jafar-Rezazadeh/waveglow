@@ -14,6 +14,7 @@ class TracksListStateController extends GetxController {
         _customDialogs = customDialogs;
 
   final _allDirectories = RxList<TracksListDirectoryEntity>([]);
+  final _isLoadingDir = false.obs;
 
   @visibleForTesting
   set setAllDirectories(List<TracksListDirectoryEntity> list) {
@@ -21,9 +22,12 @@ class TracksListStateController extends GetxController {
   }
 
   List<TracksListDirectoryEntity> get allDirectories => _allDirectories;
+  bool get isLoadingDir => _isLoadingDir.value;
 
   Future<void> pickDirectory() async {
-    // TODO: add a loading
+    _isLoadingDir.value = true;
+    // TODO: not all name are extracted correctly
+
     final result = await _pickTracksListDirectoryUC.call(NoParams());
 
     result.fold(
@@ -34,6 +38,8 @@ class TracksListStateController extends GetxController {
         }
       },
     );
+
+    _isLoadingDir.value = false;
   }
 
   void removeDirectory(TracksListDirectoryEntity dir) {

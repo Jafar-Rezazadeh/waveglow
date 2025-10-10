@@ -223,10 +223,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: b0694b7fb1689b0e6cc193b3f1fcac6423c4f93c74fb20b806c6b6f196db0c31
+      sha256: c2fe1001710127dfa7da89977a08d591398370d099aacdaa6d44da7eb14b8476
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.30"
+    version: "2.0.31"
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -377,10 +377,10 @@ packages:
     dependency: "direct main"
     description:
       name: media_kit
-      sha256: "48c10c3785df5d88f0eef970743f8c99b2e5da2b34b9d8f9876e598f62d9e776"
+      sha256: "52a8e989babc431db0aa242f32a4a08e55f60662477ea09759a105d7cd6410da"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   media_kit_libs_windows_video:
     dependency: "direct main"
     description:
@@ -574,10 +574,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: c0fb544b9ac7efa10254efaf00a951615c362d1ea1877472f8f6c0fa00fcf15b
+      sha256: "5c8b6c2d89a78f5a1cca70a73d9d5f86c701b36b42f9c9dac7bad592113c28e9"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.23"
+    version: "6.3.24"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -686,10 +686,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "66814138c3562338d05613a6e368ed8cfb237ad6d64a9e9334be3f309acfca03"
+      sha256: d7cb55e04cd34096cd3a79b3330245f54cb96a370a1c27adb3c84b917de8b08e
       url: "https://pub.dev"
     source: hosted
-    version: "5.14.0"
+    version: "5.15.0"
   xml:
     dependency: transitive
     description:

@@ -18,10 +18,20 @@ class TracksListPage extends StatelessWidget {
         length: _controller.allDirectories.length,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 90),
-          child: Column(
+          child: Stack(
             children: [
-              _tabBar(),
-              Expanded(child: _tabView()),
+              Column(
+                children: [
+                  _tabBar(),
+                  Expanded(child: _tabView()),
+                ],
+              ),
+              if (_controller.isLoadingDir)
+                Container(
+                  color: _colorPalette.backgroundLow.withValues(alpha: 0.2),
+                  alignment: Alignment.center,
+                  child: const CustomLoadingWidget(),
+                ),
             ],
           ),
         ),
