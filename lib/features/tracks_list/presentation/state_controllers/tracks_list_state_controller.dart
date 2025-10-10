@@ -26,7 +26,6 @@ class TracksListStateController extends GetxController {
 
   Future<void> pickDirectory() async {
     _isLoadingDir.value = true;
-    // TODO: not all name are extracted correctly
 
     final result = await _pickTracksListDirectoryUC.call(NoParams());
 

@@ -37,7 +37,18 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       if (audioExtensions.any((e) => ext.endsWith(e))) {
         final metaData = await MetadataRetriever.fromFile(File(file.path));
 
-        tracks.add(TracksListAudioItemModel.fromMetaData(metaData, file.path));
+        tracks.add(
+          TracksListAudioItemModel(
+            trackName: ext.substring(ext.lastIndexOf("\\") + 1),
+            trackArtistNames: metaData.trackArtistNames,
+            isFavorite: false,
+            trackDuration: metaData.trackDuration != null
+                ? Duration(milliseconds: metaData.trackDuration!)
+                : null,
+            albumArt: metaData.albumArt,
+            path: file.path,
+          ),
+        );
       }
     }
     final indexFolderNameStart = directoryPath.lastIndexOf("\\");
