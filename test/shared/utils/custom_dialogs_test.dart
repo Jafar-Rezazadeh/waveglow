@@ -3,7 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/route_manager.dart';
 import 'package:waveglow/core/core_exports.dart';
 
-class _FakeFailure extends Fake implements Failure {}
+class _FakeFailure extends Fake implements Failure {
+  @override
+  String get message => "error message";
+  @override
+  StackTrace get stackTrace => StackTrace.empty;
+}
 
 void main() {
   late CustomDialogs customDialogs;

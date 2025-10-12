@@ -7,6 +7,7 @@ export 'package:waveglow/features/tracks_list/data/repositories/tracks_list_repo
 // domain
 export 'package:waveglow/features/tracks_list/domain/repositories/tracks_list_repository.dart';
 export 'package:waveglow/features/tracks_list/domain/entities/tracks_list_directory_entity.dart';
+export 'package:waveglow/features/tracks_list/domain/entities/tracks_list_audio_item_entity.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/pick_tracks_list_directory.dart';
 
 // Presentation

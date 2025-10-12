@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/features/tracks_list/data/data-sources/impls/tracks_list_data_source_impl.dart';
@@ -83,8 +82,6 @@ void main() {
         ]),
       );
 
-      _mockMetaDataReceiverMethodChannel();
-
       //act
       final result = await dataSourceImpl.pickDirectory();
 
@@ -110,11 +107,8 @@ void main() {
       verify(() => mockDirectory.list(recursive: false, followLinks: false)).called(1);
     });
 
-    test(
-        "should get any audio file which has expected extension and get its metaData and set it to result ",
-        () async {
+    test("should get any audio file which has expected extension and set it to result ", () async {
       //arrange
-      _mockMetaDataReceiverMethodChannel();
 
       when(
         () => mockFilePicker.getDirectoryPath(),
@@ -139,11 +133,8 @@ void main() {
       expect(result?.audios.length, 6);
     });
 
-    test("should only get the audio files not of selected directory not other type of files",
-        () async {
+    test("should get the only audio files not other type of files", () async {
       //arrange
-      _mockMetaDataReceiverMethodChannel();
-
       when(
         () => mockFilePicker.getDirectoryPath(),
       ).thenAnswer((_) async => "c:/test");
@@ -168,34 +159,4 @@ void main() {
       expect(result?.audios.any((e) => e.path.endsWith(".mp4")), isFalse);
     });
   });
-}
-
-void _mockMetaDataReceiverMethodChannel() {
-  TestWidgetsFlutterBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-    const MethodChannel("flutter_media_metadata"),
-    (methodCall) {
-      if (methodCall.method == "MetadataRetriever") {
-        // The plugin expects a map shaped like:
-        // {
-        //   'metadata': { 'trackName': ..., 'trackArtistNames': 'A/B', 'trackDuration': '123' , ...},
-        //   'genre': ...,
-        //   'albumArt': null,
-        //   'filePath': ...,
-        // }
-        return Future.value({
-          'metadata': {
-            'trackName': 'Test Track',
-            // plugin splits trackArtistNames by '/'
-            'trackArtistNames': 'Artist1/Artist2',
-            'trackDuration': '180000', // in ms as string
-            'mimeType': 'audio/mpeg',
-          },
-          'genre': 'Pop',
-          'albumArt': null,
-          'filePath': 'c:\\test\\file1.mp3',
-        });
-      }
-      return null;
-    },
-  );
 }

@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
+// TODO: implement getting metaData and cache it using hive of each audio
+// when the item is visible in the tracks list
+
 class TracksListStateController extends GetxController {
   final CustomDialogs _customDialogs;
   final PickTracksListDirectoryUC _pickTracksListDirectoryUC;

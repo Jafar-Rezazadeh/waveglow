@@ -1,3 +1,5 @@
+import 'package:logger/logger.dart';
+
 abstract class Failure {
   final String title;
   final StackTrace stackTrace;
@@ -16,6 +18,7 @@ class InternalFailure extends Failure {
 
 class FailureFactory {
   Failure createFailure(dynamic e, StackTrace s) {
+    Logger().e(e);
     return InternalFailure(title: "InternalFailure", stackTrace: s, message: e.toString());
   }
 }

@@ -1,8 +1,10 @@
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_handy_utils/flutter_handy_utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/tracks_list/presentation/widgets/tracks_list_audio_item_widget.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListPage extends StatelessWidget {
@@ -101,7 +103,8 @@ class TracksListPage extends StatelessWidget {
 
   Widget _tabViewItem(TracksListDirectoryEntity e) {
     return ListView(
-      children: e.audios.map((e) => Text(e.trackName?.removeAllWhitespace ?? "")).toList(),
+      children:
+          e.audios.map((e) => TracksListAudioItemWidget(item: e)).toList().withGapInBetween(10),
     );
   }
 }
