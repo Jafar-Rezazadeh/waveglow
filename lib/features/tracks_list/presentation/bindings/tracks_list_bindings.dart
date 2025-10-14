@@ -11,6 +11,9 @@ class TracksListBindings extends Bindings {
 
   @override
   void dependencies() {
+    // extras
+    final musicPlayerService = Get.find<MusicPlayerService>();
+
     // data-source
     final dataSource = TracksListDataSourceImpl(filePicker: _filePicker ?? FilePicker.platform);
 
@@ -27,6 +30,7 @@ class TracksListBindings extends Bindings {
     Get.put(
       TracksListStateController(
         pickTracksListDirectoryUC: pickTracksListDirectoryUC,
+        musicPlayerService: musicPlayerService,
         customDialogs: CustomDialogs(),
       ),
     );

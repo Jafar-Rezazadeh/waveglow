@@ -6,27 +6,35 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class _MockPickTracksListDirectoryUC extends Mock implements PickTracksListDirectoryUC {}
 
+class _MockMusicPlayerService extends Mock implements MusicPlayerService {}
+
 class _MockCustomDialogs extends Mock implements CustomDialogs {}
 
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {}
 
 class _FakeFailure extends Fake implements Failure {}
 
+class _FakeAudioItemEntity extends Fake implements AudioItemEntity {}
+
 void main() {
   late _MockPickTracksListDirectoryUC mockPickTracksListDirectoryUC;
+  late _MockMusicPlayerService mockMusicPlayerService;
   late _MockCustomDialogs mockCustomDialogs;
   late TracksListStateController controller;
 
   setUpAll(() {
     registerFallbackValue(NoParams());
     registerFallbackValue(_FakeFailure());
+    registerFallbackValue(<AudioItemEntity>[]);
   });
 
   setUp(() {
     mockPickTracksListDirectoryUC = _MockPickTracksListDirectoryUC();
     mockCustomDialogs = _MockCustomDialogs();
+    mockMusicPlayerService = _MockMusicPlayerService();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
+      musicPlayerService: mockMusicPlayerService,
       pickTracksListDirectoryUC: mockPickTracksListDirectoryUC,
     );
   });
@@ -51,9 +59,7 @@ void main() {
         () => mockPickTracksListDirectoryUC.call(any()),
       ).thenAnswer((_) async => left(_FakeFailure()));
 
-      when(
-        () => mockCustomDialogs.showFailure(any()),
-      ).thenAnswer((_) async {});
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       //act
       await controller.pickDirectory();
@@ -87,6 +93,19 @@ void main() {
 
       //assert
       expect(controller.allDirectories, isEmpty);
+    });
+  });
+
+  group("playTrack -", () {
+    test("should call the expected service method ", () async {
+      //arrange
+      when(() => mockMusicPlayerService.open(any(), play: true)).thenAnswer((_) async {});
+
+      //act
+      await controller.playTrack(_FakeAudioItemEntity());
+
+      //assert
+      verify(() => mockMusicPlayerService.open(any(), play: true)).called(1);
     });
   });
 }

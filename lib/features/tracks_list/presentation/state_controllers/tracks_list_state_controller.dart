@@ -6,13 +6,16 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 // TODO: implement caching directories
 
 class TracksListStateController extends GetxController {
+  final MusicPlayerService _musicPlayerService;
   final CustomDialogs _customDialogs;
   final PickTracksListDirectoryUC _pickTracksListDirectoryUC;
 
   TracksListStateController({
     required PickTracksListDirectoryUC pickTracksListDirectoryUC,
+    required MusicPlayerService musicPlayerService,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
+       _musicPlayerService = musicPlayerService,
        _customDialogs = customDialogs;
 
   final _allDirectories = RxList<TracksListDirectoryEntity>([]);
@@ -45,7 +48,6 @@ class TracksListStateController extends GetxController {
   }
 
   Future<void> playTrack(AudioItemEntity item) async {
-    // TODO: test this
-    await Get.find<MusicPlayerService>().open([item], play: true);
+    await _musicPlayerService.open([item], play: true);
   }
 }

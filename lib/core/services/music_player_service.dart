@@ -11,7 +11,7 @@ abstract class MusicPlayerService {
   Duration? get currentMusicDuration;
   bool get isShuffle;
 
-  Future<void> open(List<AudioItemEntity> media, {bool play});
+  Future<void> open(List<AudioItemEntity> audios, {bool play});
   Future<void> playOrPause();
   Future<void> goPrevious();
   Future<void> goNext();
