@@ -21,16 +21,13 @@ class HomeVisualizerWidget extends StatelessWidget {
           perceptualBands: _controller.smoothedPerceptualBands,
           circleRadius: 110,
         ),
-        child: _musicPlayer.currentMusicMetaData?.albumArt != null
+        child: _musicPlayer.currentTrack?.albumArt != null
             ? CircleAvatar(
                 radius: 106,
                 backgroundColor: _colorPalette.background,
                 child: ClipRRect(
                   borderRadius: BorderRadiusGeometry.circular(1000),
-                  child: Image.memory(
-                    _musicPlayer.currentMusicMetaData!.albumArt!,
-                    fit: BoxFit.fill,
-                  ),
+                  child: Image.memory(_musicPlayer.currentTrack!.albumArt!, fit: BoxFit.fill),
                 ),
               )
             : null,
@@ -134,26 +131,11 @@ class VisualizerPainter extends CustomPainter {
     final fullBass = (perceptualBands.bass * perceptualBands.subBass);
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
-      (
-        amplitude: fullBass * 170,
-        bumpAngle: pi * 0.4,
-      ),
-      (
-        amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300,
-        bumpAngle: pi * 0.1,
-      ),
-      (
-        amplitude: (perceptualBands.highMid) * 100,
-        bumpAngle: pi * 0.2,
-      ),
-      (
-        amplitude: (perceptualBands.presence) * 100,
-        bumpAngle: pi * 0.15,
-      ),
-      (
-        amplitude: perceptualBands.brilliance * 300,
-        bumpAngle: pi * 0.16,
-      ),
+      (amplitude: fullBass * 170, bumpAngle: pi * 0.4),
+      (amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300, bumpAngle: pi * 0.1),
+      (amplitude: (perceptualBands.highMid) * 100, bumpAngle: pi * 0.2),
+      (amplitude: (perceptualBands.presence) * 100, bumpAngle: pi * 0.15),
+      (amplitude: perceptualBands.brilliance * 300, bumpAngle: pi * 0.16),
     ];
 
     final path = Path();
@@ -235,18 +217,8 @@ class VisualizerPainter extends CustomPainter {
 
     canvas.save();
     canvas.translate(0, -loudnessScaled.toDouble() / 3);
-    canvas.drawShadow(
-      path,
-      shadowColor,
-      loudnessScaled.toDouble().clamp(0, 50),
-      false,
-    );
-    canvas.drawShadow(
-      path,
-      shadowColor,
-      loudnessScaled.toDouble().clamp(0, 50),
-      false,
-    );
+    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
+    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
     canvas.restore();
 
     canvas.drawPath(path, paint);
@@ -270,11 +242,7 @@ class VisualizerPainter extends CustomPainter {
     canvas.drawCircle(size.center(Offset.zero), scaledRadius + 2, shadowPaint);
     canvas.drawCircle(size.center(Offset.zero), scaledRadius, innerCirclePaint);
 
-    canvas.drawCircle(
-      size.center(Offset.zero),
-      circleRadius - 2,
-      outerBorderCirclePaint,
-    );
+    canvas.drawCircle(size.center(Offset.zero), circleRadius - 2, outerBorderCirclePaint);
   }
 
   @override

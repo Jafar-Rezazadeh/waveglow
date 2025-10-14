@@ -1,29 +1,21 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter_media_metadata/flutter_media_metadata.dart' as media_meta_data;
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:waveglow/core/services/music_player_service.dart';
+import 'package:waveglow/core/core_exports.dart';
 
 class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final Player _player;
-  MusicPlayerServiceImpl({
-    required Player player,
-  }) : _player = player;
+  MusicPlayerServiceImpl({required Player player}) : _player = player;
 
-  final _metaData = Rx<media_meta_data.Metadata?>(null);
-  final _currentMedia = Rx<Media?>(null);
-  final _currentPlaylist = Rx<Playlist>(const Playlist([]));
+  final _currentMedia = Rx<AudioItemEntity?>(null);
+  final _currentPlaylist = Rx<List<AudioItemEntity>>([]);
   final _isPlaying = RxBool(false);
   final _playListModel = Rx<PlaylistMode>(PlaylistMode.loop);
   final _volume = RxDouble(100);
   final _currentPosition = Rx<Duration?>(null);
   final _currentDuration = Rx<Duration?>(null);
   final _isShuffle = false.obs;
-
-  @override
-  media_meta_data.Metadata? get currentMusicMetaData => _metaData.value;
 
   @override
   bool get isPlaying => _isPlaying.value;
@@ -38,7 +30,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   double get volume => _volume.value;
 
   @override
-  Media? get currentMedia => _currentMedia.value;
+  AudioItemEntity? get currentTrack => _currentMedia.value;
 
   @override
   Duration? get currentMusicPosition => _currentPosition.value;
@@ -68,57 +60,34 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   void _playListListener() {
     _player.stream.playlist.listen((playlistState) {
       final currentIndex = playlistState.index;
-      _currentMedia.value = _currentPlaylist.value.medias[currentIndex];
+
+      _currentMedia.value = _currentPlaylist.value[currentIndex];
     });
   }
 
   void _playingListener() {
-    _player.stream.playing.listen(
-      (isPlaying) async {
-        _isPlaying.value = isPlaying;
-        if (isPlaying) {
-          await _getMetaData();
-        }
-      },
-    );
+    _player.stream.playing.listen((isPlaying) async {
+      _isPlaying.value = isPlaying;
+    });
   }
 
   void _currentTrackListener() {
-    _player.stream.duration.listen(
-      (duration) {
-        _currentDuration.value = duration;
-      },
-    );
-    _player.stream.position.listen(
-      (duration) {
-        _currentPosition.value = duration;
-      },
-    );
+    _player.stream.duration.listen((duration) {
+      _currentDuration.value = duration;
+    });
+    _player.stream.position.listen((duration) {
+      _currentPosition.value = duration;
+    });
   }
 
   _rxListeners() {
-    ever(
-      _currentMedia,
-      (callback) {
-        _getMetaData();
-      },
-    );
-  }
-
-  _getMetaData() async {
-    if (_currentMedia.value != null) {
-      _metaData.value = await media_meta_data.MetadataRetriever.fromFile(
-        File(_currentMedia.value!.uri),
-      );
-    } else {
-      _metaData.value = null;
-    }
+    ever(_currentMedia, (callback) {});
   }
 
   @override
-  Future<void> open(List<Media> media, {bool play = false}) async {
-    _currentPlaylist.value = Playlist(media);
-    _player.open(_currentPlaylist.value, play: play);
+  Future<void> open(List<AudioItemEntity> tracks, {bool play = false}) async {
+    _currentPlaylist.value = tracks;
+    _player.open(Playlist(_currentPlaylist.value.map((e) => Media(e.path)).toList()), play: play);
   }
 
   @override

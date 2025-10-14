@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -47,6 +46,6 @@ class TracksListStateController extends GetxController {
 
   Future<void> playTrack(AudioItemEntity item) async {
     // TODO: test this
-    await Get.find<MusicPlayerService>().open([Media(item.path)], play: true);
+    await Get.find<MusicPlayerService>().open([item], play: true);
   }
 }

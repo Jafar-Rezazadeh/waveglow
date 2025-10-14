@@ -1,8 +1,4 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/home/presentation/pages/home_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
@@ -17,8 +13,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-  late final _musicService = Get.find<MusicPlayerService>();
   late final PageController pageViewController;
   int currentPage = 0;
 
@@ -30,38 +24,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _body(),
-      floatingActionButton: _floatingActionButton(),
-    );
+    return Scaffold(body: _body());
   }
 
   Widget _body() {
     return Column(
       children: [
-        Expanded(
-          child: Stack(
-            children: [
-              _pageViewLayout(),
-              MainTitleBarWidget(),
-            ],
-          ),
-        ),
+        Expanded(child: Stack(children: [_pageViewLayout(), MainTitleBarWidget()])),
         MusicPlayerWidget(),
       ],
-    );
-  }
-
-  Widget _floatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () async {
-        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-
-        if (result != null && result.count > 0) {
-          _musicService.open(result.files.map((e) => Media(e.path ?? "")).toList());
-        }
-      },
-      child: const Icon(Icons.file_open),
     );
   }
 
@@ -69,10 +40,7 @@ class _MainScreenState extends State<MainScreen> {
     return Stack(
       alignment: Alignment.center,
       fit: StackFit.expand,
-      children: [
-        _pageView(),
-        _navigator(),
-      ],
+      children: [_pageView(), _navigator()],
     );
   }
 
