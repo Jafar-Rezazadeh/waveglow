@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -13,8 +14,8 @@ class TracksListStateController extends GetxController {
   TracksListStateController({
     required PickTracksListDirectoryUC pickTracksListDirectoryUC,
     required CustomDialogs customDialogs,
-  })  : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
-        _customDialogs = customDialogs;
+  }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
+       _customDialogs = customDialogs;
 
   final _allDirectories = RxList<TracksListDirectoryEntity>([]);
   final _isLoadingDir = false.obs;
@@ -32,19 +33,21 @@ class TracksListStateController extends GetxController {
 
     final result = await _pickTracksListDirectoryUC.call(NoParams());
 
-    result.fold(
-      (failure) => _customDialogs.showFailure(failure),
-      (data) {
-        if (data != null) {
-          _allDirectories.add(data);
-        }
-      },
-    );
+    result.fold((failure) => _customDialogs.showFailure(failure), (data) {
+      if (data != null) {
+        _allDirectories.add(data);
+      }
+    });
 
     _isLoadingDir.value = false;
   }
 
   void removeDirectory(TracksListDirectoryEntity dir) {
     _allDirectories.remove(dir);
+  }
+
+  Future<void> playTrack(TracksListAudioItemEntity item) async {
+    // TODO: test this
+    await Get.find<MusicPlayerService>().open([Media(item.path)], play: true);
   }
 }

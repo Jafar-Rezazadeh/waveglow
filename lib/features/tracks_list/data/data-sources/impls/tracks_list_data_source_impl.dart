@@ -2,21 +2,22 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:waveglow/features/tracks_list/data/models/tracks_list_audio_item_model.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListDataSourceImpl implements TracksListDataSource {
   final FilePicker _filePicker;
-  Directory? _directory;
+  final Directory? _testDirectory;
 
   final audioExtensions = ['.mp3', '.wav', '.aac', '.m4a', '.flac', '.ogg'];
 
   TracksListDataSourceImpl({
     required FilePicker filePicker,
     @visibleForTesting Directory? directory,
-  })  : _filePicker = filePicker,
-        _directory = directory;
+  }) : _filePicker = filePicker,
+       _testDirectory = directory;
 
   @override
   Future<TracksListDirectoryModel?> pickDirectory() async {
@@ -26,18 +27,28 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       return null;
     }
 
-    _directory ??= Directory(directoryPath);
+    late final Directory dir;
+    if (_testDirectory == null) {
+      dir = Directory(directoryPath);
+    } else {
+      dir = _testDirectory;
+    }
 
     final Set<TracksListAudioItemModel> tracks = {};
 
-    await for (var file in _directory!.list(recursive: false, followLinks: false)) {
+    await for (var file in dir.list(recursive: false, followLinks: false)) {
       final ext = file.path.toLowerCase();
+
+      final metaData = await MetadataRetriever.fromFile(File(file.path));
 
       if (audioExtensions.any((e) => ext.endsWith(e))) {
         tracks.add(
           TracksListAudioItemModel(
-            trackName: ext.substring(ext.lastIndexOf("\\") + 1),
             path: file.path,
+            albumArt: metaData.albumArt,
+            artistsNames: metaData.trackArtistNames,
+            duration: Duration(milliseconds: metaData.trackDuration ?? 0),
+            trackName: ext.substring(ext.lastIndexOf("\\") + 1),
           ),
         );
       }

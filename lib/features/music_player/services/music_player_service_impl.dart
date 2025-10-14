@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_media_metadata/flutter_media_metadata.dart'
-    as media_meta_data;
+import 'package:flutter_media_metadata/flutter_media_metadata.dart' as media_meta_data;
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/services/music_player_service.dart';
@@ -117,9 +116,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   }
 
   @override
-  Future<void> open(List<Media> media) async {
+  Future<void> open(List<Media> media, {bool play = false}) async {
     _currentPlaylist.value = Playlist(media);
-    _player.open(_currentPlaylist.value, play: false);
+    _player.open(_currentPlaylist.value, play: play);
   }
 
   @override
