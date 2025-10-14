@@ -1,9 +1,9 @@
-import 'package:waveglow/features/tracks_list/domain/entities/tracks_list_audio_item_entity.dart';
+import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class TracksListDirectoryEntity {
   final String directoryName;
   final String directoryPath;
-  final List<TracksListAudioItemEntity> audios;
+  final List<AudioItemEntity> audios;
 
   TracksListDirectoryEntity({
     required this.directoryName,

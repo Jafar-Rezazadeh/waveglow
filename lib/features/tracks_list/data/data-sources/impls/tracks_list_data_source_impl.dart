@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:waveglow/features/tracks_list/data/models/tracks_list_audio_item_model.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListDataSourceImpl implements TracksListDataSource {
@@ -34,7 +34,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       dir = _testDirectory;
     }
 
-    final Set<TracksListAudioItemModel> tracks = {};
+    final Set<AudioItemModel> tracks = {};
 
     await for (var file in dir.list(recursive: false, followLinks: false)) {
       final ext = file.path.toLowerCase();
@@ -43,7 +43,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
       if (audioExtensions.any((e) => ext.endsWith(e))) {
         tracks.add(
-          TracksListAudioItemModel(
+          AudioItemModel(
             path: file.path,
             albumArt: metaData.albumArt,
             artistsNames: metaData.trackArtistNames,

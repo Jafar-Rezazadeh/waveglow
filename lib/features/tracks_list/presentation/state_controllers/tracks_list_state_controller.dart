@@ -4,8 +4,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
-// TODO: implement getting metaData and cache it using hive of each audio
-// when the item is visible in the tracks list
+// TODO: implement caching directories
 
 class TracksListStateController extends GetxController {
   final CustomDialogs _customDialogs;
@@ -46,7 +45,7 @@ class TracksListStateController extends GetxController {
     _allDirectories.remove(dir);
   }
 
-  Future<void> playTrack(TracksListAudioItemEntity item) async {
+  Future<void> playTrack(AudioItemEntity item) async {
     // TODO: test this
     await Get.find<MusicPlayerService>().open([Media(item.path)], play: true);
   }

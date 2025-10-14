@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 
-// TODO: make the entity a shared global entity and use it in the musicPlayer
-class TracksListAudioItemEntity {
+class AudioItemEntity {
   final String path;
   final String? trackName;
   final Uint8List? albumArt;
   final Duration? duration;
   final List<String>? artistsNames;
 
-  TracksListAudioItemEntity({
+  AudioItemEntity({
     required this.path,
     required this.trackName,
     required this.albumArt,
