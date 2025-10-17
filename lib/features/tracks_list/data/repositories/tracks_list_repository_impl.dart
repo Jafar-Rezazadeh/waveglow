@@ -9,13 +9,35 @@ class TracksListRepositoryImpl implements TracksListRepository {
   TracksListRepositoryImpl({
     required TracksListDataSource dataSource,
     required FailureFactory failureFactory,
-  })  : _dataSource = dataSource,
-        _failureFactory = failureFactory;
+  }) : _dataSource = dataSource,
+       _failureFactory = failureFactory;
 
   @override
   Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory() async {
     try {
       final result = await _dataSource.pickDirectory();
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveDirectory(TracksListDirectoryEntity dir) async {
+    try {
+      final result = await _dataSource.saveDirectory(dir);
+
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories() async {
+    try {
+      final result = await _dataSource.getDirectories();
+
       return right(result);
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));

@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
-// TODO: implement caching directories
-
 class TracksListStateController extends GetxController {
   final MusicPlayerService _musicPlayerService;
   final CustomDialogs _customDialogs;

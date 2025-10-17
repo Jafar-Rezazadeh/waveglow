@@ -4,19 +4,23 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:hive/hive.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListDataSourceImpl implements TracksListDataSource {
   final FilePicker _filePicker;
   final Directory? _testDirectory;
+  final Box<TracksListDirectoryEntity> _directoriesBox;
 
   final audioExtensions = ['.mp3', '.wav', '.aac', '.m4a', '.flac', '.ogg'];
 
   TracksListDataSourceImpl({
     required FilePicker filePicker,
     @visibleForTesting Directory? directory,
+    Box<TracksListDirectoryEntity>? testBox,
   }) : _filePicker = filePicker,
+       _directoriesBox = testBox ?? Hive.box(TracksListConstants.tracksListDirectoryBoxName),
        _testDirectory = directory;
 
   @override
@@ -66,5 +70,15 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       directoryPath: directoryPath,
       audios: tracks.toList(),
     );
+  }
+
+  @override
+  Future<void> saveDirectory(TracksListDirectoryEntity dir) async {
+    await _directoriesBox.add(dir);
+  }
+
+  @override
+  Future<List<TracksListDirectoryEntity>> getDirectories() async {
+    return _directoriesBox.values.toList();
   }
 }

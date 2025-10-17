@@ -4,4 +4,6 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 abstract class TracksListRepository {
   Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory();
+  Future<Either<Failure, void>> saveDirectory(TracksListDirectoryEntity dir);
+  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories();
 }
