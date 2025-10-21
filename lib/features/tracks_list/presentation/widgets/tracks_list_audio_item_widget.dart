@@ -81,8 +81,9 @@ class TracksListAudioItemWidget extends StatelessWidget {
   }
 
   Widget _duration() {
+    final duration = Duration(seconds: item.durationInSeconds ?? 0);
     return Text(
-      "${item.duration?.inMinutes.remainder(60).toString().padLeft(2, "0")}:${item.duration?.inSeconds.remainder(60).toString().padLeft(2, "0")}",
+      "${duration.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration.inSeconds.remainder(60).toString().padLeft(2, "0")}",
     );
   }
 }

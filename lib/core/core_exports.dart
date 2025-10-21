@@ -11,4 +11,3 @@ export 'package:waveglow/shared/utils/custom_dialogs.dart';
 export 'package:waveglow/shared/widgets/custom_loading_widget.dart';
 
 export 'package:waveglow/shared/entities/audio_item_entity.dart';
-export 'package:waveglow/shared/models/audio_item_model.dart';

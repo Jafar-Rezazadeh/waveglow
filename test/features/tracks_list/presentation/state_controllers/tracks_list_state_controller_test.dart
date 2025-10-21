@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
@@ -9,6 +10,10 @@ class _MockPickTracksListDirectoryUC extends Mock implements PickTracksListDirec
 class _MockMusicPlayerService extends Mock implements MusicPlayerService {}
 
 class _MockCustomDialogs extends Mock implements CustomDialogs {}
+
+class _MockSaveTracksListDirectoryUC extends Mock implements SaveTracksListDirectoryUC {}
+
+class _MockGetTrackListDirectoriesUC extends Mock implements GetTrackListDirectoriesUC {}
 
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {}
 
@@ -20,23 +25,48 @@ void main() {
   late _MockPickTracksListDirectoryUC mockPickTracksListDirectoryUC;
   late _MockMusicPlayerService mockMusicPlayerService;
   late _MockCustomDialogs mockCustomDialogs;
+  late _MockSaveTracksListDirectoryUC mockSaveTracksListDirectoryUC;
+  late _MockGetTrackListDirectoriesUC mockGetTrackListDirectoriesUC;
   late TracksListStateController controller;
 
   setUpAll(() {
     registerFallbackValue(NoParams());
     registerFallbackValue(_FakeFailure());
     registerFallbackValue(<AudioItemEntity>[]);
+    registerFallbackValue(_FakeTracksListDirectoryEntity());
   });
 
   setUp(() {
+    Get.testMode = true;
     mockPickTracksListDirectoryUC = _MockPickTracksListDirectoryUC();
     mockCustomDialogs = _MockCustomDialogs();
     mockMusicPlayerService = _MockMusicPlayerService();
+    mockSaveTracksListDirectoryUC = _MockSaveTracksListDirectoryUC();
+    mockGetTrackListDirectoriesUC = _MockGetTrackListDirectoriesUC();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
       musicPlayerService: mockMusicPlayerService,
       pickTracksListDirectoryUC: mockPickTracksListDirectoryUC,
+      saveDirectoryUC: mockSaveTracksListDirectoryUC,
+      getDirectoriesUC: mockGetTrackListDirectoriesUC,
     );
+  });
+
+  tearDown(() {
+    Get.reset();
+  });
+
+  group("onInit -", () {
+    test("should call expected useCases via method when init", () {
+      //arrange
+      when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer((_) async => right([]));
+
+      //act
+      Get.put(controller);
+
+      //assert
+      verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
+    });
   });
 
   group("pickDirectory -", () {
@@ -45,6 +75,8 @@ void main() {
       when(
         () => mockPickTracksListDirectoryUC.call(any()),
       ).thenAnswer((_) async => right(_FakeTracksListDirectoryEntity()));
+
+      when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
       await controller.pickDirectory();
@@ -74,12 +106,32 @@ void main() {
         () => mockPickTracksListDirectoryUC.call(any()),
       ).thenAnswer((_) async => right(_FakeTracksListDirectoryEntity()));
 
+      when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
+
       //act
       await controller.pickDirectory();
 
       //assert
       expect(controller.allDirectories, isNotEmpty);
     });
+
+    test(
+      "should call expected uceCase via its method to save picked directory when success with a directory",
+      () async {
+        //arrange
+        when(
+          () => mockPickTracksListDirectoryUC.call(any()),
+        ).thenAnswer((_) async => right(_FakeTracksListDirectoryEntity()));
+
+        when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
+
+        //act
+        await controller.pickDirectory();
+
+        //assert
+        verify(() => mockSaveTracksListDirectoryUC.call(any())).called(1);
+      },
+    );
   });
 
   group("deleteDirectory -", () {
@@ -106,6 +158,75 @@ void main() {
 
       //assert
       verify(() => mockMusicPlayerService.open(any(), play: true)).called(1);
+    });
+  });
+
+  group("saveDirectory -", () {
+    test("should call expected useCase when invoked", () async {
+      //arrange
+      when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
+
+      //act
+      await controller.saveDirectory(_FakeTracksListDirectoryEntity());
+
+      //assert
+      verify(() => mockSaveTracksListDirectoryUC.call(any())).called(1);
+    });
+
+    test("should call $CustomDialogs.showFailure when result is a failure", () async {
+      //arrange
+      when(
+        () => mockSaveTracksListDirectoryUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.saveDirectory(_FakeTracksListDirectoryEntity());
+
+      //assert
+      verify(() => mockCustomDialogs.showFailure(any())).called(1);
+    });
+  });
+
+  group("getDirectories -", () {
+    test("should call expected useCase when invoked", () async {
+      //arrange
+      when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer((_) async => right([]));
+
+      //act
+      await controller.getDirectories();
+
+      //assert
+      verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
+    });
+
+    test("should add the result to controller variable when success", () async {
+      //arrange
+      when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer(
+        (_) async => right([_FakeTracksListDirectoryEntity(), _FakeTracksListDirectoryEntity()]),
+      );
+
+      //act
+      await controller.getDirectories();
+
+      //assert
+      expect(controller.allDirectories.length, 2);
+    });
+
+    test("should call $CustomDialogs.showFailure when result is a failure", () async {
+      //arrange
+      when(
+        () => mockGetTrackListDirectoriesUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.getDirectories();
+
+      //assert
+      verify(() => mockCustomDialogs.showFailure(any())).called(1);
     });
   });
 }

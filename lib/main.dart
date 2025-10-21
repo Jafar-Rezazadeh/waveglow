@@ -6,22 +6,22 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
+import 'package:waveglow/hive_initialization.dart';
 
 import 'shared/routing/routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  await hiveInitialization();
 
   runApp(const WaveGlowApp());
 
-  doWhenWindowReady(
-    () {
-      appWindow.minSize = const Size(1200, 600);
-      appWindow.alignment = Alignment.center;
-      appWindow.show();
-    },
-  );
+  doWhenWindowReady(() {
+    appWindow.minSize = const Size(1200, 600);
+    appWindow.alignment = Alignment.center;
+    appWindow.show();
+  });
 }
 
 class WaveGlowApp extends StatelessWidget {
@@ -43,9 +43,7 @@ class WaveGlowApp extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           width: 200,
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
         child: GetMaterialApp(
           initialRoute: mainScreenRoute,

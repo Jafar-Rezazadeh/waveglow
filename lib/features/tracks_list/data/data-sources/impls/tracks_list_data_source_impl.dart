@@ -38,7 +38,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       dir = _testDirectory;
     }
 
-    final Set<AudioItemModel> tracks = {};
+    final Set<AudioItemEntity> tracks = {};
 
     await for (var file in dir.list(recursive: false, followLinks: false)) {
       final ext = file.path.toLowerCase();
@@ -47,11 +47,11 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
       if (audioExtensions.any((e) => ext.endsWith(e))) {
         tracks.add(
-          AudioItemModel(
+          AudioItemEntity(
             path: file.path,
             albumArt: metaData.albumArt,
             artistsNames: metaData.trackArtistNames,
-            duration: Duration(milliseconds: metaData.trackDuration ?? 0),
+            durationInSeconds: Duration(milliseconds: metaData.trackDuration ?? 0).inSeconds,
             trackName: ext.substring(ext.lastIndexOf("\\") + 1),
           ),
         );
