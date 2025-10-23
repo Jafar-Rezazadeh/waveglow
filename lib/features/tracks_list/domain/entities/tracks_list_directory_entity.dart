@@ -4,7 +4,7 @@ import 'package:waveglow/shared/entities/audio_item_entity.dart';
 part 'tracks_list_directory_entity.g.dart';
 
 @HiveType(typeId: 0)
-class TracksListDirectoryEntity {
+class TracksListDirectoryEntity extends HiveObject {
   @HiveField(0)
   final String directoryName;
   @HiveField(1)

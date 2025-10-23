@@ -8,7 +8,8 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListAudioItemWidget extends StatelessWidget {
   final AudioItemEntity item;
-  TracksListAudioItemWidget({super.key, required this.item});
+  final dynamic dirKey;
+  TracksListAudioItemWidget({super.key, required this.item, required this.dirKey});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _controller = Get.find<TracksListStateController>();
@@ -17,9 +18,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-      onTap: () {
-        _controller.playTrack(item);
-      },
+      onTap: () => _controller.playTrack(item, dirKey),
       child: Container(
         decoration: BoxDecoration(
           color: _colorPalette.backgroundLow,

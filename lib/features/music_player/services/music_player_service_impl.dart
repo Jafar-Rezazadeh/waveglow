@@ -39,6 +39,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Duration? get currentMusicDuration => _currentDuration.value;
 
   @override
+  List<AudioItemEntity> get currentPlaylist => _currentPlaylist.value;
+
+  @override
   bool get isShuffle => _isShuffle.value;
 
   @override
@@ -85,7 +88,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   }
 
   @override
-  Future<void> open(List<AudioItemEntity> tracks, {bool play = false}) async {
+  Future<void> openPlayList(List<AudioItemEntity> tracks, {bool play = false}) async {
     _currentPlaylist.value = tracks;
     _player.open(Playlist(_currentPlaylist.value.map((e) => Media(e.path)).toList()), play: play);
   }
@@ -143,5 +146,11 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Future<void> toggleShuffle() async {
     _isShuffle.value = !_isShuffle.value;
     await _player.setShuffle(_isShuffle.value);
+  }
+
+  @override
+  Future<void> playAt(int index) async {
+    await _player.jump(index);
+    await _player.play();
   }
 }

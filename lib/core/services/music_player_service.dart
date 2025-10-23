@@ -10,8 +10,9 @@ abstract class MusicPlayerService {
   Duration? get currentMusicPosition;
   Duration? get currentMusicDuration;
   bool get isShuffle;
+  List<AudioItemEntity> get currentPlaylist;
 
-  Future<void> open(List<AudioItemEntity> audios, {bool play});
+  Future<void> openPlayList(List<AudioItemEntity> audios, {bool play});
   Future<void> playOrPause();
   Future<void> goPrevious();
   Future<void> goNext();
@@ -19,4 +20,5 @@ abstract class MusicPlayerService {
   Future<void> setVolume(double value);
   Future<void> setPosition(double value);
   Future<void> toggleShuffle();
+  Future<void> playAt(int index);
 }

@@ -9,6 +9,9 @@ class TracksListStateController extends GetxController {
   final PickTracksListDirectoryUC _pickTracksListDirectoryUC;
   final SaveTracksListDirectoryUC _saveDirectoryUC;
   final GetTrackListDirectoriesUC _getDirectoriesUC;
+  final _allDirectories = RxList<TracksListDirectoryEntity>([]);
+  dynamic _currentDirKey;
+  final _isLoadingDir = false.obs;
 
   TracksListStateController({
     required PickTracksListDirectoryUC pickTracksListDirectoryUC,
@@ -22,13 +25,16 @@ class TracksListStateController extends GetxController {
        _getDirectoriesUC = getDirectoriesUC,
        _customDialogs = customDialogs;
 
-  final _allDirectories = RxList<TracksListDirectoryEntity>([]);
-  final _isLoadingDir = false.obs;
-
   @visibleForTesting
   set setAllDirectories(List<TracksListDirectoryEntity> list) {
     _allDirectories.value = list;
   }
+
+  @visibleForTesting
+  set setCurrentDirKey(dynamic value) => _currentDirKey = value;
+
+  @visibleForTesting
+  dynamic get currentDirKey => _currentDirKey;
 
   List<TracksListDirectoryEntity> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;
@@ -71,8 +77,20 @@ class TracksListStateController extends GetxController {
     _allDirectories.remove(dir);
   }
 
-  Future<void> playTrack(AudioItemEntity item) async {
-    await _musicPlayerService.open([item], play: true);
+  Future<void> playTrack(AudioItemEntity item, dynamic dirKey) async {
+    if (dirKey != _currentDirKey || _musicPlayerService.currentPlaylist.isEmpty) {
+      final dirAudiosItems = _allDirectories.firstWhereOrNull((e) => e.key == dirKey)?.audios ?? [];
+
+      await _musicPlayerService.openPlayList(dirAudiosItems, play: false);
+    }
+
+    final itemIndex = _musicPlayerService.currentPlaylist.indexOf(item);
+
+    if (itemIndex != -1) {
+      await _musicPlayerService.playAt(itemIndex);
+    }
+
+    _currentDirKey = dirKey;
   }
 
   @visibleForTesting

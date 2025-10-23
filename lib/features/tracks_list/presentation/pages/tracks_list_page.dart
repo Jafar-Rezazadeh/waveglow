@@ -61,14 +61,14 @@ class TracksListPage extends StatelessWidget {
             onPressed: () => _controller.pickDirectory(),
             icon: const Icon(FontAwesomeIcons.plus),
             iconSize: 16,
-            style: ButtonStyle(iconColor: WidgetStateColor.resolveWith(
-              (states) {
+            style: ButtonStyle(
+              iconColor: WidgetStateColor.resolveWith((states) {
                 if (states.contains(WidgetState.hovered)) {
                   return _colorPalette.neutral100;
                 }
                 return _colorPalette.neutral500;
-              },
-            )),
+              }),
+            ),
           ),
         ],
       ),
@@ -79,10 +79,7 @@ class TracksListPage extends StatelessWidget {
     return ContextMenuRegion(
       contextMenu: GenericContextMenu(
         buttonConfigs: [
-          ContextMenuButtonConfig(
-            'حذف',
-            onPressed: () => _controller.removeDirectory(e),
-          )
+          ContextMenuButtonConfig('حذف', onPressed: () => _controller.removeDirectory(e)),
         ],
       ),
       child: Text(e.directoryName),
@@ -101,10 +98,12 @@ class TracksListPage extends StatelessWidget {
     );
   }
 
-  Widget _tabViewItem(TracksListDirectoryEntity e) {
+  Widget _tabViewItem(TracksListDirectoryEntity dir) {
     return ListView(
-      children:
-          e.audios.map((e) => TracksListAudioItemWidget(item: e)).toList().withGapInBetween(10),
+      children: dir.audios
+          .map((e) => TracksListAudioItemWidget(item: e, dirKey: dir.key))
+          .toList()
+          .withGapInBetween(10),
     );
   }
 }
