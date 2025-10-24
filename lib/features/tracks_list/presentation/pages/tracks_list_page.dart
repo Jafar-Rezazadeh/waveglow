@@ -88,7 +88,7 @@ class TracksListPage extends StatelessWidget {
 
   Widget _tabView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
+      padding: const EdgeInsets.only(top: 16),
       child: Obx(
         () => TabBarView(
           physics: const NeverScrollableScrollPhysics(),
@@ -100,6 +100,7 @@ class TracksListPage extends StatelessWidget {
 
   Widget _tabViewItem(TracksListDirectoryEntity dir) {
     return ListView(
+      padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
       children: dir.audios
           .map((e) => TracksListAudioItemWidget(item: e, dirKey: dir.id))
           .toList()
