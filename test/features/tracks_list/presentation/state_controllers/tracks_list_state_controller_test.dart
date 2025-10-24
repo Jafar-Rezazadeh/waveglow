@@ -13,9 +13,14 @@ class _MockCustomDialogs extends Mock implements CustomDialogs {}
 
 class _MockSaveTracksListDirectoryUC extends Mock implements SaveTracksListDirectoryUC {}
 
+class _MockDeleteTracksListDirectoryUC extends Mock implements DeleteTracksListDirectoryUC {}
+
 class _MockGetTrackListDirectoriesUC extends Mock implements GetTrackListDirectoriesUC {}
 
-class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {}
+class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
+  @override
+  String get id => "throw_UnimplementedError";
+}
 
 class _FakeFailure extends Fake implements Failure {}
 
@@ -27,6 +32,7 @@ void main() {
   late _MockCustomDialogs mockCustomDialogs;
   late _MockSaveTracksListDirectoryUC mockSaveTracksListDirectoryUC;
   late _MockGetTrackListDirectoriesUC mockGetTrackListDirectoriesUC;
+  late _MockDeleteTracksListDirectoryUC mockDeleteTracksListDirectoryUC;
   late TracksListStateController controller;
 
   setUpAll(() {
@@ -43,12 +49,14 @@ void main() {
     mockMusicPlayerService = _MockMusicPlayerService();
     mockSaveTracksListDirectoryUC = _MockSaveTracksListDirectoryUC();
     mockGetTrackListDirectoriesUC = _MockGetTrackListDirectoriesUC();
+    mockDeleteTracksListDirectoryUC = _MockDeleteTracksListDirectoryUC();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
       musicPlayerService: mockMusicPlayerService,
       pickTracksListDirectoryUC: mockPickTracksListDirectoryUC,
       saveDirectoryUC: mockSaveTracksListDirectoryUC,
       getDirectoriesUC: mockGetTrackListDirectoriesUC,
+      deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
     );
   });
 
@@ -135,17 +143,50 @@ void main() {
   });
 
   group("deleteDirectory -", () {
-    test("should should remove the given directory from directories ", () {
+    test("should call expected useCase when invoked", () async {
       //arrange
-      final directory = _FakeTracksListDirectoryEntity();
-      controller.setAllDirectories = [directory];
+      when(() => mockDeleteTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
-      controller.removeDirectory(directory);
+      await controller.removeDirectory(_FakeTracksListDirectoryEntity());
 
       //assert
-      expect(controller.allDirectories, isEmpty);
+      verify(() => mockDeleteTracksListDirectoryUC.call(any())).called(1);
     });
+
+    test("should call customDialogs.showFailure when result is a failure", () async {
+      //arrange
+      when(
+        () => mockDeleteTracksListDirectoryUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.removeDirectory(_FakeTracksListDirectoryEntity());
+
+      //assert
+      verify(() => mockCustomDialogs.showFailure(any())).called(1);
+    });
+
+    test(
+      "should should remove the given directory from directories when result is success",
+      () async {
+        //arrange
+        when(
+          () => mockDeleteTracksListDirectoryUC.call(any()),
+        ).thenAnswer((_) async => right(null));
+
+        final directory = _FakeTracksListDirectoryEntity();
+
+        controller.setAllDirectories = [directory];
+
+        //act
+        await controller.removeDirectory(directory);
+
+        //assert
+        expect(controller.allDirectories, isEmpty);
+      },
+    );
   });
 
   group("playTrack -", () {

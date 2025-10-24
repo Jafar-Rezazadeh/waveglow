@@ -81,4 +81,16 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   Future<List<TracksListDirectoryEntity>> getDirectories() async {
     return _directoriesBox.values.toList();
   }
+
+  @override
+  Future<void> deleteDir(String id) async {
+    final itemKey = _directoriesBox.keys.firstWhere(
+      (key) => _directoriesBox.get(key)?.id == id,
+      orElse: () => null,
+    );
+
+    if (itemKey != null) {
+      await _directoriesBox.delete(itemKey);
+    }
+  }
 }

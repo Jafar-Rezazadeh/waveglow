@@ -23,7 +23,14 @@ class _FakeFileSystemEntity extends Fake implements FileSystemEntity {
   String get path => tPath;
 }
 
-class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {}
+class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
+  final String idT;
+
+  _FakeTracksListDirectoryEntity({String? id}) : idT = id ?? "";
+
+  @override
+  String get id => idT;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -197,6 +204,49 @@ void main() {
 
       //assert
       expect(result.length, 1);
+    });
+  });
+
+  group("deleteDir -", () {
+    test(
+      "should call expected method to find the expected key of item based on given id when invoked ",
+      () async {
+        //arrange
+        when(() => mockBox.keys).thenAnswer((_) => [0, 1, 2, 3, 4]);
+
+        //act
+        await dataSourceImpl.deleteDir("id");
+
+        //assert
+        verify(() => mockBox.keys).called(1);
+        verify(() => mockBox.get(any())).called(greaterThan(1));
+      },
+    );
+
+    test("should call expected method delete item when key is find by given id ", () async {
+      //arrange
+      const id = "id1";
+      when(() => mockBox.keys).thenAnswer((_) => [0, 1, 2, 3, 4]);
+      when(() => mockBox.get(any())).thenAnswer((_) => _FakeTracksListDirectoryEntity(id: id));
+      when(() => mockBox.delete(any())).thenAnswer((_) async {});
+      //act
+      await dataSourceImpl.deleteDir(id);
+
+      //assert
+      verify(() => mockBox.delete(any())).called(1);
+    });
+
+    test("should NOT call expected method when key is NOT find", () async {
+      //arrange
+      const id = "id1";
+      when(() => mockBox.keys).thenAnswer((_) => [0, 1, 2, 3, 4]);
+      when(() => mockBox.get(any())).thenAnswer((_) => null);
+      when(() => mockBox.delete(any())).thenAnswer((_) async {});
+      //act
+      await dataSourceImpl.deleteDir(id);
+
+      //assert
+      verifyNever(() => mockBox.delete(any()));
     });
   });
 }

@@ -36,6 +36,7 @@ class TracksListBindings extends Bindings {
     final pickTracksListDirectoryUC = PickTracksListDirectoryUC(repository: repository);
     final saveDirectoryUC = SaveTracksListDirectoryUC(repository: repository);
     final getDirectoriesUC = GetTrackListDirectoriesUC(repository: repository);
+    final deleteDirectoryUC = DeleteTracksListDirectoryUC(repository: repository);
 
     // controllers
     Get.put(
@@ -44,6 +45,7 @@ class TracksListBindings extends Bindings {
         musicPlayerService: musicPlayerService,
         saveDirectoryUC: saveDirectoryUC,
         getDirectoriesUC: getDirectoriesUC,
+        deleteDirectoryUC: deleteDirectoryUC,
         customDialogs: CustomDialogs(),
       ),
     );

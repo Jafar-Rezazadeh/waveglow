@@ -43,4 +43,15 @@ class TracksListRepositoryImpl implements TracksListRepository {
       return left(_failureFactory.createFailure(e, s));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteDir(String id) async {
+    try {
+      final result = await _dataSource.deleteDir(id);
+
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
 }

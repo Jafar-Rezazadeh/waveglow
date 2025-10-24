@@ -4,4 +4,5 @@ abstract class TracksListDataSource {
   Future<TracksListDirectoryModel?> pickDirectory();
   Future<void> saveDirectory(TracksListDirectoryEntity dir);
   Future<List<TracksListDirectoryEntity>> getDirectories();
+  Future<void> deleteDir(String id);
 }

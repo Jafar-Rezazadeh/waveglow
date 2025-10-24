@@ -10,6 +10,7 @@ export 'package:waveglow/features/tracks_list/domain/entities/tracks_list_direct
 export 'package:waveglow/features/tracks_list/domain/use_cases/pick_tracks_list_directory.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/save_tracks_list_directory.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/get_track_list_directories.dart';
+export 'package:waveglow/features/tracks_list/domain/use_cases/delete_tracks_list_directory.dart';
 
 // Presentation
 export 'package:waveglow/features/tracks_list/presentation/bindings/tracks_list_bindings.dart';

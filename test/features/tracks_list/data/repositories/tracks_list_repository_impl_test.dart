@@ -174,4 +174,48 @@ void main() {
       expect(rightValue, isNotEmpty);
     });
   });
+
+  group("deleteDir -", () {
+    test("should call expected dataSource method when invoked", () async {
+      //arrange
+      when(() => mockDataSource.deleteDir(any())).thenAnswer((_) async {});
+
+      //act
+      await repositoryImpl.deleteDir("id");
+
+      //assert
+      verify(() => mockDataSource.deleteDir(any())).called(1);
+    });
+
+    test(
+      "should call failureFactory.createFailure and return kind of failure when any object is thrown by data source",
+      () async {
+        //arrange
+        when(() => mockDataSource.deleteDir(any())).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.deleteDir("id");
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(() => mockDataSource.deleteDir(any())).thenAnswer((_) async {});
+
+      //act
+      final result = await repositoryImpl.deleteDir("id");
+
+      //assert
+      expect(result.isRight(), true);
+    });
+  });
 }

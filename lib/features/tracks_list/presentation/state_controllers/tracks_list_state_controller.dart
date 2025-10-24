@@ -9,6 +9,7 @@ class TracksListStateController extends GetxController {
   final PickTracksListDirectoryUC _pickTracksListDirectoryUC;
   final SaveTracksListDirectoryUC _saveDirectoryUC;
   final GetTrackListDirectoriesUC _getDirectoriesUC;
+  final DeleteTracksListDirectoryUC _deleteDirectoryUC;
   final _allDirectories = RxList<TracksListDirectoryEntity>([]);
   String? _currentDirId;
   final _isLoadingDir = false.obs;
@@ -18,11 +19,13 @@ class TracksListStateController extends GetxController {
     required MusicPlayerService musicPlayerService,
     required SaveTracksListDirectoryUC saveDirectoryUC,
     required GetTrackListDirectoriesUC getDirectoriesUC,
+    required DeleteTracksListDirectoryUC deleteDirectoryUC,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
        _saveDirectoryUC = saveDirectoryUC,
        _getDirectoriesUC = getDirectoriesUC,
+       _deleteDirectoryUC = deleteDirectoryUC,
        _customDialogs = customDialogs;
 
   @visibleForTesting
@@ -73,8 +76,13 @@ class TracksListStateController extends GetxController {
     _isLoadingDir.value = false;
   }
 
-  void removeDirectory(TracksListDirectoryEntity dir) {
-    _allDirectories.remove(dir);
+  Future<void> removeDirectory(TracksListDirectoryEntity dir) async {
+    final result = await _deleteDirectoryUC.call(dir.id);
+
+    result.fold(
+      (failure) => _customDialogs.showFailure(failure),
+      (_) => _allDirectories.remove(dir),
+    );
   }
 
   Future<void> playTrack(AudioItemEntity item, String dirId) async {
