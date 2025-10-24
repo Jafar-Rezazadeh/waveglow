@@ -18,21 +18,23 @@ class TracksListDirectoryEntityAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TracksListDirectoryEntity(
-      directoryName: fields[0] as String,
-      directoryPath: fields[1] as String,
-      audios: (fields[2] as List).cast<AudioItemEntity>(),
+      directoryName: fields[1] as String,
+      directoryPath: fields[2] as String,
+      audios: (fields[3] as List).cast<AudioItemEntity>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, TracksListDirectoryEntity obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.directoryName)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.directoryPath)
+      ..write(obj.directoryName)
       ..writeByte(2)
+      ..write(obj.directoryPath)
+      ..writeByte(3)
       ..write(obj.audios);
   }
 

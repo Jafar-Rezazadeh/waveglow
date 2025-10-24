@@ -101,7 +101,7 @@ class TracksListPage extends StatelessWidget {
   Widget _tabViewItem(TracksListDirectoryEntity dir) {
     return ListView(
       children: dir.audios
-          .map((e) => TracksListAudioItemWidget(item: e, dirKey: dir.key))
+          .map((e) => TracksListAudioItemWidget(item: e, dirKey: dir.id))
           .toList()
           .withGapInBetween(10),
     );

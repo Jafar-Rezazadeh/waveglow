@@ -8,7 +8,7 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListAudioItemWidget extends StatelessWidget {
   final AudioItemEntity item;
-  final dynamic dirKey;
+  final String dirKey;
   TracksListAudioItemWidget({super.key, required this.item, required this.dirKey});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
