@@ -249,6 +249,19 @@ void main() {
       verifyNever(() => mockBox.delete(any()));
     });
   });
+
+  group("isDirectoryExists -", () {
+    test("should expected method and return expected result when invoked", () async {
+      //arrange
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+
+      //act
+      await dataSourceImpl.isDirectoryExists("dirPath");
+
+      //assert
+      verify(() => mockDirectory.exists()).called(1);
+    });
+  });
 }
 
 _setMetaReceiverMethodChannel() {

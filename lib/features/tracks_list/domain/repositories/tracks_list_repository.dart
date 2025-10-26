@@ -7,4 +7,5 @@ abstract class TracksListRepository {
   Future<Either<Failure, void>> saveDirectory(TracksListDirectoryEntity dir);
   Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories();
   Future<Either<Failure, void>> deleteDir(String id);
+  Future<Either<Failure, bool>> isDirectoryExists(String dirPath);
 }

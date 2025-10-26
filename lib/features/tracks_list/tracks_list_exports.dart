@@ -11,10 +11,12 @@ export 'package:waveglow/features/tracks_list/domain/use_cases/pick_tracks_list_
 export 'package:waveglow/features/tracks_list/domain/use_cases/save_tracks_list_directory.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/get_track_list_directories.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/delete_tracks_list_directory.dart';
+export 'package:waveglow/features/tracks_list/domain/use_cases/is_tracks_list_directory_exists.dart';
 
 // Presentation
 export 'package:waveglow/features/tracks_list/presentation/bindings/tracks_list_bindings.dart';
 export 'package:waveglow/features/tracks_list/presentation/state_controllers/tracks_list_state_controller.dart';
+export 'package:waveglow/features/tracks_list/presentation/view_templates/tracks_list_directory_template.dart';
 
 // extras
 export 'package:waveglow/features/tracks_list/tracks_list_constants.dart';

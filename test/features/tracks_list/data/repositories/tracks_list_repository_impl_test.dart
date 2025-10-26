@@ -218,4 +218,52 @@ void main() {
       expect(result.isRight(), true);
     });
   });
+
+  group("isDirectoryExists -", () {
+    test("should call expected dataSource method when invoked", () async {
+      //arrange
+      when(() => mockDataSource.isDirectoryExists(any())).thenAnswer((_) async => true);
+
+      //act
+      await repositoryImpl.isDirectoryExists("dirPath");
+
+      //assert
+      verify(() => mockDataSource.isDirectoryExists(any())).called(1);
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of failure when any object is thrown by dataSource",
+      () async {
+        //arrange
+        when(
+          () => mockDataSource.isDirectoryExists(any()),
+        ).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.isDirectoryExists("dirPath");
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(() => mockDataSource.isDirectoryExists(any())).thenAnswer((_) async => true);
+
+      //act
+      final result = await repositoryImpl.isDirectoryExists("dirPath");
+      final rightValue = result.fold((l) => null, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<bool>());
+    });
+  });
 }

@@ -18,6 +18,7 @@ class TracksListPage extends StatelessWidget {
     return Obx(
       () => DefaultTabController(
         length: _controller.allDirectories.length,
+
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 90),
           child: Stack(
@@ -75,14 +76,14 @@ class TracksListPage extends StatelessWidget {
     );
   }
 
-  Widget _tabItem(TracksListDirectoryEntity e) {
+  Widget _tabItem(TracksListDirectoryTemplate e) {
     return ContextMenuRegion(
       contextMenu: GenericContextMenu(
         buttonConfigs: [
           ContextMenuButtonConfig('حذف', onPressed: () => _controller.removeDirectory(e)),
         ],
       ),
-      child: Text(e.directoryName),
+      child: Text(e.dirEntity.directoryName),
     );
   }
 
@@ -98,13 +99,17 @@ class TracksListPage extends StatelessWidget {
     );
   }
 
-  Widget _tabViewItem(TracksListDirectoryEntity dir) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-      children: dir.audios
-          .map((e) => TracksListAudioItemWidget(item: e, dirKey: dir.id))
-          .toList()
-          .withGapInBetween(10),
-    );
+  Widget _tabViewItem(TracksListDirectoryTemplate dirTemplate) {
+    return dirTemplate.isExists
+        ? ListView(
+            padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            children: dirTemplate.dirEntity.audios
+                .map((e) => TracksListAudioItemWidget(item: e, dirKey: dirTemplate.dirEntity.id))
+                .toList()
+                .withGapInBetween(10),
+          )
+        : const Center(
+            child: Text("مسیر پوشه تغییر کرده یا حذف شده است.", textDirection: TextDirection.rtl),
+          );
   }
 }

@@ -10,8 +10,10 @@ class TracksListStateController extends GetxController {
   final SaveTracksListDirectoryUC _saveDirectoryUC;
   final GetTrackListDirectoriesUC _getDirectoriesUC;
   final DeleteTracksListDirectoryUC _deleteDirectoryUC;
-  final _allDirectories = RxList<TracksListDirectoryEntity>([]);
-  String? _currentDirId;
+  final IsTracksListDirectoryExistsUC _isDirectoryExistsUC;
+  final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
+
+  String? _currentPlayingMusicDirId;
   final _isLoadingDir = false.obs;
 
   TracksListStateController({
@@ -20,26 +22,28 @@ class TracksListStateController extends GetxController {
     required SaveTracksListDirectoryUC saveDirectoryUC,
     required GetTrackListDirectoriesUC getDirectoriesUC,
     required DeleteTracksListDirectoryUC deleteDirectoryUC,
+    required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
        _saveDirectoryUC = saveDirectoryUC,
        _getDirectoriesUC = getDirectoriesUC,
        _deleteDirectoryUC = deleteDirectoryUC,
+       _isDirectoryExistsUC = isDirectoryExistsUC,
        _customDialogs = customDialogs;
 
   @visibleForTesting
-  set setAllDirectories(List<TracksListDirectoryEntity> list) {
+  set setAllDirectories(List<TracksListDirectoryTemplate> list) {
     _allDirectories.value = list;
   }
 
   @visibleForTesting
-  set setCurrentDirKey(String? value) => _currentDirId = value;
+  set setCurrentDirKey(String? value) => _currentPlayingMusicDirId = value;
 
   @visibleForTesting
-  String? get currentDirKey => _currentDirId;
+  String? get currentDirKey => _currentPlayingMusicDirId;
 
-  List<TracksListDirectoryEntity> get allDirectories => _allDirectories;
+  List<TracksListDirectoryTemplate> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;
 
   @override
@@ -56,18 +60,25 @@ class TracksListStateController extends GetxController {
     _isLoadingDir.value = false;
   }
 
+  @visibleForTesting
+  Future<bool> isExistedDirectories(String dirPath) async {
+    final result = await _isDirectoryExistsUC.call(dirPath);
+
+    return result.fold((l) => false, (r) => r);
+  }
+
   Future<void> pickDirectory() async {
     _isLoadingDir.value = true;
 
     final result = await _pickTracksListDirectoryUC.call(NoParams());
 
-    result.fold(
+    await result.fold(
       (failure) {
         _customDialogs.showFailure(failure);
       },
-      (dir) {
+      (dir) async {
         if (dir != null) {
-          _allDirectories.add(dir);
+          _allDirectories.add(TracksListDirectoryTemplate(isExists: true, dirEntity: dir));
           saveDirectory(dir);
         }
       },
@@ -76,18 +87,23 @@ class TracksListStateController extends GetxController {
     _isLoadingDir.value = false;
   }
 
-  Future<void> removeDirectory(TracksListDirectoryEntity dir) async {
-    final result = await _deleteDirectoryUC.call(dir.id);
+  Future<void> removeDirectory(TracksListDirectoryTemplate dirTemplate) async {
+    final result = await _deleteDirectoryUC.call(dirTemplate.dirEntity.id);
 
     result.fold(
-      (failure) => _customDialogs.showFailure(failure),
-      (_) => _allDirectories.remove(dir),
+      (failure) {
+        _customDialogs.showFailure(failure);
+      },
+      (_) {
+        _allDirectories.remove(dirTemplate);
+      },
     );
   }
 
   Future<void> playTrack(AudioItemEntity item, String dirId) async {
-    if (dirId != _currentDirId || _musicPlayerService.currentPlaylist.isEmpty) {
-      final dirAudiosItems = _allDirectories.firstWhereOrNull((e) => e.id == dirId)?.audios ?? [];
+    if (dirId != _currentPlayingMusicDirId || _musicPlayerService.currentPlaylist.isEmpty) {
+      final dirAudiosItems =
+          _allDirectories.firstWhereOrNull((e) => e.dirEntity.id == dirId)?.dirEntity.audios ?? [];
 
       await _musicPlayerService.openPlayList(dirAudiosItems, play: false);
     }
@@ -98,7 +114,7 @@ class TracksListStateController extends GetxController {
       await _musicPlayerService.playAt(itemIndex);
     }
 
-    _currentDirId = dirId;
+    _currentPlayingMusicDirId = dirId;
   }
 
   @visibleForTesting
@@ -112,9 +128,15 @@ class TracksListStateController extends GetxController {
   Future<void> getDirectories() async {
     final result = await _getDirectoriesUC.call(NoParams());
 
-    result.fold(
-      (failure) => _customDialogs.showFailure(failure),
-      (directories) => _allDirectories.addAll(directories),
-    );
+    await result.fold((failure) => _customDialogs.showFailure(failure), (directories) async {
+      final dirTemplates = await Future.wait(
+        directories.map((e) async {
+          final isExists = await isExistedDirectories(e.directoryPath);
+          return TracksListDirectoryTemplate(isExists: isExists, dirEntity: e);
+        }).toList(),
+      );
+
+      _allDirectories.addAll(dirTemplates);
+    });
   }
 }

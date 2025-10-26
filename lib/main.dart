@@ -46,6 +46,7 @@ class WaveGlowApp extends StatelessWidget {
           child: Column(children: children),
         ),
         child: GetMaterialApp(
+          // TODO: add fontFamily and directionality
           initialRoute: mainScreenRoute,
           debugShowCheckedModeBanner: false,
           getPages: getXRoutes,

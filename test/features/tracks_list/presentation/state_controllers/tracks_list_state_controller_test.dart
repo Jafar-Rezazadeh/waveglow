@@ -17,9 +17,19 @@ class _MockDeleteTracksListDirectoryUC extends Mock implements DeleteTracksListD
 
 class _MockGetTrackListDirectoriesUC extends Mock implements GetTrackListDirectoriesUC {}
 
+class _MockIsTracksListDirectoryExistsUC extends Mock implements IsTracksListDirectoryExistsUC {}
+
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
   @override
-  String get id => "throw_UnimplementedError";
+  String get id => "id1";
+
+  @override
+  String get directoryPath => "dirPath";
+}
+
+class _FakeTracksListDirectoryTemplate extends Fake implements TracksListDirectoryTemplate {
+  @override
+  TracksListDirectoryEntity get dirEntity => _FakeTracksListDirectoryEntity();
 }
 
 class _FakeFailure extends Fake implements Failure {}
@@ -33,6 +43,7 @@ void main() {
   late _MockSaveTracksListDirectoryUC mockSaveTracksListDirectoryUC;
   late _MockGetTrackListDirectoriesUC mockGetTrackListDirectoriesUC;
   late _MockDeleteTracksListDirectoryUC mockDeleteTracksListDirectoryUC;
+  late _MockIsTracksListDirectoryExistsUC mockIsTracksListDirectoryExistsUC;
   late TracksListStateController controller;
 
   setUpAll(() {
@@ -50,6 +61,7 @@ void main() {
     mockSaveTracksListDirectoryUC = _MockSaveTracksListDirectoryUC();
     mockGetTrackListDirectoriesUC = _MockGetTrackListDirectoriesUC();
     mockDeleteTracksListDirectoryUC = _MockDeleteTracksListDirectoryUC();
+    mockIsTracksListDirectoryExistsUC = _MockIsTracksListDirectoryExistsUC();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
       musicPlayerService: mockMusicPlayerService,
@@ -57,6 +69,7 @@ void main() {
       saveDirectoryUC: mockSaveTracksListDirectoryUC,
       getDirectoriesUC: mockGetTrackListDirectoriesUC,
       deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
+      isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
     );
   });
 
@@ -124,7 +137,7 @@ void main() {
     });
 
     test(
-      "should call expected uceCase via its method to save picked directory when success with a directory",
+      "should call expected uceCase to save picked directory when success with a directory",
       () async {
         //arrange
         when(
@@ -148,7 +161,7 @@ void main() {
       when(() => mockDeleteTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
-      await controller.removeDirectory(_FakeTracksListDirectoryEntity());
+      await controller.removeDirectory(_FakeTracksListDirectoryTemplate());
 
       //assert
       verify(() => mockDeleteTracksListDirectoryUC.call(any())).called(1);
@@ -162,7 +175,7 @@ void main() {
       when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       //act
-      await controller.removeDirectory(_FakeTracksListDirectoryEntity());
+      await controller.removeDirectory(_FakeTracksListDirectoryTemplate());
 
       //assert
       verify(() => mockCustomDialogs.showFailure(any())).called(1);
@@ -176,7 +189,7 @@ void main() {
           () => mockDeleteTracksListDirectoryUC.call(any()),
         ).thenAnswer((_) async => right(null));
 
-        final directory = _FakeTracksListDirectoryEntity();
+        final directory = _FakeTracksListDirectoryTemplate();
 
         controller.setAllDirectories = [directory];
 
@@ -316,19 +329,6 @@ void main() {
       verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
     });
 
-    test("should add the result to controller variable when success", () async {
-      //arrange
-      when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer(
-        (_) async => right([_FakeTracksListDirectoryEntity(), _FakeTracksListDirectoryEntity()]),
-      );
-
-      //act
-      await controller.getDirectories();
-
-      //assert
-      expect(controller.allDirectories.length, 2);
-    });
-
     test("should call $CustomDialogs.showFailure when result is a failure", () async {
       //arrange
       when(
@@ -342,6 +342,82 @@ void main() {
 
       //assert
       verify(() => mockCustomDialogs.showFailure(any())).called(1);
+    });
+
+    test(
+      "should call expected useCase to check does that directory exists or not when success",
+      () async {
+        //arrange
+        when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer(
+          (_) async => right([_FakeTracksListDirectoryEntity(), _FakeTracksListDirectoryEntity()]),
+        );
+        when(
+          () => mockIsTracksListDirectoryExistsUC.call(any()),
+        ).thenAnswer((_) async => right(true));
+
+        //act
+        await controller.getDirectories();
+
+        //assert
+        verify(() => mockIsTracksListDirectoryExistsUC.call(any())).called(2);
+      },
+    );
+
+    test("should add the result to controller variable when success", () async {
+      //arrange
+      when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer(
+        (_) async => right([_FakeTracksListDirectoryEntity(), _FakeTracksListDirectoryEntity()]),
+      );
+      when(
+        () => mockIsTracksListDirectoryExistsUC.call(any()),
+      ).thenAnswer((_) async => right(true));
+
+      //act
+      await controller.getDirectories();
+
+      //assert
+      expect(controller.allDirectories.length, 2);
+    });
+  });
+
+  group("isExistedDirectories -", () {
+    test("should call expected useCase when invoked", () async {
+      //arrange
+      when(
+        () => mockIsTracksListDirectoryExistsUC.call(any()),
+      ).thenAnswer((_) async => right(true));
+
+      //act
+      await controller.isExistedDirectories("dirPath");
+
+      //assert
+      verify(() => mockIsTracksListDirectoryExistsUC.call(any())).called(1);
+    });
+
+    test("should return false when result is left (failure)", () async {
+      //arrange
+      when(
+        () => mockIsTracksListDirectoryExistsUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+
+      //act
+      final result = await controller.isExistedDirectories("dirPath");
+
+      //assert
+      expect(result, false);
+    });
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(
+        () => mockIsTracksListDirectoryExistsUC.call(any()),
+      ).thenAnswer((_) async => right(true));
+
+      //act
+      final result = await controller.isExistedDirectories("dirPath");
+
+      //assert
+      expect(result, true);
     });
   });
 }

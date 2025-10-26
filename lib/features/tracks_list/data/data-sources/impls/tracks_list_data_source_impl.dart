@@ -93,4 +93,16 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       await _directoriesBox.delete(itemKey);
     }
   }
+
+  @override
+  Future<bool> isDirectoryExists(String dirPath) async {
+    late final Directory dir;
+    if (_testDirectory == null) {
+      dir = Directory(dirPath);
+    } else {
+      dir = _testDirectory;
+    }
+
+    return await dir.exists();
+  }
 }

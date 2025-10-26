@@ -54,4 +54,15 @@ class TracksListRepositoryImpl implements TracksListRepository {
       return left(_failureFactory.createFailure(e, s));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> isDirectoryExists(String dirPath) async {
+    try {
+      final result = await _dataSource.isDirectoryExists(dirPath);
+
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
 }
