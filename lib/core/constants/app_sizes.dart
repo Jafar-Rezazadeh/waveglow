@@ -8,4 +8,8 @@ class AppSizes {
   static double fontSizeMedium = 14;
   static double fontSizeLarge = 18;
   static double fontSizeExtraLarge = 24;
+
+  static double spaceSmall = 8;
+  static double spaceNormal = 12;
+  static double spaceLarge = 18;
 }

@@ -13,61 +13,50 @@ class TracksListAudioItemWidget extends StatelessWidget {
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _controller = Get.find<TracksListStateController>();
+  late final _musicPlayer = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
       onTap: () => _controller.playTrack(item, dirKey),
-      child: Container(
-        decoration: BoxDecoration(
-          color: _colorPalette.backgroundLow,
-          borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _leading(),
-            const Gap(16),
-            IconButton(onPressed: () {}, icon: SvgPicture.asset(AssetSvgs.heart)),
-            const Gap(32),
-            _titleAndSubTitle(),
-            const Spacer(),
-            _duration(),
-          ],
+      child: Obx(
+        () => AnimatedContainer(
+          duration: Durations.long1,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
+            gradient: _isCurrentlyPlaying
+                ? LinearGradient(
+                    colors: [
+                      _colorPalette.primary900,
+                      _colorPalette.primary800,
+                      _colorPalette.primary700,
+                    ],
+                  )
+                : null,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _albumArt(),
+              Gap(AppSizes.spaceNormal),
+              IconButton(onPressed: () {}, icon: SvgPicture.asset(AssetSvgs.heart)),
+              Gap(AppSizes.spaceLarge),
+              _titleAndSubTitle(),
+              const Spacer(),
+              _duration(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _titleAndSubTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          item.trackName?.ellipsSize(maxLength: 50) ?? "",
-          style: TextStyle(fontSize: AppSizes.fontSizeMedium),
-        ),
-        Text(
-          item.artistsNames?.join(" , ").ellipsSize(maxLength: 50) ?? "",
-          style: TextStyle(fontSize: AppSizes.fontSizeSmall, color: _colorPalette.neutral300),
-        ),
-      ],
-    );
-  }
+  bool get _isCurrentlyPlaying => _musicPlayer.currentTrack == item;
 
-  Widget _leading() {
-    return Stack(
-      children: [
-        _albumArt(),
-        // _actionButtons(),
-      ],
-    );
-  }
-
-  Container _albumArt() {
+  Widget _albumArt() {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizes.borderRadius1)),
@@ -76,6 +65,28 @@ class TracksListAudioItemWidget extends StatelessWidget {
       child: item.albumArt == null
           ? Container(color: _colorPalette.neutral600)
           : Image.memory(item.albumArt!, fit: BoxFit.cover),
+    );
+  }
+
+  Widget _titleAndSubTitle() {
+    final artistNames = item.artistsNames?.join(" , ").ellipsSize(maxLength: 50) ?? "";
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          item.trackName?.ellipsSize(maxLength: 50) ?? "",
+          style: TextStyle(
+            fontSize: AppSizes.fontSizeMedium,
+            fontWeight: _isCurrentlyPlaying ? FontWeight.bold : null,
+          ),
+        ),
+        if (artistNames.isNotEmpty)
+          Text(
+            artistNames,
+            style: TextStyle(fontSize: AppSizes.fontSizeSmall, color: _colorPalette.neutral300),
+          ),
+      ],
     );
   }
 
