@@ -15,10 +15,13 @@ class TracksListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => DefaultTabController(
+    return Obx(() {
+      final currentPlayingMusicDirIndex = _controller.allDirectories.indexWhere(
+        (e) => e.dirEntity.id == _controller.currentPlayingMusicDirId,
+      );
+      return DefaultTabController(
         length: _controller.allDirectories.length,
-
+        initialIndex: currentPlayingMusicDirIndex != -1 ? currentPlayingMusicDirIndex : 0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 90),
           child: Stack(
@@ -38,8 +41,8 @@ class TracksListPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _tabBar() {

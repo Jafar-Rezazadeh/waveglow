@@ -40,8 +40,7 @@ class TracksListStateController extends GetxController {
   @visibleForTesting
   set setCurrentDirKey(String? value) => _currentPlayingMusicDirId = value;
 
-  @visibleForTesting
-  String? get currentDirKey => _currentPlayingMusicDirId;
+  String? get currentPlayingMusicDirId => _currentPlayingMusicDirId;
 
   List<TracksListDirectoryTemplate> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;
@@ -58,13 +57,6 @@ class TracksListStateController extends GetxController {
     await getDirectories();
 
     _isLoadingDir.value = false;
-  }
-
-  @visibleForTesting
-  Future<bool> isExistedDirectories(String dirPath) async {
-    final result = await _isDirectoryExistsUC.call(dirPath);
-
-    return result.fold((l) => false, (r) => r);
   }
 
   Future<void> pickDirectory() async {
@@ -138,5 +130,12 @@ class TracksListStateController extends GetxController {
 
       _allDirectories.addAll(dirTemplates);
     });
+  }
+
+  @visibleForTesting
+  Future<bool> isExistedDirectories(String dirPath) async {
+    final result = await _isDirectoryExistsUC.call(dirPath);
+
+    return result.fold((l) => false, (r) => r);
   }
 }

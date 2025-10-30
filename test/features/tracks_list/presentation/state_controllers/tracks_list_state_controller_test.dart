@@ -232,7 +232,7 @@ void main() {
         when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => []);
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), controller.currentDirKey!);
+        await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
 
         //assert
         verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
@@ -252,7 +252,7 @@ void main() {
         ).thenAnswer((_) => [_FakeAudioItemEntity()]);
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), controller.currentDirKey!);
+        await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
 
         //assert
         verifyNever(() => mockMusicPlayerService.openPlayList(any(), play: false));
@@ -268,7 +268,7 @@ void main() {
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(item, controller.currentDirKey!);
+      await controller.playTrack(item, controller.currentPlayingMusicDirId!);
 
       //assert
       verify(() => mockMusicPlayerService.playAt(any())).called(1);
@@ -282,7 +282,7 @@ void main() {
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(_FakeAudioItemEntity(), controller.currentDirKey!);
+      await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
 
       //assert
       verifyNever(() => mockMusicPlayerService.playAt(any()));
