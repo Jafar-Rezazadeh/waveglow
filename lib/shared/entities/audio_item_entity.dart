@@ -15,6 +15,11 @@ class AudioItemEntity {
   final int? durationInSeconds;
   @HiveField(4)
   final List<String>? artistsNames;
+  @HiveField(5)
+  /// [modifiedDate] is a Iso8601String
+  final String modifiedDate;
+  @HiveField(6)
+  final bool isFavorite;
 
   AudioItemEntity({
     required this.path,
@@ -22,5 +27,7 @@ class AudioItemEntity {
     required this.albumArt,
     required this.durationInSeconds,
     required this.artistsNames,
+    required this.modifiedDate,
+    required this.isFavorite,
   });
 }

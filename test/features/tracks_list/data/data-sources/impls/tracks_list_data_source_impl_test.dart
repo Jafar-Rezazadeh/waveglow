@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/features/tracks_list/data/data-sources/impls/tracks_list_data_source_impl.dart';
 import 'package:waveglow/features/tracks_list/domain/entities/tracks_list_directory_entity.dart';
+import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class _MockFilePicker extends Mock implements FilePicker {}
 
@@ -25,11 +27,33 @@ class _FakeFileSystemEntity extends Fake implements FileSystemEntity {
 
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
   final String idT;
+  final List<AudioItemEntity> audioT;
 
-  _FakeTracksListDirectoryEntity({String? id}) : idT = id ?? "";
+  _FakeTracksListDirectoryEntity({String? id, List<AudioItemEntity>? audios})
+    : idT = id ?? "",
+      audioT = audios ?? [];
 
   @override
   String get id => idT;
+
+  @override
+  List<AudioItemEntity> get audios => audioT;
+}
+
+class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
+  final DateTime? modifiedDateT;
+  final String? trackNameT;
+  final bool isFavoriteT;
+
+  _FakeAudioItemEntity({this.modifiedDateT, this.trackNameT, this.isFavoriteT = false});
+  @override
+  String? get trackName => trackNameT;
+
+  @override
+  String get modifiedDate => modifiedDateT?.toIso8601String() ?? "";
+
+  @override
+  bool get isFavorite => isFavoriteT;
 }
 
 void main() {
@@ -61,7 +85,7 @@ void main() {
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => null);
 
       //act
-      await dataSourceImpl.pickDirectory();
+      await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
       verify(() => mockFilePicker.getDirectoryPath()).called(1);
@@ -73,7 +97,7 @@ void main() {
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => null);
 
       //act
-      final result = await dataSourceImpl.pickDirectory();
+      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
       expect(result, null);
@@ -100,7 +124,7 @@ void main() {
         );
 
         //act
-        final result = await dataSourceImpl.pickDirectory();
+        final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
         //assert
         expect(result?.directoryPath, directoryPath);
@@ -118,10 +142,29 @@ void main() {
       ).thenAnswer((_) => Stream.fromIterable([_FakeFileSystemEntity()]));
 
       //act
-      await dataSourceImpl.pickDirectory();
+      await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
       verify(() => mockDirectory.list(recursive: false, followLinks: false)).called(1);
+    });
+
+    test("should only get $File types not other stuffs from picked directory", () async {
+      //arrange
+      _setMetaReceiverMethodChannel();
+      when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => "c:/test");
+      when(() => mockDirectory.list(recursive: false, followLinks: false)).thenAnswer(
+        (_) => Stream.fromIterable([
+          File("c:\\test\\file1.mp3"),
+          File("c:\\test\\file2.wav"),
+          _FakeFileSystemEntity(),
+        ]),
+      );
+
+      //act
+      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+
+      //assert
+      expect(result?.audios.length, 2);
     });
 
     test("should get any audio file which has expected extension and set it to result ", () async {
@@ -130,17 +173,17 @@ void main() {
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => "c:/test");
       when(() => mockDirectory.list(recursive: false, followLinks: false)).thenAnswer(
         (_) => Stream.fromIterable([
-          _FakeFileSystemEntity(tPath: "c:\\test\\file1.mp3"),
-          _FakeFileSystemEntity(tPath: "c:\\test\\file2.wav"),
-          _FakeFileSystemEntity(tPath: "c:\\test\\file3.aac"),
-          _FakeFileSystemEntity(tPath: "c:\\test\\file4.m4a"),
-          _FakeFileSystemEntity(tPath: "c:\\test\\file5.flac"),
-          _FakeFileSystemEntity(tPath: "c:\\test\\file6.ogg"),
+          File("c:\\test\\file1.mp3"),
+          File("c:\\test\\file2.wav"),
+          File("c:\\test\\file3.aac"),
+          File("c:\\test\\file4.m4a"),
+          File("c:\\test\\file5.flac"),
+          File("c:\\test\\file6.ogg"),
         ]),
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory();
+      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
       expect(result?.audios.length, 6);
@@ -153,20 +196,77 @@ void main() {
 
       when(() => mockDirectory.list(recursive: false, followLinks: false)).thenAnswer(
         (_) => Stream.fromIterable([
-          _FakeFileSystemEntity(tPath: "c:/test/file1.mp3"),
-          _FakeFileSystemEntity(tPath: "c:/test/file2.wav"),
-          _FakeFileSystemEntity(tPath: "c:/test/file3.pdf"),
-          _FakeFileSystemEntity(tPath: "c:/test/file4.mp4"),
+          File("c:/test/file1.mp3"),
+          File("c:/test/file2.wav"),
+          File("c:/test/file3.pdf"),
+          File("c:/test/file4.mp4"),
         ]),
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory();
+      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
       expect(result?.audios.length, 2);
       expect(result?.audios.any((e) => e.path.endsWith(".pdf")), isFalse);
       expect(result?.audios.any((e) => e.path.endsWith(".mp4")), isFalse);
+    });
+
+    test(
+      "should sort the files bases on modified date when given $SortType.byModifiedDate",
+      () async {
+        //arrange
+        _setMetaReceiverMethodChannel();
+
+        final dir = await Directory.current.createTemp('file_sort_test_');
+
+        final file1 = await File('${dir.path}/file1.mp3').writeAsBytes([0]);
+        final file2 = await File('${dir.path}/file2.mp3').writeAsBytes([0]);
+        final file3 = await File('${dir.path}/file3.mp3').writeAsBytes([0]);
+
+        // set fake modified times
+        final oldDate = DateTime(2000, 1, 1);
+        final midDate = DateTime(2010, 1, 1);
+        final newDate = DateTime(2020, 1, 1);
+
+        await file1.setLastModified(oldDate);
+        await file2.setLastModified(newDate);
+        await file3.setLastModified(midDate);
+
+        when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => dir.path);
+        when(
+          () => mockDirectory.list(recursive: false, followLinks: false),
+        ).thenAnswer((_) => Stream.fromIterable([file1, file2, file3]));
+
+        //act
+        final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+
+        //assert
+        expect(result?.audios.first.modifiedDate, newDate.toIso8601String());
+
+        // cleanUp
+        await dir.delete(recursive: true);
+      },
+    );
+
+    test("should sort the files bases on it names when given $SortType.byTitle", () async {
+      //arrange
+      _setMetaReceiverMethodChannel();
+
+      when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => "c:/test/");
+      when(() => mockDirectory.list(recursive: false, followLinks: false)).thenAnswer(
+        (_) => Stream.fromIterable([
+          File("c:/test/file3.mp3"),
+          File("c:/test/file1.mp3"),
+          File("c:/test/file2.mp3"),
+        ]),
+      );
+
+      //act
+      final result = await dataSourceImpl.pickDirectory(SortType.byTitle);
+
+      //assert
+      expect(result?.audios.first.trackName, "file1.mp3");
     });
   });
 
@@ -189,7 +289,7 @@ void main() {
       when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryEntity()]);
 
       //act
-      await dataSourceImpl.getDirectories();
+      await dataSourceImpl.getDirectories(SortType.byModifiedDate);
 
       //assert
       verify(() => mockBox.values).called(1);
@@ -200,10 +300,52 @@ void main() {
       when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryEntity()]);
 
       //act
-      final result = await dataSourceImpl.getDirectories();
+      final result = await dataSourceImpl.getDirectories(SortType.byModifiedDate);
 
       //assert
       expect(result.length, 1);
+    });
+
+    test("should sort the audio based on given $SortType", () async {
+      //arrange
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryEntity(
+            audios: [
+              _FakeAudioItemEntity(
+                modifiedDateT: DateTime(2030),
+                trackNameT: "file4",
+                isFavoriteT: false,
+              ),
+              _FakeAudioItemEntity(
+                modifiedDateT: DateTime(2000),
+                trackNameT: "file1",
+                isFavoriteT: false,
+              ),
+              _FakeAudioItemEntity(
+                modifiedDateT: DateTime(2050),
+                trackNameT: "file2",
+                isFavoriteT: true,
+              ),
+              _FakeAudioItemEntity(
+                modifiedDateT: DateTime(2010),
+                trackNameT: "file3",
+                isFavoriteT: false,
+              ),
+            ],
+          ),
+        ],
+      );
+
+      //act
+      final resultByModified = await dataSourceImpl.getDirectories(SortType.byModifiedDate);
+      final resultByTitle = await dataSourceImpl.getDirectories(SortType.byTitle);
+      final resultByFavorite = await dataSourceImpl.getDirectories(SortType.byFavorite);
+
+      //assert
+      expect(DateTime.parse(resultByModified.first.audios.first.modifiedDate), DateTime(2050));
+      expect(resultByTitle.first.audios.first.trackName, "file1");
+      expect(resultByFavorite.first.audios.first.trackName, "file2");
     });
   });
 

@@ -23,7 +23,7 @@ void main() {
   });
 
   group("dependencies -", () {
-    test("should pu the expected controller to get", () {
+    test("should put the expected controller to get", () {
       //act
       TracksListBindings(filePicker: _MockFilePicker(), testBox: _MockBox()).dependencies();
 

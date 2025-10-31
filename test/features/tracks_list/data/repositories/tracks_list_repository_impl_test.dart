@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -21,6 +22,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(StackTrace.empty);
     registerFallbackValue(_FakeTracksListDirectoryModel());
+    registerFallbackValue(SortType.byModifiedDate);
   });
 
   setUp(() {
@@ -36,14 +38,14 @@ void main() {
     test("should call expected dataSource ", () async {
       //arrange
       when(
-        () => mockDataSource.pickDirectory(),
+        () => mockDataSource.pickDirectory(any()),
       ).thenAnswer((_) async => _FakeTracksListDirectoryModel());
 
       //act
-      await repositoryImpl.pickDirectory();
+      await repositoryImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      verify(() => mockDataSource.pickDirectory()).called(1);
+      verify(() => mockDataSource.pickDirectory(any())).called(1);
     });
 
     test(
@@ -54,10 +56,10 @@ void main() {
           () => mockFailureFactory.createFailure(any(), any()),
         ).thenAnswer((_) => _FakeFailure());
 
-        when(() => mockDataSource.pickDirectory()).thenAnswer((_) async => throw TypeError());
+        when(() => mockDataSource.pickDirectory(any())).thenAnswer((_) async => throw TypeError());
 
         //act
-        final result = await repositoryImpl.pickDirectory();
+        final result = await repositoryImpl.pickDirectory(SortType.byModifiedDate);
         final leftValue = result.fold((l) => l, (r) => null);
 
         //assert
@@ -70,11 +72,11 @@ void main() {
     test("should return expected result when success", () async {
       //arrange
       when(
-        () => mockDataSource.pickDirectory(),
+        () => mockDataSource.pickDirectory(any()),
       ).thenAnswer((_) async => _FakeTracksListDirectoryModel());
 
       //act
-      final result = await repositoryImpl.pickDirectory();
+      final result = await repositoryImpl.pickDirectory(SortType.byModifiedDate);
       final rightValue = result.fold((l) => null, (r) => r);
 
       //assert
@@ -130,26 +132,26 @@ void main() {
   group("getDirectories -", () {
     test("should call expected data source method when invoked", () async {
       //arrange
-      when(() => mockDataSource.getDirectories()).thenAnswer((_) async => []);
+      when(() => mockDataSource.getDirectories(any())).thenAnswer((_) async => []);
 
       //act
-      await repositoryImpl.getDirectories();
+      await repositoryImpl.getDirectories(SortType.byModifiedDate);
 
       //assert
-      verify(() => mockDataSource.getDirectories()).called(1);
+      verify(() => mockDataSource.getDirectories(any())).called(1);
     });
 
     test(
       "should call $FailureFactory.createFailure and return kind of failure when any object is thrown",
       () async {
         //arrange
-        when(() => mockDataSource.getDirectories()).thenAnswer((_) async => throw TypeError());
+        when(() => mockDataSource.getDirectories(any())).thenAnswer((_) async => throw TypeError());
         when(
           () => mockFailureFactory.createFailure(any(), any()),
         ).thenAnswer((_) => _FakeFailure());
 
         //act
-        final result = await repositoryImpl.getDirectories();
+        final result = await repositoryImpl.getDirectories(SortType.byModifiedDate);
         final leftValue = result.fold((l) => l, (r) => null);
 
         //assert
@@ -162,11 +164,11 @@ void main() {
     test("should return right result when success", () async {
       //arrange
       when(
-        () => mockDataSource.getDirectories(),
+        () => mockDataSource.getDirectories(any()),
       ).thenAnswer((_) async => [_FakeTracksListDirectoryEntity()]);
 
       //act
-      final result = await repositoryImpl.getDirectories();
+      final result = await repositoryImpl.getDirectories(SortType.byModifiedDate);
       final rightValue = result.fold((l) => null, (r) => r);
 
       //assert

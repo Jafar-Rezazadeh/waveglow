@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/core/utils/test_mode_checker.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListStateController extends GetxController {
@@ -48,10 +49,13 @@ class TracksListStateController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initData();
+    if (!TestModeChecker.isTestMode()) {
+      initData();
+    }
   }
 
-  Future<void> _initData() async {
+  @visibleForTesting
+  Future<void> initData() async {
     _isLoadingDir.value = true;
 
     await getDirectories();
@@ -62,7 +66,7 @@ class TracksListStateController extends GetxController {
   Future<void> pickDirectory() async {
     _isLoadingDir.value = true;
 
-    final result = await _pickTracksListDirectoryUC.call(NoParams());
+    final result = await _pickTracksListDirectoryUC.call();
 
     await result.fold(
       (failure) {
@@ -118,7 +122,7 @@ class TracksListStateController extends GetxController {
 
   @visibleForTesting
   Future<void> getDirectories() async {
-    final result = await _getDirectoriesUC.call(NoParams());
+    final result = await _getDirectoriesUC.call();
 
     await result.fold((failure) => _customDialogs.showFailure(failure), (directories) async {
       final dirTemplates = await Future.wait(

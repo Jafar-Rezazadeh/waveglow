@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -24,7 +25,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
        _testDirectory = directory;
 
   @override
-  Future<TracksListDirectoryModel?> pickDirectory() async {
+  Future<TracksListDirectoryModel?> pickDirectory(SortType sortType) async {
     final directoryPath = await _filePicker.getDirectoryPath();
 
     if (directoryPath == null) {
@@ -40,7 +41,31 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
     final Set<AudioItemEntity> tracks = {};
 
-    await for (var file in dir.list(recursive: false, followLinks: false)) {
+    // Collect all files into a list
+    final entities = await dir.list(recursive: false, followLinks: false).toList();
+
+    // Filter only files (ignore directories)
+    final files = entities.whereType<File>().toList();
+
+    // Sort files by givenType
+    if (sortType == SortType.byModifiedDate) {
+      files.sort((a, b) {
+        final aMod = a.statSync().modified;
+        final bMod = b.statSync().modified;
+        return bMod.compareTo(aMod); // newest → oldest
+      });
+    }
+
+    if (sortType == SortType.byTitle) {
+      files.sort((a, b) {
+        final aName = a.uri.pathSegments.last;
+        final bName = b.uri.pathSegments.last;
+
+        return aName.compareTo(bName);
+      });
+    }
+
+    for (var file in files) {
       final ext = file.path.toLowerCase();
 
       final metaData = await MetadataRetriever.fromFile(File(file.path));
@@ -52,7 +77,9 @@ class TracksListDataSourceImpl implements TracksListDataSource {
             albumArt: metaData.albumArt,
             artistsNames: metaData.trackArtistNames,
             durationInSeconds: Duration(milliseconds: metaData.trackDuration ?? 0).inSeconds,
-            trackName: ext.substring(ext.lastIndexOf("\\") + 1),
+            trackName: file.uri.pathSegments.last,
+            modifiedDate: file.statSync().modified.toIso8601String(),
+            isFavorite: false,
           ),
         );
       }
@@ -78,8 +105,26 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   }
 
   @override
-  Future<List<TracksListDirectoryEntity>> getDirectories() async {
-    return _directoriesBox.values.toList();
+  Future<List<TracksListDirectoryEntity>> getDirectories(SortType sortType) async {
+    final dirs = _directoriesBox.values.toList();
+
+    for (var dir in dirs) {
+      dir.audios.sort((a, b) {
+        switch (sortType) {
+          case SortType.byModifiedDate:
+            return b.modifiedDate.compareTo(a.modifiedDate);
+
+          case SortType.byTitle:
+            return (a.trackName?.toLowerCase() ?? "").compareTo(b.trackName?.toLowerCase() ?? "");
+
+          case SortType.byFavorite:
+            if (a.isFavorite == b.isFavorite) return 0;
+            return a.isFavorite ? -1 : 1;
+        }
+      });
+    }
+
+    return dirs;
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -13,9 +14,9 @@ class TracksListRepositoryImpl implements TracksListRepository {
        _failureFactory = failureFactory;
 
   @override
-  Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory() async {
+  Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory(SortType sortType) async {
     try {
-      final result = await _dataSource.pickDirectory();
+      final result = await _dataSource.pickDirectory(sortType);
       return right(result);
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));
@@ -34,9 +35,9 @@ class TracksListRepositoryImpl implements TracksListRepository {
   }
 
   @override
-  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories() async {
+  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories(SortType sortType) async {
     try {
-      final result = await _dataSource.getDirectories();
+      final result = await _dataSource.getDirectories(sortType);
 
       return right(result);
     } catch (e, s) {

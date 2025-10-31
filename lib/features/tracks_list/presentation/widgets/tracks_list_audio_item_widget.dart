@@ -22,15 +22,16 @@ class TracksListAudioItemWidget extends StatelessWidget {
       onTap: () => _controller.playTrack(item, dirKey),
       child: Obx(
         () => AnimatedContainer(
-          duration: Durations.long1,
+          duration: Durations.long2,
+          curve: Curves.easeInOut,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
             gradient: _isCurrentlyPlaying
                 ? LinearGradient(
                     colors: [
-                      _colorPalette.primary900,
-                      _colorPalette.primary800,
                       _colorPalette.primary700,
+                      _colorPalette.primary800,
+                      _colorPalette.primary900,
                     ],
                   )
                 : null,
@@ -76,10 +77,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
       children: [
         Text(
           item.trackName?.ellipsSize(maxLength: 50) ?? "",
-          style: TextStyle(
-            fontSize: AppSizes.fontSizeMedium,
-            fontWeight: _isCurrentlyPlaying ? FontWeight.bold : null,
-          ),
+          style: TextStyle(fontSize: AppSizes.fontSizeMedium),
         ),
         if (artistNames.isNotEmpty)
           Text(

@@ -22,13 +22,15 @@ class AudioItemEntityAdapter extends TypeAdapter<AudioItemEntity> {
       albumArt: fields[2] as Uint8List?,
       durationInSeconds: fields[3] as int?,
       artistsNames: (fields[4] as List?)?.cast<String>(),
+      modifiedDate: fields[5] as String,
+      isFavorite: fields[6] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, AudioItemEntity obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.path)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class AudioItemEntityAdapter extends TypeAdapter<AudioItemEntity> {
       ..writeByte(3)
       ..write(obj.durationInSeconds)
       ..writeByte(4)
-      ..write(obj.artistsNames);
+      ..write(obj.artistsNames)
+      ..writeByte(5)
+      ..write(obj.modifiedDate)
+      ..writeByte(6)
+      ..write(obj.isFavorite);
   }
 
   @override

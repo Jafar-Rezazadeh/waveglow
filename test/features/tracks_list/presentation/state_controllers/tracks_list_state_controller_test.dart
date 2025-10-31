@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
@@ -51,6 +52,7 @@ void main() {
     registerFallbackValue(_FakeFailure());
     registerFallbackValue(<AudioItemEntity>[]);
     registerFallbackValue(_FakeTracksListDirectoryEntity());
+    registerFallbackValue(SortType.byModifiedDate);
   });
 
   setUp(() {
@@ -77,13 +79,13 @@ void main() {
     Get.reset();
   });
 
-  group("onInit -", () {
+  group("initData -", () {
     test("should call expected useCases via method when init", () {
       //arrange
       when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer((_) async => right([]));
 
       //act
-      Get.put(controller);
+      controller.initData();
 
       //assert
       verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
