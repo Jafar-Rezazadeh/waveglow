@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
+import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class _MockTracksListDataSource extends Mock implements TracksListDataSource {}
 
@@ -10,7 +11,16 @@ class _MockFailureFactory extends Mock implements FailureFactory {}
 
 class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryModel {}
 
-class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {}
+class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
+  @override
+  String get id => "id";
+  @override
+  String get directoryName => "directoryName";
+  @override
+  String get directoryPath => "directoryPath";
+  @override
+  List<AudioItemEntity> get audios => [];
+}
 
 class _FakeFailure extends Fake implements Failure {}
 
@@ -91,7 +101,7 @@ void main() {
       when(() => mockDataSource.saveDirectory(any())).thenAnswer((_) async {});
 
       //act
-      await repositoryImpl.saveDirectory(_FakeTracksListDirectoryModel());
+      await repositoryImpl.saveDirectory(_FakeTracksListDirectoryEntity());
 
       //assert
       verify(() => mockDataSource.saveDirectory(any())).called(1);

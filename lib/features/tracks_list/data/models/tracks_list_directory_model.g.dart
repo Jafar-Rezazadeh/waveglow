@@ -1,41 +1,42 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'tracks_list_directory_entity.dart';
+part of 'tracks_list_directory_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TracksListDirectoryEntityAdapter
-    extends TypeAdapter<TracksListDirectoryEntity> {
+class TracksListDirectoryModelAdapter
+    extends TypeAdapter<TracksListDirectoryModel> {
   @override
   final int typeId = 0;
 
   @override
-  TracksListDirectoryEntity read(BinaryReader reader) {
+  TracksListDirectoryModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TracksListDirectoryEntity(
-      directoryName: fields[1] as String,
-      directoryPath: fields[2] as String,
-      audios: (fields[3] as List).cast<AudioItemEntity>(),
+    return TracksListDirectoryModel(
+      idM: fields[0] as String,
+      directoryNameM: fields[1] as String,
+      directoryPathM: fields[2] as String,
+      audiosM: (fields[3] as List).cast<AudioItemEntity>(),
     );
   }
 
   @override
-  void write(BinaryWriter writer, TracksListDirectoryEntity obj) {
+  void write(BinaryWriter writer, TracksListDirectoryModel obj) {
     writer
       ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.idM)
       ..writeByte(1)
-      ..write(obj.directoryName)
+      ..write(obj.directoryNameM)
       ..writeByte(2)
-      ..write(obj.directoryPath)
+      ..write(obj.directoryPathM)
       ..writeByte(3)
-      ..write(obj.audios);
+      ..write(obj.audiosM);
   }
 
   @override
@@ -44,7 +45,7 @@ class TracksListDirectoryEntityAdapter
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TracksListDirectoryEntityAdapter &&
+      other is TracksListDirectoryModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -6,15 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/constants/enums.dart';
-import 'package:waveglow/features/tracks_list/data/data-sources/impls/tracks_list_data_source_impl.dart';
-import 'package:waveglow/features/tracks_list/domain/entities/tracks_list_directory_entity.dart';
+import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class _MockFilePicker extends Mock implements FilePicker {}
 
 class _MockDirectory extends Mock implements Directory {}
 
-class _MockBox extends Mock implements Box<TracksListDirectoryEntity> {}
+class _MockBox extends Mock implements Box<TracksListDirectoryModel> {}
 
 class _FakeFileSystemEntity extends Fake implements FileSystemEntity {
   final String tPath;
@@ -25,19 +24,30 @@ class _FakeFileSystemEntity extends Fake implements FileSystemEntity {
   String get path => tPath;
 }
 
-class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
+class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryModel {
   final String idT;
-  final List<AudioItemEntity> audioT;
+  final List<AudioItemEntity>? audioT;
+  final String directoryPathT;
 
-  _FakeTracksListDirectoryEntity({String? id, List<AudioItemEntity>? audios})
-    : idT = id ?? "",
-      audioT = audios ?? [];
+  _FakeTracksListDirectoryModel({this.idT = "id", this.audioT, this.directoryPathT = "c:\\test"});
 
   @override
   String get id => idT;
 
   @override
-  List<AudioItemEntity> get audios => audioT;
+  String get idM => idT;
+
+  @override
+  String get directoryPath => directoryPathT;
+
+  @override
+  String get directoryPathM => directoryPathT;
+
+  @override
+  List<AudioItemEntity> get audios => audioT ?? [];
+
+  @override
+  List<AudioItemEntity> get audiosM => audioT ?? [];
 }
 
 class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
@@ -65,7 +75,7 @@ void main() {
   late TracksListDataSourceImpl dataSourceImpl;
 
   setUpAll(() {
-    registerFallbackValue(_FakeTracksListDirectoryEntity());
+    registerFallbackValue(_FakeTracksListDirectoryModel());
   });
 
   setUp(() {
@@ -127,8 +137,8 @@ void main() {
         final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
         //assert
-        expect(result?.directoryPath, directoryPath);
-        expect(result?.directoryName, "Testfolder");
+        expect(result?.directoryPathM, directoryPath);
+        expect(result?.directoryNameM, "Testfolder");
       },
     );
 
@@ -164,7 +174,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audios.length, 2);
+      expect(result?.audiosM.length, 2);
     });
 
     test("should get any audio file which has expected extension and set it to result ", () async {
@@ -186,7 +196,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audios.length, 6);
+      expect(result?.audiosM.length, 6);
     });
 
     test("should get the only audio files not other type of files", () async {
@@ -207,9 +217,9 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audios.length, 2);
-      expect(result?.audios.any((e) => e.path.endsWith(".pdf")), isFalse);
-      expect(result?.audios.any((e) => e.path.endsWith(".mp4")), isFalse);
+      expect(result?.audiosM.length, 2);
+      expect(result?.audiosM.any((e) => e.path.endsWith(".pdf")), isFalse);
+      expect(result?.audiosM.any((e) => e.path.endsWith(".mp4")), isFalse);
     });
 
     test(
@@ -242,7 +252,7 @@ void main() {
         final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
         //assert
-        expect(result?.audios.first.modifiedDate, newDate.toIso8601String());
+        expect(result?.audiosM.first.modifiedDate, newDate.toIso8601String());
 
         // cleanUp
         await dir.delete(recursive: true);
@@ -266,7 +276,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byTitle);
 
       //assert
-      expect(result?.audios.first.trackName, "file1.mp3");
+      expect(result?.audiosM.first.trackName, "file1.mp3");
     });
   });
 
@@ -276,7 +286,7 @@ void main() {
       when(() => mockBox.add(any())).thenAnswer((_) async => 0);
 
       //act
-      await dataSourceImpl.saveDirectory(_FakeTracksListDirectoryEntity());
+      await dataSourceImpl.saveDirectory(_FakeTracksListDirectoryModel());
 
       //assert
       verify(() => mockBox.add(any())).called(1);
@@ -286,7 +296,7 @@ void main() {
   group("getDirectories -", () {
     test("should call expected method of box to get directories", () async {
       //arrange
-      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryEntity()]);
+      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel()]);
 
       //act
       await dataSourceImpl.getDirectories(SortType.byModifiedDate);
@@ -297,7 +307,7 @@ void main() {
 
     test("should return expected result when success", () async {
       //arrange
-      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryEntity()]);
+      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel()]);
 
       //act
       final result = await dataSourceImpl.getDirectories(SortType.byModifiedDate);
@@ -310,8 +320,8 @@ void main() {
       //arrange
       when(() => mockBox.values).thenAnswer(
         (_) => [
-          _FakeTracksListDirectoryEntity(
-            audios: [
+          _FakeTracksListDirectoryModel(
+            audioT: [
               _FakeAudioItemEntity(
                 modifiedDateT: DateTime(2030),
                 trackNameT: "file4",
@@ -369,7 +379,7 @@ void main() {
       //arrange
       const id = "id1";
       when(() => mockBox.keys).thenAnswer((_) => [0, 1, 2, 3, 4]);
-      when(() => mockBox.get(any())).thenAnswer((_) => _FakeTracksListDirectoryEntity(id: id));
+      when(() => mockBox.get(any())).thenAnswer((_) => _FakeTracksListDirectoryModel(idT: id));
       when(() => mockBox.delete(any())).thenAnswer((_) async {});
       //act
       await dataSourceImpl.deleteDir(id);

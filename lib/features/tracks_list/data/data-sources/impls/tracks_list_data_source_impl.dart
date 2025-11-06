@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
@@ -93,14 +94,15 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     }
 
     return TracksListDirectoryModel(
-      directoryName: directoryName.capitalizeFirst ?? "",
-      directoryPath: directoryPath,
-      audios: tracks.toList(),
+      idM: const Uuid().v4(),
+      directoryNameM: directoryName.capitalizeFirst ?? "",
+      directoryPathM: directoryPath,
+      audiosM: tracks.toList(),
     );
   }
 
   @override
-  Future<void> saveDirectory(TracksListDirectoryEntity dir) async {
+  Future<void> saveDirectory(TracksListDirectoryModel dir) async {
     await _directoriesBox.add(dir);
   }
 

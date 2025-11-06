@@ -26,7 +26,7 @@ class TracksListRepositoryImpl implements TracksListRepository {
   @override
   Future<Either<Failure, void>> saveDirectory(TracksListDirectoryEntity dir) async {
     try {
-      final result = await _dataSource.saveDirectory(dir);
+      final result = await _dataSource.saveDirectory(TracksListDirectoryModel.fromEntity(dir));
 
       return right(result);
     } catch (e, s) {
