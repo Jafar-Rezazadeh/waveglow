@@ -21,7 +21,7 @@ class TracksListDirectoryModelAdapter
       idM: fields[0] as String,
       directoryNameM: fields[1] as String,
       directoryPathM: fields[2] as String,
-      audiosM: (fields[3] as List).cast<AudioItemEntity>(),
+      audiosM: (fields[3] as List).cast<AudioItemModel>(),
     );
   }
 

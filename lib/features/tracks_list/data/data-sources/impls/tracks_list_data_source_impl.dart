@@ -13,14 +13,14 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 class TracksListDataSourceImpl implements TracksListDataSource {
   final FilePicker _filePicker;
   final Directory? _testDirectory;
-  final Box<TracksListDirectoryEntity> _directoriesBox;
+  final Box<TracksListDirectoryModel> _directoriesBox;
 
   final audioExtensions = ['.mp3', '.wav', '.aac', '.m4a', '.flac', '.ogg'];
 
   TracksListDataSourceImpl({
     required FilePicker filePicker,
     @visibleForTesting Directory? directory,
-    Box<TracksListDirectoryEntity>? testBox,
+    Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,
        _directoriesBox = testBox ?? Hive.box(TracksListConstants.tracksListDirectoryBoxName),
        _testDirectory = directory;
@@ -97,7 +97,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       idM: const Uuid().v4(),
       directoryNameM: directoryName.capitalizeFirst ?? "",
       directoryPathM: directoryPath,
-      audiosM: tracks.toList(),
+      audiosM: tracks.map((e) => AudioItemModel.fromEntity(e)).toList(),
     );
   }
 
@@ -107,7 +107,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   }
 
   @override
-  Future<List<TracksListDirectoryEntity>> getDirectories(SortType sortType) async {
+  Future<List<TracksListDirectoryModel>> getDirectories(SortType sortType) async {
     final dirs = _directoriesBox.values.toList();
 
     for (var dir in dirs) {

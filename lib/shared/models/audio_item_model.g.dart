@@ -1,50 +1,50 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'audio_item_entity.dart';
+part of 'audio_item_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AudioItemEntityAdapter extends TypeAdapter<AudioItemEntity> {
+class AudioItemModelAdapter extends TypeAdapter<AudioItemModel> {
   @override
   final int typeId = 1;
 
   @override
-  AudioItemEntity read(BinaryReader reader) {
+  AudioItemModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return AudioItemEntity(
-      path: fields[0] as String,
-      trackName: fields[1] as String?,
-      albumArt: fields[2] as Uint8List?,
-      durationInSeconds: fields[3] as int?,
-      artistsNames: (fields[4] as List?)?.cast<String>(),
-      modifiedDate: fields[5] as String,
-      isFavorite: fields[6] as bool,
+    return AudioItemModel(
+      path_: fields[0] as String,
+      trackName_: fields[1] as String?,
+      albumArt_: fields[2] as Uint8List?,
+      durationInSeconds_: fields[3] as int?,
+      artistsNames_: (fields[4] as List?)?.cast<String>(),
+      modifiedDate_: fields[5] as String,
+      isFavorite_: fields[6] as bool,
     );
   }
 
   @override
-  void write(BinaryWriter writer, AudioItemEntity obj) {
+  void write(BinaryWriter writer, AudioItemModel obj) {
     writer
       ..writeByte(7)
       ..writeByte(0)
-      ..write(obj.path)
+      ..write(obj.path_)
       ..writeByte(1)
-      ..write(obj.trackName)
+      ..write(obj.trackName_)
       ..writeByte(2)
-      ..write(obj.albumArt)
+      ..write(obj.albumArt_)
       ..writeByte(3)
-      ..write(obj.durationInSeconds)
+      ..write(obj.durationInSeconds_)
       ..writeByte(4)
-      ..write(obj.artistsNames)
+      ..write(obj.artistsNames_)
       ..writeByte(5)
-      ..write(obj.modifiedDate)
+      ..write(obj.modifiedDate_)
       ..writeByte(6)
-      ..write(obj.isFavorite);
+      ..write(obj.isFavorite_);
   }
 
   @override
@@ -53,7 +53,7 @@ class AudioItemEntityAdapter extends TypeAdapter<AudioItemEntity> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AudioItemEntityAdapter &&
+      other is AudioItemModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

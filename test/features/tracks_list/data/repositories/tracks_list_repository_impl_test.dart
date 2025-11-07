@@ -175,7 +175,7 @@ void main() {
       //arrange
       when(
         () => mockDataSource.getDirectories(any()),
-      ).thenAnswer((_) async => [_FakeTracksListDirectoryEntity()]);
+      ).thenAnswer((_) async => [_FakeTracksListDirectoryModel()]);
 
       //act
       final result = await repositoryImpl.getDirectories(SortType.byModifiedDate);

@@ -1,11 +1,11 @@
 import 'package:hive/hive.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 part 'tracks_list_directory_model.g.dart';
 
 @HiveType(typeId: 0)
-class TracksListDirectoryModel extends TracksListDirectoryEntity with HiveObjectMixin {
+class TracksListDirectoryModel extends TracksListDirectoryEntity {
   @HiveField(0)
   final String idM;
 
@@ -16,8 +16,7 @@ class TracksListDirectoryModel extends TracksListDirectoryEntity with HiveObject
   final String directoryPathM;
 
   @HiveField(3)
-  // TODO: make a model of this and replace
-  final List<AudioItemEntity> audiosM;
+  final List<AudioItemModel> audiosM;
 
   TracksListDirectoryModel({
     required this.idM,
@@ -36,7 +35,7 @@ class TracksListDirectoryModel extends TracksListDirectoryEntity with HiveObject
       idM: entity.id,
       directoryNameM: entity.directoryName,
       directoryPathM: entity.directoryPath,
-      audiosM: entity.audios,
+      audiosM: entity.audios.map((e) => AudioItemModel.fromEntity(e)).toList(),
     );
   }
 }

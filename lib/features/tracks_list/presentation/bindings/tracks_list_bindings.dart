@@ -7,11 +7,11 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListBindings extends Bindings {
   final FilePicker? _filePicker;
-  final Box<TracksListDirectoryEntity>? _testBox;
+  final Box<TracksListDirectoryModel>? _testBox;
 
   TracksListBindings({
     @visibleForTesting FilePicker? filePicker,
-    @visibleForTesting Box<TracksListDirectoryEntity>? testBox,
+    @visibleForTesting Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,
        _testBox = testBox;
 

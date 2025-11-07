@@ -35,19 +35,10 @@ class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryM
   String get id => idT;
 
   @override
-  String get idM => idT;
-
-  @override
   String get directoryPath => directoryPathT;
 
   @override
-  String get directoryPathM => directoryPathT;
-
-  @override
   List<AudioItemEntity> get audios => audioT ?? [];
-
-  @override
-  List<AudioItemEntity> get audiosM => audioT ?? [];
 }
 
 class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
@@ -137,8 +128,8 @@ void main() {
         final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
         //assert
-        expect(result?.directoryPathM, directoryPath);
-        expect(result?.directoryNameM, "Testfolder");
+        expect(result?.directoryPath, directoryPath);
+        expect(result?.directoryName, "Testfolder");
       },
     );
 
@@ -174,7 +165,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audiosM.length, 2);
+      expect(result?.audios.length, 2);
     });
 
     test("should get any audio file which has expected extension and set it to result ", () async {
@@ -196,7 +187,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audiosM.length, 6);
+      expect(result?.audios.length, 6);
     });
 
     test("should get the only audio files not other type of files", () async {
@@ -217,9 +208,9 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
       //assert
-      expect(result?.audiosM.length, 2);
-      expect(result?.audiosM.any((e) => e.path.endsWith(".pdf")), isFalse);
-      expect(result?.audiosM.any((e) => e.path.endsWith(".mp4")), isFalse);
+      expect(result?.audios.length, 2);
+      expect(result?.audios.any((e) => e.path.endsWith(".pdf")), isFalse);
+      expect(result?.audios.any((e) => e.path.endsWith(".mp4")), isFalse);
     });
 
     test(
@@ -252,7 +243,7 @@ void main() {
         final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
 
         //assert
-        expect(result?.audiosM.first.modifiedDate, newDate.toIso8601String());
+        expect(result?.audios.first.modifiedDate, newDate.toIso8601String());
 
         // cleanUp
         await dir.delete(recursive: true);
@@ -276,7 +267,7 @@ void main() {
       final result = await dataSourceImpl.pickDirectory(SortType.byTitle);
 
       //assert
-      expect(result?.audiosM.first.trackName, "file1.mp3");
+      expect(result?.audios.first.trackName, "file1.mp3");
     });
   });
 

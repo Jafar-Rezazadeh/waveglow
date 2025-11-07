@@ -10,7 +10,7 @@ class _MockFilePicker extends Mock implements FilePicker {}
 
 class _MockMusicPlayerService extends Mock implements MusicPlayerService {}
 
-class _MockBox extends Mock implements Box<TracksListDirectoryEntity> {}
+class _MockBox extends Mock implements Box<TracksListDirectoryModel> {}
 
 void main() {
   setUp(() {
