@@ -18,10 +18,10 @@ class TracksListDirectoryModelAdapter
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TracksListDirectoryModel(
-      idM: fields[0] as String,
-      directoryNameM: fields[1] as String,
-      directoryPathM: fields[2] as String,
-      audiosM: (fields[3] as List).cast<AudioItemModel>(),
+      id: fields[0] as String,
+      directoryName: fields[1] as String,
+      directoryPath: fields[2] as String,
+      audios: (fields[3] as List).cast<AudioItemModel>(),
     );
   }
 
@@ -30,13 +30,13 @@ class TracksListDirectoryModelAdapter
     writer
       ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.idM)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.directoryNameM)
+      ..write(obj.directoryName)
       ..writeByte(2)
-      ..write(obj.directoryPathM)
+      ..write(obj.directoryPath)
       ..writeByte(3)
-      ..write(obj.audiosM);
+      ..write(obj.audios);
   }
 
   @override

@@ -1,41 +1,47 @@
 import 'package:hive/hive.dart';
+import 'package:waveglow/core/contracts/model.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 part 'tracks_list_directory_model.g.dart';
 
 @HiveType(typeId: 0)
-class TracksListDirectoryModel extends TracksListDirectoryEntity {
+class TracksListDirectoryModel implements Model<TracksListDirectoryEntity> {
   @HiveField(0)
-  final String idM;
+  final String id;
 
   @HiveField(1)
-  final String directoryNameM;
+  final String directoryName;
 
   @HiveField(2)
-  final String directoryPathM;
+  final String directoryPath;
 
   @HiveField(3)
-  final List<AudioItemModel> audiosM;
+  final List<AudioItemModel> audios;
 
   TracksListDirectoryModel({
-    required this.idM,
-    required this.directoryNameM,
-    required this.directoryPathM,
-    required this.audiosM,
-  }) : super(
-         id: idM,
-         directoryName: directoryNameM,
-         audios: audiosM,
-         directoryPath: directoryPathM,
-       );
+    required this.id,
+    required this.directoryName,
+    required this.directoryPath,
+    required this.audios,
+  });
 
   factory TracksListDirectoryModel.fromEntity(TracksListDirectoryEntity entity) {
     return TracksListDirectoryModel(
-      idM: entity.id,
-      directoryNameM: entity.directoryName,
-      directoryPathM: entity.directoryPath,
-      audiosM: entity.audios.map((e) => AudioItemModel.fromEntity(e)).toList(),
+      id: entity.id,
+      directoryName: entity.directoryName,
+      directoryPath: entity.directoryPath,
+      audios: entity.audios.map((e) => AudioItemModel.fromEntity(e)).toList(),
+    );
+  }
+
+  @override
+  TracksListDirectoryEntity toEntity() {
+    return TracksListDirectoryEntity(
+      id: id,
+      directoryName: directoryName,
+      directoryPath: directoryPath,
+      audios: audios,
     );
   }
 }
