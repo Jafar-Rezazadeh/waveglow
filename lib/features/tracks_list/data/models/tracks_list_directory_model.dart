@@ -41,7 +41,7 @@ class TracksListDirectoryModel implements Model<TracksListDirectoryEntity> {
       id: id,
       directoryName: directoryName,
       directoryPath: directoryPath,
-      audios: audios,
+      audios: audios.map((e) => e.toEntity()).toList(),
     );
   }
 }

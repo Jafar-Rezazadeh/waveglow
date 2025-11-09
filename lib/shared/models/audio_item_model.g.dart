@@ -17,13 +17,13 @@ class AudioItemModelAdapter extends TypeAdapter<AudioItemModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return AudioItemModel(
-      path_: fields[0] as String,
-      trackName_: fields[1] as String?,
-      albumArt_: fields[2] as Uint8List?,
-      durationInSeconds_: fields[3] as int?,
-      artistsNames_: (fields[4] as List?)?.cast<String>(),
-      modifiedDate_: fields[5] as String,
-      isFavorite_: fields[6] as bool,
+      path: fields[0] as String,
+      trackName: fields[1] as String?,
+      albumArt: fields[2] as Uint8List?,
+      durationInSeconds: fields[3] as int?,
+      artistsNames: (fields[4] as List?)?.cast<String>(),
+      modifiedDate: fields[5] as String,
+      isFavorite: fields[6] as bool,
     );
   }
 
@@ -32,19 +32,19 @@ class AudioItemModelAdapter extends TypeAdapter<AudioItemModel> {
     writer
       ..writeByte(7)
       ..writeByte(0)
-      ..write(obj.path_)
+      ..write(obj.path)
       ..writeByte(1)
-      ..write(obj.trackName_)
+      ..write(obj.trackName)
       ..writeByte(2)
-      ..write(obj.albumArt_)
+      ..write(obj.albumArt)
       ..writeByte(3)
-      ..write(obj.durationInSeconds_)
+      ..write(obj.durationInSeconds)
       ..writeByte(4)
-      ..write(obj.artistsNames_)
+      ..write(obj.artistsNames)
       ..writeByte(5)
-      ..write(obj.modifiedDate_)
+      ..write(obj.modifiedDate)
       ..writeByte(6)
-      ..write(obj.isFavorite_);
+      ..write(obj.isFavorite);
   }
 
   @override

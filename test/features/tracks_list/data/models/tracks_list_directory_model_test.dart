@@ -31,7 +31,7 @@ void main() {
       expect(result.id, entity.id);
       expect(result.directoryName, entity.directoryName);
       expect(result.directoryPath, entity.directoryPath);
-      expect(result.audios.first.path_, entity.audios.first.path);
+      expect(result.audios.first.path, entity.audios.first.path);
     });
   });
 
@@ -44,13 +44,13 @@ void main() {
         directoryPath: "directoryPath",
         audios: [
           AudioItemModel(
-            path_: "path_",
-            trackName_: "trackName_",
-            albumArt_: Uint8List.fromList([]),
-            durationInSeconds_: 24,
-            artistsNames_: ["artistsNames_"],
-            modifiedDate_: "modifiedDate_",
-            isFavorite_: false,
+            path: "path_",
+            trackName: "trackName_",
+            albumArt: Uint8List.fromList([]),
+            durationInSeconds: 24,
+            artistsNames: ["artistsNames_"],
+            modifiedDate: "modifiedDate_",
+            isFavorite: false,
           ),
         ],
       );
@@ -62,7 +62,7 @@ void main() {
       expect(result.id, model.id);
       expect(result.directoryName, model.directoryName);
       expect(result.directoryPath, model.directoryPath);
-      expect(result.audios.first.path, model.audios.first.path_);
+      expect(result.audios.first.path, model.audios.first.path);
     });
   });
 }

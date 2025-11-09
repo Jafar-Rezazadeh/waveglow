@@ -1,60 +1,66 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:waveglow/core/contracts/model.dart';
 import 'package:waveglow/core/core_exports.dart';
 
 part 'audio_item_model.g.dart';
 
 @HiveType(typeId: 1)
-class AudioItemModel extends AudioItemEntity {
+class AudioItemModel implements Model<AudioItemEntity> {
   @HiveField(0)
-  final String path_;
+  final String path;
 
   @HiveField(1)
-  final String? trackName_;
+  final String? trackName;
 
   @HiveField(2)
-  final Uint8List? albumArt_;
+  final Uint8List? albumArt;
 
   @HiveField(3)
-  final int? durationInSeconds_;
+  final int? durationInSeconds;
 
   @HiveField(4)
-  final List<String>? artistsNames_;
+  final List<String>? artistsNames;
 
   @HiveField(5)
   /// [modifiedDate] is a Iso8601String
-  final String modifiedDate_;
+  final String modifiedDate;
 
   @HiveField(6)
-  final bool isFavorite_;
+  final bool isFavorite;
 
   AudioItemModel({
-    required this.path_,
-    required this.trackName_,
-    required this.albumArt_,
-    required this.durationInSeconds_,
-    required this.artistsNames_,
-    required this.modifiedDate_,
-    required this.isFavorite_,
-  }) : super(
-         path: path_,
-         trackName: trackName_,
-         albumArt: albumArt_,
-         durationInSeconds: durationInSeconds_,
-         artistsNames: artistsNames_,
-         modifiedDate: modifiedDate_,
-         isFavorite: isFavorite_,
-       );
+    required this.path,
+    required this.trackName,
+    required this.albumArt,
+    required this.durationInSeconds,
+    required this.artistsNames,
+    required this.modifiedDate,
+    required this.isFavorite,
+  });
 
   factory AudioItemModel.fromEntity(AudioItemEntity entity) {
     return AudioItemModel(
-      path_: entity.path,
-      trackName_: entity.trackName,
-      albumArt_: entity.albumArt,
-      durationInSeconds_: entity.durationInSeconds,
-      artistsNames_: entity.artistsNames,
-      modifiedDate_: entity.modifiedDate,
-      isFavorite_: entity.isFavorite,
+      path: entity.path,
+      trackName: entity.trackName,
+      albumArt: entity.albumArt,
+      durationInSeconds: entity.durationInSeconds,
+      artistsNames: entity.artistsNames,
+      modifiedDate: entity.modifiedDate,
+      isFavorite: entity.isFavorite,
+    );
+  }
+
+  @override
+  AudioItemEntity toEntity() {
+    return AudioItemEntity(
+      path: path,
+      trackName: trackName,
+      albumArt: albumArt,
+      durationInSeconds: durationInSeconds,
+      artistsNames: artistsNames,
+      modifiedDate: modifiedDate,
+      isFavorite: isFavorite,
     );
   }
 }
