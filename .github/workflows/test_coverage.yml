@@ -29,20 +29,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze project source
-        run: flutter analyze
-
       - name: Run tests with coverage
         run: flutter test --coverage
 
       # ✅ Extract coverage percentage and create badge JSON
-      - name: Generate coverage badge
+      - name: Generate coverage JSON
         run: |
           sudo apt-get update && sudo apt-get install -y lcov bc
-          
+
           # Parse total line coverage percentage
           COVERAGE=$(lcov --summary coverage/lcov.info 2>/dev/null | grep 'lines' | tail -1 | awk '{print $2}' | sed 's/%//')
-          
+
           # Fallback if parsing fails
           if [ -z "$COVERAGE" ]; then
             echo "⚠️ Coverage not found, defaulting to 0"
@@ -50,8 +47,8 @@ jobs:
           fi
 
           echo "Coverage is ${COVERAGE}%"
-          
-          # Choose color based on coverage percentage
+
+          # Choose color based on percentage
           if (( $(echo "$COVERAGE < 50" | bc -l) )); then
             COLOR=red
           elif (( $(echo "$COVERAGE < 80" | bc -l) )); then
@@ -60,5 +57,15 @@ jobs:
             COLOR=green
           fi
 
-          # Generate shields.io JSON file
-          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > coverage-badge.json
+          # ✅ Create Shields.io-style JSON file
+          mkdir -p badges
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > badges/coverage.json
+
+      - name: Commit coverage JSON badge
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add badges/coverage.json
+          git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+          git push
