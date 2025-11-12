@@ -1,3 +1,5 @@
+[![Test Coverage](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml)
+
 # waveglow
 
 A new Flutter project.
