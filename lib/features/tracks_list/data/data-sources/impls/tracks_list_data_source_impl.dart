@@ -33,14 +33,9 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       return null;
     }
 
-    late final Directory dir;
-    if (_testDirectory == null) {
-      dir = Directory(directoryPath);
-    } else {
-      dir = _testDirectory;
-    }
+    Directory dir = _createDirectoryInstance(directoryPath);
 
-    final Set<AudioItemEntity> tracks = {};
+    final Set<AudioItemModel> tracks = {};
 
     // Collect all files into a list
     final entities = await dir.list(recursive: false, followLinks: false).toList();
@@ -67,24 +62,12 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     }
 
     for (var file in files) {
-      final ext = file.path.toLowerCase();
-
-      final metaData = await MetadataRetriever.fromFile(File(file.path));
-
-      if (audioExtensions.any((e) => ext.endsWith(e))) {
-        tracks.add(
-          AudioItemEntity(
-            path: file.path,
-            albumArt: metaData.albumArt,
-            artistsNames: metaData.trackArtistNames,
-            durationInSeconds: Duration(milliseconds: metaData.trackDuration ?? 0).inSeconds,
-            trackName: file.uri.pathSegments.last,
-            modifiedDate: file.statSync().modified.toIso8601String(),
-            isFavorite: false,
-          ),
-        );
+      final item = await _createAudioModel(file);
+      if (item != null) {
+        tracks.add(item);
       }
     }
+
     final indexFolderNameStart = directoryPath.lastIndexOf("\\");
     String directoryName = "";
     if (indexFolderNameStart != -1) {
@@ -94,11 +77,40 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     }
 
     return TracksListDirectoryModel(
-      idM: const Uuid().v4(),
-      directoryNameM: directoryName.capitalizeFirst ?? "",
-      directoryPathM: directoryPath,
-      audiosM: tracks.map((e) => AudioItemModel.fromEntity(e)).toList(),
+      id: const Uuid().v4(),
+      directoryName: directoryName.capitalizeFirst ?? "",
+      directoryPath: directoryPath,
+      audios: tracks.toList(),
     );
+  }
+
+  Directory _createDirectoryInstance(String directoryPath) {
+    late final Directory dir;
+    if (_testDirectory == null) {
+      dir = Directory(directoryPath);
+    } else {
+      dir = _testDirectory;
+    }
+    return dir;
+  }
+
+  Future<AudioItemModel?> _createAudioModel(File file) async {
+    final ext = file.path.toLowerCase();
+
+    final metaData = await MetadataRetriever.fromFile(File(file.path));
+
+    if (audioExtensions.any((e) => ext.endsWith(e))) {
+      return AudioItemModel(
+        path: file.path,
+        albumArt: metaData.albumArt,
+        artistsNames: metaData.trackArtistNames,
+        durationInSeconds: Duration(milliseconds: metaData.trackDuration ?? 0).inSeconds,
+        trackName: file.uri.pathSegments.last,
+        modifiedDate: file.statSync().modified.toIso8601String(),
+        isFavorite: false,
+      );
+    }
+    return null;
   }
 
   @override
@@ -131,25 +143,63 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
   @override
   Future<void> deleteDir(String id) async {
-    final itemKey = _directoriesBox.keys.firstWhere(
-      (key) => _directoriesBox.get(key)?.id == id,
-      orElse: () => null,
-    );
+    var itemKey = _getItemKeyById(id);
 
     if (itemKey != null) {
       await _directoriesBox.delete(itemKey);
     }
   }
 
+  dynamic _getItemKeyById(String id) {
+    final itemKey = _directoriesBox.keys.firstWhere(
+      (key) => _directoriesBox.get(key)?.id == id,
+      orElse: () => null,
+    );
+    return itemKey;
+  }
+
   @override
   Future<bool> isDirectoryExists(String dirPath) async {
-    late final Directory dir;
-    if (_testDirectory == null) {
-      dir = Directory(dirPath);
-    } else {
-      dir = _testDirectory;
-    }
+    final dir = _createDirectoryInstance(dirPath);
 
     return await dir.exists();
+  }
+
+  @override
+  Future<void> syncAudios() async {
+    final boxDirs = _directoriesBox.values.toList();
+
+    for (var savedDir in boxDirs) {
+      final systemDir = _createDirectoryInstance(savedDir.directoryPath);
+      if (!await systemDir.exists()) return;
+
+      final files = systemDir.listSync().whereType<File>();
+
+      final savedFiles = savedDir.audios.map((e) => e.path).toList();
+
+      final newFiles = files.where((e) => !savedFiles.contains(e.path));
+      final removedFiles = savedFiles.where((e) => !files.map((e) => e.path).contains(e)).toList();
+
+      if (newFiles.isNotEmpty) {
+        for (var file in newFiles) {
+          final item = await _createAudioModel(file);
+          if (item != null) savedDir.audios.add(item);
+        }
+
+        final dirKey = _getItemKeyById(savedDir.id);
+
+        await _directoriesBox.put(dirKey, savedDir);
+      }
+
+      if (removedFiles.isNotEmpty) {
+        for (var file in removedFiles) {
+          savedDir.audios.removeWhere((e) => e.path == file);
+        }
+
+        final dirKey = _getItemKeyById(savedDir.id);
+
+        await _directoriesBox.put(dirKey, savedDir);
+      }
+    }
   }
 }

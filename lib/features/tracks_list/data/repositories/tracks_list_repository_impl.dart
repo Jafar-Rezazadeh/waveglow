@@ -17,7 +17,7 @@ class TracksListRepositoryImpl implements TracksListRepository {
   Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory(SortType sortType) async {
     try {
       final result = await _dataSource.pickDirectory(sortType);
-      return right(result);
+      return right(result?.toEntity());
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));
     }
@@ -39,7 +39,7 @@ class TracksListRepositoryImpl implements TracksListRepository {
     try {
       final result = await _dataSource.getDirectories(sortType);
 
-      return right(result);
+      return right(result.map((e) => e.toEntity()).toList());
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));
     }
@@ -61,6 +61,16 @@ class TracksListRepositoryImpl implements TracksListRepository {
     try {
       final result = await _dataSource.isDirectoryExists(dirPath);
 
+      return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> syncAudios() async {
+    try {
+      final result = await _dataSource.syncAudios();
       return right(result);
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));

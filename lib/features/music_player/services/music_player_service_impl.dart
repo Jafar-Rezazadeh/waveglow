@@ -83,7 +83,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     });
   }
 
-  _rxListeners() {
+  void _rxListeners() {
     ever(_currentMedia, (callback) {});
   }
 

@@ -38,6 +38,7 @@ class TracksListBindings extends Bindings {
     final getDirectoriesUC = GetTrackListDirectoriesUC(repository: repository);
     final deleteDirectoryUC = DeleteTracksListDirectoryUC(repository: repository);
     final isDirectoryExistsUC = IsTracksListDirectoryExistsUC(repository: repository);
+    final tracksListSyncAudiosUC = TracksListSyncAudiosUC(repository: repository);
 
     // controllers
     Get.put(
@@ -48,6 +49,7 @@ class TracksListBindings extends Bindings {
         getDirectoriesUC: getDirectoriesUC,
         deleteDirectoryUC: deleteDirectoryUC,
         isDirectoryExistsUC: isDirectoryExistsUC,
+        tracksListSyncAudiosUC: tracksListSyncAudiosUC,
         customDialogs: CustomDialogs(),
       ),
     );

@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/constants/enums.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class _MockFilePicker extends Mock implements FilePicker {}
 
@@ -26,27 +26,32 @@ class _FakeFileSystemEntity extends Fake implements FileSystemEntity {
 
 class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryModel {
   final String idT;
-  final List<AudioItemEntity>? audioT;
-  final String directoryPathT;
+  final List<AudioItemModel>? audioT;
 
-  _FakeTracksListDirectoryModel({this.idT = "id", this.audioT, this.directoryPathT = "c:\\test"});
+  _FakeTracksListDirectoryModel({this.idT = "id", this.audioT});
 
   @override
   String get id => idT;
 
   @override
-  String get directoryPath => directoryPathT;
+  String get directoryPath => "c:\\test";
 
   @override
-  List<AudioItemEntity> get audios => audioT ?? [];
+  List<AudioItemModel> get audios => audioT ?? [];
 }
 
-class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
+class _FakeAudioItemModel extends Fake implements AudioItemModel {
   final DateTime? modifiedDateT;
   final String? trackNameT;
   final bool isFavoriteT;
+  final String pathT;
 
-  _FakeAudioItemEntity({this.modifiedDateT, this.trackNameT, this.isFavoriteT = false});
+  _FakeAudioItemModel({
+    this.modifiedDateT,
+    this.trackNameT,
+    this.isFavoriteT = false,
+    this.pathT = "",
+  });
   @override
   String? get trackName => trackNameT;
 
@@ -55,6 +60,9 @@ class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
 
   @override
   bool get isFavorite => isFavoriteT;
+
+  @override
+  String get path => pathT;
 }
 
 void main() {
@@ -313,22 +321,22 @@ void main() {
         (_) => [
           _FakeTracksListDirectoryModel(
             audioT: [
-              _FakeAudioItemEntity(
+              _FakeAudioItemModel(
                 modifiedDateT: DateTime(2030),
                 trackNameT: "file4",
                 isFavoriteT: false,
               ),
-              _FakeAudioItemEntity(
+              _FakeAudioItemModel(
                 modifiedDateT: DateTime(2000),
                 trackNameT: "file1",
                 isFavoriteT: false,
               ),
-              _FakeAudioItemEntity(
+              _FakeAudioItemModel(
                 modifiedDateT: DateTime(2050),
                 trackNameT: "file2",
                 isFavoriteT: true,
               ),
-              _FakeAudioItemEntity(
+              _FakeAudioItemModel(
                 modifiedDateT: DateTime(2010),
                 trackNameT: "file3",
                 isFavoriteT: false,
@@ -405,9 +413,193 @@ void main() {
       verify(() => mockDirectory.exists()).called(1);
     });
   });
+
+  group("syncAudios -", () {
+    test("should call expected box to get saved directories when invoked", () async {
+      //arrange
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel(audioT: [])]);
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+      when(() => mockDirectory.listSync()).thenAnswer((_) => [File("test1")]);
+      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.keys).thenAnswer((_) => []);
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verify(() => mockBox.values).called(1);
+    });
+
+    test("should get each directory audio files when folder exists", () async {
+      //arrange
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel()]);
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+      when(() => mockDirectory.listSync()).thenAnswer((_) => [File("path")]);
+      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.keys).thenAnswer((_) => []);
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verify(() => mockDirectory.listSync()).called(1);
+    });
+
+    test("should return when directory not exists", () async {
+      //arrange
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel(audioT: [])]);
+      when(() => mockDirectory.exists()).thenAnswer((_) async => false);
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verifyNever(() => mockDirectory.listSync());
+    });
+
+    test("should sync new audio files to saved directory when system has new files", () async {
+      //arrange
+      final newFile1 = File("test1.mp3");
+      final newFile2 = File("test2.mp3");
+      final existedFilePath = "test.mp3";
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryModel(audioT: [_FakeAudioItemModel(pathT: existedFilePath)]),
+        ],
+      );
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+      when(
+        () => mockDirectory.listSync(),
+      ).thenAnswer((_) => [File(existedFilePath), newFile1, newFile2]);
+      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.keys).thenAnswer((_) => []);
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verify(
+        () => mockBox.put(
+          any(),
+          any(
+            that: isA<_FakeTracksListDirectoryModel>().having(
+              (dir) {
+                final allFilePaths = dir.audios.map((e) => e.path);
+
+                return allFilePaths.contains(newFile1.path) &&
+                    allFilePaths.contains(newFile2.path) &&
+                    allFilePaths.contains(existedFilePath);
+              },
+              "has new audio",
+              true,
+            ),
+          ),
+        ),
+      ).called(1);
+    });
+
+    test("should not call expected functionality when no new file was in the system", () async {
+      //arrange
+      final existedFile = File("test.mp3");
+
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryModel(audioT: [_FakeAudioItemModel(pathT: "test.mp3")]),
+        ],
+      );
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+      when(() => mockDirectory.listSync()).thenAnswer((_) => [existedFile]);
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verifyNever(() => mockBox.put(any(), any()));
+    });
+
+    test(
+      "should call expected box functionality to  delete audio files that are not exists in the system any more",
+      () async {
+        //arrange
+        final existedFilePath = "test.mp3";
+        final notExistedFile1 = "test1.mp3";
+        final notExistedFile2 = "test2.mp3";
+        _setMetaReceiverMethodChannel();
+        when(() => mockBox.values).thenAnswer(
+          (_) => [
+            _FakeTracksListDirectoryModel(
+              audioT: [
+                _FakeAudioItemModel(pathT: existedFilePath),
+                _FakeAudioItemModel(pathT: notExistedFile1),
+                _FakeAudioItemModel(pathT: notExistedFile2),
+              ],
+            ),
+          ],
+        );
+        when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+        when(() => mockDirectory.listSync()).thenAnswer((_) => [File(existedFilePath)]);
+        when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+        when(() => mockBox.keys).thenAnswer((_) => []);
+
+        //act
+        await dataSourceImpl.syncAudios();
+
+        //assert
+        verify(
+          () => mockBox.put(
+            any(),
+            any(
+              that: isA<_FakeTracksListDirectoryModel>().having(
+                (dir) {
+                  return dir.audios.any((e) => e.path == existedFilePath) && dir.audios.length == 1;
+                },
+                "has new audio",
+                true,
+              ),
+            ),
+          ),
+        ).called(1);
+      },
+    );
+
+    test("should Not call box.put when there is not any removed file from system", () async {
+      //arrange
+      final existedFilePath = "test.mp3";
+      final existedFile1 = "test1.mp3";
+      final existedFile2 = "test2.mp3";
+      _setMetaReceiverMethodChannel();
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryModel(
+            audioT: [
+              _FakeAudioItemModel(pathT: existedFilePath),
+              _FakeAudioItemModel(pathT: existedFile1),
+              _FakeAudioItemModel(pathT: existedFile2),
+            ],
+          ),
+        ],
+      );
+      when(() => mockDirectory.exists()).thenAnswer((_) async => true);
+      when(
+        () => mockDirectory.listSync(),
+      ).thenAnswer((_) => [File(existedFilePath), File(existedFile1), File(existedFile2)]);
+      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+
+      //act
+      await dataSourceImpl.syncAudios();
+
+      //assert
+      verifyNever(() => mockBox.put(any(), any()));
+    });
+  });
 }
 
-_setMetaReceiverMethodChannel() {
+void _setMetaReceiverMethodChannel() {
   TestWidgetsFlutterBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
     const MethodChannel("flutter_media_metadata"),
     (message) {

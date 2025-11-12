@@ -9,7 +9,12 @@ class _MockTracksListDataSource extends Mock implements TracksListDataSource {}
 
 class _MockFailureFactory extends Mock implements FailureFactory {}
 
-class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryModel {}
+class _FakeTracksListDirectoryModel extends Fake implements TracksListDirectoryModel {
+  @override
+  TracksListDirectoryEntity toEntity() {
+    return _FakeTracksListDirectoryEntity();
+  }
+}
 
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
   @override
@@ -276,6 +281,50 @@ void main() {
       //assert
       expect(result.isRight(), true);
       expect(rightValue, isA<bool>());
+    });
+  });
+
+  group("syncNewAudios -", () {
+    test("should call expected method of dataSource when invoked", () async {
+      //arrange
+      when(() => mockDataSource.syncAudios()).thenAnswer((_) async {});
+
+      //act
+      await repositoryImpl.syncAudios();
+
+      //assert
+      verify(() => mockDataSource.syncAudios()).called(1);
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of Failure when any object is thrown",
+      () async {
+        //arrange
+        when(() => mockDataSource.syncAudios()).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.syncAudios();
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(() => mockDataSource.syncAudios()).thenAnswer((_) async {});
+
+      //act
+      final result = await repositoryImpl.syncAudios();
+
+      //assert
+      expect(result.isRight(), true);
     });
   });
 }

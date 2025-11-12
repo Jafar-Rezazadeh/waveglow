@@ -20,6 +20,8 @@ class _MockGetTrackListDirectoriesUC extends Mock implements GetTrackListDirecto
 
 class _MockIsTracksListDirectoryExistsUC extends Mock implements IsTracksListDirectoryExistsUC {}
 
+class _MockTracksListSyncAudiosUC extends Mock implements TracksListSyncAudiosUC {}
+
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
   @override
   String get id => "id1";
@@ -45,6 +47,7 @@ void main() {
   late _MockGetTrackListDirectoriesUC mockGetTrackListDirectoriesUC;
   late _MockDeleteTracksListDirectoryUC mockDeleteTracksListDirectoryUC;
   late _MockIsTracksListDirectoryExistsUC mockIsTracksListDirectoryExistsUC;
+  late _MockTracksListSyncAudiosUC mockSyncAudiosUC;
   late TracksListStateController controller;
 
   setUpAll(() {
@@ -64,6 +67,7 @@ void main() {
     mockGetTrackListDirectoriesUC = _MockGetTrackListDirectoriesUC();
     mockDeleteTracksListDirectoryUC = _MockDeleteTracksListDirectoryUC();
     mockIsTracksListDirectoryExistsUC = _MockIsTracksListDirectoryExistsUC();
+    mockSyncAudiosUC = _MockTracksListSyncAudiosUC();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
       musicPlayerService: mockMusicPlayerService,
@@ -72,6 +76,7 @@ void main() {
       getDirectoriesUC: mockGetTrackListDirectoriesUC,
       deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
       isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
+      tracksListSyncAudiosUC: mockSyncAudiosUC,
     );
   });
 
@@ -320,15 +325,19 @@ void main() {
   });
 
   group("getDirectories -", () {
-    test("should call expected useCase when invoked", () async {
+    test("should call expected useCase in order when invoked", () async {
       //arrange
       when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer((_) async => right([]));
+      when(() => mockSyncAudiosUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
       await controller.getDirectories();
 
       //assert
-      verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
+      verifyInOrder([
+        () => mockSyncAudiosUC.call(any()),
+        () => mockGetTrackListDirectoriesUC.call(any()),
+      ]);
     });
 
     test("should call $CustomDialogs.showFailure when result is a failure", () async {
@@ -336,7 +345,7 @@ void main() {
       when(
         () => mockGetTrackListDirectoriesUC.call(any()),
       ).thenAnswer((_) async => left(_FakeFailure()));
-
+      when(() => mockSyncAudiosUC.call(any())).thenAnswer((_) async => right(null));
       when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       //act
@@ -356,6 +365,7 @@ void main() {
         when(
           () => mockIsTracksListDirectoryExistsUC.call(any()),
         ).thenAnswer((_) async => right(true));
+        when(() => mockSyncAudiosUC.call(any())).thenAnswer((_) async => right(null));
 
         //act
         await controller.getDirectories();
@@ -373,6 +383,7 @@ void main() {
       when(
         () => mockIsTracksListDirectoryExistsUC.call(any()),
       ).thenAnswer((_) async => right(true));
+      when(() => mockSyncAudiosUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
       await controller.getDirectories();

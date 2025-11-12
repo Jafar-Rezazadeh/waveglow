@@ -7,4 +7,5 @@ abstract class TracksListDataSource {
   Future<List<TracksListDirectoryModel>> getDirectories(SortType sortType);
   Future<void> deleteDir(String id);
   Future<bool> isDirectoryExists(String dirPath);
+  Future<void> syncAudios();
 }

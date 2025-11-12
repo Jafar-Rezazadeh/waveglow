@@ -12,6 +12,7 @@ class TracksListStateController extends GetxController {
   final GetTrackListDirectoriesUC _getDirectoriesUC;
   final DeleteTracksListDirectoryUC _deleteDirectoryUC;
   final IsTracksListDirectoryExistsUC _isDirectoryExistsUC;
+  final TracksListSyncAudiosUC _syncAudiosUC;
   final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
 
   String? _currentPlayingMusicDirId;
@@ -24,6 +25,7 @@ class TracksListStateController extends GetxController {
     required GetTrackListDirectoriesUC getDirectoriesUC,
     required DeleteTracksListDirectoryUC deleteDirectoryUC,
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
+    required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -31,6 +33,7 @@ class TracksListStateController extends GetxController {
        _getDirectoriesUC = getDirectoriesUC,
        _deleteDirectoryUC = deleteDirectoryUC,
        _isDirectoryExistsUC = isDirectoryExistsUC,
+       _syncAudiosUC = tracksListSyncAudiosUC,
        _customDialogs = customDialogs;
 
   @visibleForTesting
@@ -122,6 +125,8 @@ class TracksListStateController extends GetxController {
 
   @visibleForTesting
   Future<void> getDirectories() async {
+    await _syncAudiosUC.call(NoParams());
+
     final result = await _getDirectoriesUC.call();
 
     await result.fold((failure) => _customDialogs.showFailure(failure), (directories) async {

@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:waveglow/features/tracks_list/domain/entities/tracks_list_directory_entity.dart';
 import 'package:waveglow/features/tracks_list/init_tracks_list_hive.dart';
-import 'package:waveglow/features/tracks_list/tracks_list_constants.dart';
+import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class _MockHiveInterface extends Mock implements HiveInterface {}
 
-class _FakeBox extends Fake implements Box<TracksListDirectoryEntity> {}
+class _FakeBox extends Fake implements Box<TracksListDirectoryModel> {}
 
 void main() {
   late _MockHiveInterface mockHiveInterface;
@@ -19,7 +18,7 @@ void main() {
   test("should call expected hive open Box when invoked", () async {
     //arrange
     when(
-      () => mockHiveInterface.openBox<TracksListDirectoryEntity>(
+      () => mockHiveInterface.openBox<TracksListDirectoryModel>(
         TracksListConstants.tracksListDirectoryBoxName,
       ),
     ).thenAnswer((_) async => _FakeBox());
@@ -29,7 +28,7 @@ void main() {
 
     //assert
     verify(
-      () => mockHiveInterface.openBox<TracksListDirectoryEntity>(
+      () => mockHiveInterface.openBox<TracksListDirectoryModel>(
         TracksListConstants.tracksListDirectoryBoxName,
       ),
     ).called(1);
