@@ -7,9 +7,9 @@ name: Test Coverage
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
           cache: true
 
       - name: Install dependencies
@@ -35,9 +35,13 @@ jobs:
       - name: Run tests with coverage
         run: flutter test --coverage
 
-      # (Optional) Upload coverage report as an artifact
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/lcov.info
+      # ✅ Extract coverage percentage and create badge JSON
+      - name: Generate coverage badge
+        run: |
+          # Parse total coverage percentage
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>/dev/null | grep 'lines......:' | awk '{print substr($2, 1, length($2)-1)}')
+
+          echo "Coverage is ${COVERAGE}%"
+
+          # Generate shields.io-style JSON
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"$(if (( $(echo "$COVERAGE < 50" | bc -l) )); then echo red; elif (( $(echo "$COVERAGE < 80" | bc -l) )); then echo yellow; else echo green; fi)\"}" > coverage-badge.json
