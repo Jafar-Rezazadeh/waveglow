@@ -1,4 +1,5 @@
 [![Test Coverage](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Jafar-Rezazadeh/waveglow/master/badges/coverage.json)
 
 # waveglow
 
