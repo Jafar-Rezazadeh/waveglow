@@ -1,6 +1,6 @@
 // data
-export 'package:waveglow/features/tracks_list/data/data-sources/impls/tracks_list_data_source_impl.dart';
-export 'package:waveglow/features/tracks_list/data/data-sources/abstract/tracks_list_data_source.dart';
+export 'package:waveglow/features/tracks_list/data/data_sources/impls/tracks_list_data_source_impl.dart';
+export 'package:waveglow/features/tracks_list/data/data_sources/abstract/tracks_list_data_source.dart';
 export 'package:waveglow/features/tracks_list/data/models/tracks_list_directory_model.dart';
 export 'package:waveglow/features/tracks_list/data/repositories/tracks_list_repository_impl.dart';
 
