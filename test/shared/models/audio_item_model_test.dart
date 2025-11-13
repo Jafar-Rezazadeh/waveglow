@@ -56,4 +56,31 @@ void main() {
       expect(result.isFavorite, model.isFavorite);
     });
   });
+
+  group("copyWith -", () {
+    test("should change the give prop but others ", () {
+      //arrange
+      final audio = AudioItemModel(
+        path: "path",
+        trackName: "trackName",
+        albumArt: Uint8List.fromList([5]),
+        durationInSeconds: 5,
+        artistsNames: ["artistsNames"],
+        modifiedDate: "modifiedDate",
+        isFavorite: false,
+      );
+
+      //act
+      final result = audio.copyWith(isFavorite: true);
+
+      //assert
+      expect(result.path, audio.path);
+      expect(result.trackName, audio.trackName);
+      expect(result.albumArt, audio.albumArt);
+      expect(result.durationInSeconds, audio.durationInSeconds);
+      expect(result.artistsNames, audio.artistsNames);
+      expect(result.modifiedDate, audio.modifiedDate);
+      expect(result.isFavorite, true);
+    });
+  });
 }

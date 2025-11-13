@@ -25,4 +25,16 @@ class AudioItemEntity {
     required this.modifiedDate,
     required this.isFavorite,
   });
+
+  AudioItemEntity copyWith({bool? isFavorite}) {
+    return AudioItemEntity(
+      path: path,
+      trackName: trackName,
+      albumArt: albumArt,
+      durationInSeconds: durationInSeconds,
+      artistsNames: artistsNames,
+      modifiedDate: modifiedDate,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 }

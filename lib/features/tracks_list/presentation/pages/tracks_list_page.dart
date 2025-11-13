@@ -107,7 +107,7 @@ class TracksListPage extends StatelessWidget {
         ? ListView(
             padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
             children: dirTemplate.dirEntity.audios
-                .map((e) => TracksListAudioItemWidget(item: e, dirKey: dirTemplate.dirEntity.id))
+                .map((e) => TracksListAudioItemWidget(item: e, dirId: dirTemplate.dirEntity.id))
                 .toList()
                 .withGapInBetween(10),
           )

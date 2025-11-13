@@ -9,6 +9,6 @@ abstract class TracksListRepository {
   Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories(SortType sortType);
   Future<Either<Failure, void>> deleteDir(String id);
   Future<Either<Failure, bool>> isDirectoryExists(String dirPath);
-
   Future<Either<Failure, void>> syncAudios();
+  Future<Either<Failure, bool>> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params);
 }

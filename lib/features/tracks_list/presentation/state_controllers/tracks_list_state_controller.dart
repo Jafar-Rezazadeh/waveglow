@@ -13,6 +13,7 @@ class TracksListStateController extends GetxController {
   final DeleteTracksListDirectoryUC _deleteDirectoryUC;
   final IsTracksListDirectoryExistsUC _isDirectoryExistsUC;
   final TracksListSyncAudiosUC _syncAudiosUC;
+  final TracksListToggleAudioFavoriteUC _toggleAudioFavoriteUC;
   final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
 
   String? _currentPlayingMusicDirId;
@@ -26,6 +27,7 @@ class TracksListStateController extends GetxController {
     required DeleteTracksListDirectoryUC deleteDirectoryUC,
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
+    required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -34,6 +36,7 @@ class TracksListStateController extends GetxController {
        _deleteDirectoryUC = deleteDirectoryUC,
        _isDirectoryExistsUC = isDirectoryExistsUC,
        _syncAudiosUC = tracksListSyncAudiosUC,
+       _toggleAudioFavoriteUC = toggleAudioFavoriteUC,
        _customDialogs = customDialogs;
 
   @visibleForTesting
@@ -146,5 +149,29 @@ class TracksListStateController extends GetxController {
     final result = await _isDirectoryExistsUC.call(dirPath);
 
     return result.fold((l) => false, (r) => r);
+  }
+
+  Future<void> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params) async {
+    final result = await _toggleAudioFavoriteUC.call(params);
+
+    result.fold(
+      (failure) {
+        return _customDialogs.showFailure(failure);
+      },
+      (isFavorite) {
+        final dirIndex = _allDirectories.indexWhere((e) => e.dirEntity.id == params.dirId);
+        final dirTemp = _allDirectories[dirIndex];
+        final audio = dirTemp.dirEntity.audios.firstWhere((e) => e.path == params.audioPath);
+
+        final updatedAudio = audio.copyWith(isFavorite: isFavorite);
+
+        final indexOdAudio = dirTemp.dirEntity.audios.indexOf(audio);
+        if (indexOdAudio != -1) {
+          dirTemp.dirEntity.audios[indexOdAudio] = updatedAudio;
+        }
+
+        _allDirectories[dirIndex] = dirTemp;
+      },
+    );
   }
 }

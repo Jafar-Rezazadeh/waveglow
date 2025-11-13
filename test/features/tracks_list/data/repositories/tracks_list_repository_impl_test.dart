@@ -29,6 +29,9 @@ class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectory
 
 class _FakeFailure extends Fake implements Failure {}
 
+class _FakeTracksListToggleAudioFavoriteParams extends Fake
+    implements TracksListToggleAudioFavoriteParams {}
+
 void main() {
   late _MockTracksListDataSource mockDataSource;
   late _MockFailureFactory mockFailureFactory;
@@ -37,6 +40,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(StackTrace.empty);
     registerFallbackValue(_FakeTracksListDirectoryModel());
+    registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
     registerFallbackValue(SortType.byModifiedDate);
   });
 
@@ -284,7 +288,7 @@ void main() {
     });
   });
 
-  group("syncNewAudios -", () {
+  group("syncAudios -", () {
     test("should call expected method of dataSource when invoked", () async {
       //arrange
       when(() => mockDataSource.syncAudios()).thenAnswer((_) async {});
@@ -325,6 +329,58 @@ void main() {
 
       //assert
       expect(result.isRight(), true);
+    });
+  });
+
+  group("toggleAudioFavorite -", () {
+    test("should call expected dataSource method when invoked", () async {
+      //arrange
+      when(() => mockDataSource.toggleAudioFavorite(any())).thenAnswer((_) async => true);
+
+      //act
+      await repositoryImpl.toggleAudioFavorite(_FakeTracksListToggleAudioFavoriteParams());
+
+      //assert
+      verify(() => mockDataSource.toggleAudioFavorite(any())).called(1);
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of failure when any object is thrown",
+      () async {
+        //arrange
+        when(
+          () => mockDataSource.toggleAudioFavorite(any()),
+        ).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.toggleAudioFavorite(
+          _FakeTracksListToggleAudioFavoriteParams(),
+        );
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return a bool when success", () async {
+      //arrange
+      when(() => mockDataSource.toggleAudioFavorite(any())).thenAnswer((_) async => true);
+
+      //act
+      final result = await repositoryImpl.toggleAudioFavorite(
+        _FakeTracksListToggleAudioFavoriteParams(),
+      );
+      final rightValue = result.fold((l) => null, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<bool>());
     });
   });
 }

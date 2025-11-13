@@ -8,8 +8,8 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListAudioItemWidget extends StatelessWidget {
   final AudioItemEntity item;
-  final String dirKey;
-  TracksListAudioItemWidget({super.key, required this.item, required this.dirKey});
+  final String dirId;
+  TracksListAudioItemWidget({super.key, required this.item, required this.dirId});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _controller = Get.find<TracksListStateController>();
@@ -19,7 +19,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-      onTap: () => _controller.playTrack(item, dirKey),
+      onTap: () => _controller.playTrack(item, dirId),
       child: Obx(
         () => AnimatedContainer(
           duration: Durations.long2,
@@ -43,13 +43,28 @@ class TracksListAudioItemWidget extends StatelessWidget {
             children: [
               _albumArt(),
               Gap(AppSizes.spaceNormal),
-              IconButton(onPressed: () {}, icon: SvgPicture.asset(AssetSvgs.heart)),
+              _favoriteToggleButton(),
               Gap(AppSizes.spaceLarge),
               _titleAndSubTitle(),
               const Spacer(),
               _duration(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _favoriteToggleButton() {
+    return IconButton(
+      onPressed: () => _controller.toggleAudioFavorite(
+        TracksListToggleAudioFavoriteParams(dirId: dirId, audioPath: item.path),
+      ),
+      icon: SvgPicture.asset(
+        AssetSvgs.heart,
+        colorFilter: ColorFilter.mode(
+          item.isFavorite ? _colorPalette.hotMagenta : _colorPalette.neutral100,
+          BlendMode.srcIn,
         ),
       ),
     );

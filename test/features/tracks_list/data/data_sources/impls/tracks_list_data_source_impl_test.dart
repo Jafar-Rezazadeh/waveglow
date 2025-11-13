@@ -597,6 +597,81 @@ void main() {
       verifyNever(() => mockBox.put(any(), any()));
     });
   });
+
+  group("toggleAudioFavorite -", () {
+    final toggleParams = TracksListToggleAudioFavoriteParams(dirId: "id1", audioPath: "path1");
+
+    test(
+      "should get audio from expected dir and change the favorite and replace using box.put",
+      () async {
+        //arrange
+        final audio = AudioItemModel(
+          artistsNames: [],
+          durationInSeconds: null,
+          modifiedDate: "",
+          trackName: "",
+          albumArt: Uint8List.fromList([]),
+          path: toggleParams.audioPath,
+          isFavorite: true,
+        );
+        when(() => mockBox.values).thenAnswer(
+          (_) => [
+            _FakeTracksListDirectoryModel(idT: toggleParams.dirId, audioT: [audio]),
+            _FakeTracksListDirectoryModel(idT: "sjk", audioT: [audio]),
+          ],
+        );
+        when(() => mockBox.keys).thenAnswer((_) => ["key"]);
+        when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+
+        //act
+        await dataSourceImpl.toggleAudioFavorite(toggleParams);
+
+        //assert
+        verify(
+          () => mockBox.put(
+            any(),
+            any(
+              that: isA<_FakeTracksListDirectoryModel>().having(
+                (dir) =>
+                    dir.id == toggleParams.dirId &&
+                    dir.audios.firstWhere((e) => e.path == toggleParams.audioPath).isFavorite ==
+                        !audio.isFavorite,
+                "has changed the audio favorite",
+                true,
+              ),
+            ),
+          ),
+        ).called(1);
+      },
+    );
+
+    test("should return toggled favorite when success", () async {
+      //arrange
+      final audio = AudioItemModel(
+        artistsNames: [],
+        durationInSeconds: null,
+        modifiedDate: "",
+        trackName: "",
+        albumArt: Uint8List.fromList([]),
+        path: toggleParams.audioPath,
+        isFavorite: true,
+      );
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryModel(idT: toggleParams.dirId, audioT: [audio]),
+          _FakeTracksListDirectoryModel(idT: "sjk", audioT: [audio]),
+        ],
+      );
+      when(() => mockBox.keys).thenAnswer((_) => ["key"]);
+      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+
+      //act
+      final result = await dataSourceImpl.toggleAudioFavorite(toggleParams);
+
+      //assert
+      expect(result, !audio.isFavorite);
+    });
+  });
 }
 
 void _setMetaReceiverMethodChannel() {

@@ -63,4 +63,16 @@ class AudioItemModel implements Model<AudioItemEntity> {
       isFavorite: isFavorite,
     );
   }
+
+  AudioItemModel copyWith({bool? isFavorite}) {
+    return AudioItemModel(
+      path: path,
+      trackName: trackName,
+      albumArt: albumArt,
+      durationInSeconds: durationInSeconds,
+      artistsNames: artistsNames,
+      modifiedDate: modifiedDate,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 }

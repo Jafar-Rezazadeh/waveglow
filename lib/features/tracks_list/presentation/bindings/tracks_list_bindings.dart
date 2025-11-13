@@ -39,6 +39,7 @@ class TracksListBindings extends Bindings {
     final deleteDirectoryUC = DeleteTracksListDirectoryUC(repository: repository);
     final isDirectoryExistsUC = IsTracksListDirectoryExistsUC(repository: repository);
     final tracksListSyncAudiosUC = TracksListSyncAudiosUC(repository: repository);
+    final toggleAudioFavoriteUC = TracksListToggleAudioFavoriteUC(repository: repository);
 
     // controllers
     Get.put(
@@ -50,6 +51,7 @@ class TracksListBindings extends Bindings {
         deleteDirectoryUC: deleteDirectoryUC,
         isDirectoryExistsUC: isDirectoryExistsUC,
         tracksListSyncAudiosUC: tracksListSyncAudiosUC,
+        toggleAudioFavoriteUC: toggleAudioFavoriteUC,
         customDialogs: CustomDialogs(),
       ),
     );

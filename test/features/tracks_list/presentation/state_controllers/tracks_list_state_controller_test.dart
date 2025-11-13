@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -22,12 +24,23 @@ class _MockIsTracksListDirectoryExistsUC extends Mock implements IsTracksListDir
 
 class _MockTracksListSyncAudiosUC extends Mock implements TracksListSyncAudiosUC {}
 
+class _MockTracksListToggleAudioFavoriteUC extends Mock
+    implements TracksListToggleAudioFavoriteUC {}
+
 class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectoryEntity {
+  final String idT;
+  final List<AudioItemEntity> audiosT;
+
+  _FakeTracksListDirectoryEntity({this.idT = "test", this.audiosT = const []});
+
   @override
-  String get id => "id1";
+  String get id => idT;
 
   @override
   String get directoryPath => "dirPath";
+
+  @override
+  List<AudioItemEntity> get audios => audiosT;
 }
 
 class _FakeTracksListDirectoryTemplate extends Fake implements TracksListDirectoryTemplate {
@@ -37,7 +50,16 @@ class _FakeTracksListDirectoryTemplate extends Fake implements TracksListDirecto
 
 class _FakeFailure extends Fake implements Failure {}
 
-class _FakeAudioItemEntity extends Fake implements AudioItemEntity {}
+class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
+  @override
+  bool get isFavorite => false;
+
+  @override
+  String get path => "pathT";
+}
+
+class _FakeTracksListToggleAudioFavoriteParams extends Fake
+    implements TracksListToggleAudioFavoriteParams {}
 
 void main() {
   late _MockPickTracksListDirectoryUC mockPickTracksListDirectoryUC;
@@ -48,6 +70,7 @@ void main() {
   late _MockDeleteTracksListDirectoryUC mockDeleteTracksListDirectoryUC;
   late _MockIsTracksListDirectoryExistsUC mockIsTracksListDirectoryExistsUC;
   late _MockTracksListSyncAudiosUC mockSyncAudiosUC;
+  late _MockTracksListToggleAudioFavoriteUC mockToggleAudioFavoriteUC;
   late TracksListStateController controller;
 
   setUpAll(() {
@@ -55,6 +78,7 @@ void main() {
     registerFallbackValue(_FakeFailure());
     registerFallbackValue(<AudioItemEntity>[]);
     registerFallbackValue(_FakeTracksListDirectoryEntity());
+    registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
     registerFallbackValue(SortType.byModifiedDate);
   });
 
@@ -68,6 +92,7 @@ void main() {
     mockDeleteTracksListDirectoryUC = _MockDeleteTracksListDirectoryUC();
     mockIsTracksListDirectoryExistsUC = _MockIsTracksListDirectoryExistsUC();
     mockSyncAudiosUC = _MockTracksListSyncAudiosUC();
+    mockToggleAudioFavoriteUC = _MockTracksListToggleAudioFavoriteUC();
     controller = TracksListStateController(
       customDialogs: mockCustomDialogs,
       musicPlayerService: mockMusicPlayerService,
@@ -76,6 +101,7 @@ void main() {
       getDirectoriesUC: mockGetTrackListDirectoriesUC,
       deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
       isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
+      toggleAudioFavoriteUC: mockToggleAudioFavoriteUC,
       tracksListSyncAudiosUC: mockSyncAudiosUC,
     );
   });
@@ -85,15 +111,17 @@ void main() {
   });
 
   group("initData -", () {
-    test("should call expected useCases via method when init", () {
+    test("should call expected useCases via method when init", () async {
       //arrange
       when(() => mockGetTrackListDirectoriesUC.call(any())).thenAnswer((_) async => right([]));
+      when(() => mockSyncAudiosUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
-      controller.initData();
+      await controller.initData();
 
       //assert
       verify(() => mockGetTrackListDirectoriesUC.call(any())).called(1);
+      verify(() => mockSyncAudiosUC.call(any())).called(1);
     });
   });
 
@@ -431,6 +459,77 @@ void main() {
 
       //assert
       expect(result, true);
+    });
+  });
+
+  group("toggleFavorite -", () {
+    final toggleFavoriteParams = TracksListToggleAudioFavoriteParams(
+      dirId: "idDir",
+      audioPath: "path",
+    );
+    test("should call the expected useCase when invoked", () async {
+      //arrange
+      when(
+        () => mockToggleAudioFavoriteUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.toggleAudioFavorite(toggleFavoriteParams);
+
+      //assert
+      verify(() => mockToggleAudioFavoriteUC.call(any())).called(1);
+    });
+
+    test("should call customDialog.showFailure when fails", () async {
+      //arrange
+      when(
+        () => mockToggleAudioFavoriteUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.toggleAudioFavorite(toggleFavoriteParams);
+
+      //assert
+      verify(() => mockCustomDialogs.showFailure(any())).called(1);
+    });
+
+    test("should change the isFavorite of audio of related dir when success", () async {
+      //arrange
+      when(() => mockToggleAudioFavoriteUC.call(any())).thenAnswer((_) async => right(true));
+
+      final audio = AudioItemEntity(
+        path: toggleFavoriteParams.audioPath,
+        isFavorite: false,
+        albumArt: Uint8List.fromList([]),
+        artistsNames: [],
+        durationInSeconds: 5,
+        modifiedDate: "",
+        trackName: "",
+      );
+
+      controller.setAllDirectories = [
+        TracksListDirectoryTemplate(
+          isExists: true,
+          dirEntity: _FakeTracksListDirectoryEntity(
+            idT: toggleFavoriteParams.dirId,
+            audiosT: [audio],
+          ),
+        ),
+      ];
+
+      //act
+      await controller.toggleAudioFavorite(toggleFavoriteParams);
+
+      //assert
+      final expectedAudio = controller.allDirectories
+          .firstWhere((e) => e.dirEntity.id == toggleFavoriteParams.dirId)
+          .dirEntity
+          .audios
+          .firstWhere((e) => e.path == toggleFavoriteParams.audioPath);
+
+      expect(expectedAudio.isFavorite, !audio.isFavorite);
     });
   });
 }

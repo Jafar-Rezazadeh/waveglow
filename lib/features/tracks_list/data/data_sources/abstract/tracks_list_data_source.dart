@@ -8,4 +8,5 @@ abstract class TracksListDataSource {
   Future<void> deleteDir(String id);
   Future<bool> isDirectoryExists(String dirPath);
   Future<void> syncAudios();
+  Future<bool> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params);
 }

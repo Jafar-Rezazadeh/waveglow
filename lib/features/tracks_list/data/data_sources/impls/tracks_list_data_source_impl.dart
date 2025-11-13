@@ -143,14 +143,14 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
   @override
   Future<void> deleteDir(String id) async {
-    var itemKey = _getItemKeyById(id);
+    var itemKey = _getDirectoryKeyById(id);
 
     if (itemKey != null) {
       await _directoriesBox.delete(itemKey);
     }
   }
 
-  dynamic _getItemKeyById(String id) {
+  dynamic _getDirectoryKeyById(String id) {
     final itemKey = _directoriesBox.keys.firstWhere(
       (key) => _directoriesBox.get(key)?.id == id,
       orElse: () => null,
@@ -186,7 +186,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
           if (item != null) savedDir.audios.add(item);
         }
 
-        final dirKey = _getItemKeyById(savedDir.id);
+        final dirKey = _getDirectoryKeyById(savedDir.id);
 
         await _directoriesBox.put(dirKey, savedDir);
       }
@@ -196,10 +196,31 @@ class TracksListDataSourceImpl implements TracksListDataSource {
           savedDir.audios.removeWhere((e) => e.path == file);
         }
 
-        final dirKey = _getItemKeyById(savedDir.id);
+        final dirKey = _getDirectoryKeyById(savedDir.id);
 
         await _directoriesBox.put(dirKey, savedDir);
       }
     }
+  }
+
+  @override
+  Future<bool> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params) async {
+    final dir = _directoriesBox.values.firstWhere((e) => e.id == params.dirId);
+
+    final audio = dir.audios.firstWhere((e) => e.path == params.audioPath);
+
+    final toggledFavorite = !audio.isFavorite;
+
+    final updatedAudio = audio.copyWith(isFavorite: toggledFavorite);
+
+    final dirKey = _getDirectoryKeyById(dir.id);
+
+    dir.audios.remove(audio);
+
+    dir.audios.add(updatedAudio);
+
+    await _directoriesBox.put(dirKey, dir);
+
+    return toggledFavorite;
   }
 }
