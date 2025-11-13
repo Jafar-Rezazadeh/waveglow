@@ -2,6 +2,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:waveglow/core/constants/app_sizes.dart';
 import 'package:waveglow/core/constants/svgs.dart';
 import 'package:waveglow/core/theme/color_palette.dart';
 
@@ -16,7 +17,7 @@ class MainTitleBarWidget extends StatelessWidget {
       color: Colors.transparent,
       padding: const EdgeInsets.only(top: 2),
       alignment: Alignment.center,
-      height: 44,
+      height: AppSizes.toolBarSize,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,

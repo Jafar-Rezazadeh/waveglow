@@ -45,24 +45,24 @@ class HomeVisualizerStateController extends GetxController {
   void onInit() {
     super.onInit();
     _setTicker();
-    _musicPlayer.isPlayingStream.listen(
-      (isPlaying) {
-        if (isPlaying) {
-          startListeningToAudio();
-        } else {
-          stopListeningToAudio();
-        }
-      },
-    );
+    _musicPlayer.isPlayingStream.listen((isPlaying) {
+      if (isPlaying) {
+        startListeningToAudio();
+      } else {
+        stopListeningToAudio();
+      }
+    });
   }
 
   void _setTicker() {
-    _ticker = _CustomTicker().createTicker(
-      (elapsed) {
-        _smoothedPerceptualBands.value =
-            _smoothBands(previous: _smoothedPerceptualBands.value, current: _perceptualBands.value);
-      },
-    );
+    _ticker = _CustomTicker().createTicker((elapsed) {
+      _smoothedPerceptualBands.value = _smoothBands(
+        previous: _smoothedPerceptualBands.value,
+        current: _perceptualBands.value,
+        attack: 0.3,
+        decay: 0.15,
+      );
+    });
 
     _ticker.start();
   }
@@ -76,16 +76,11 @@ class HomeVisualizerStateController extends GetxController {
   Future<void> startListeningToAudio() async {
     final bandsResult = await _getVisualizerLiveBandsUC.call(NoParams());
 
-    bandsResult.fold(
-      (failure) => debugPrint(failure.message),
-      (stream) {
-        _perceptualBandsStream = stream.listen(
-          (event) {
-            _perceptualBands.value = event;
-          },
-        );
-      },
-    );
+    bandsResult.fold((failure) => debugPrint(failure.message), (stream) {
+      _perceptualBandsStream = stream.listen((event) {
+        _perceptualBands.value = event;
+      });
+    });
   }
 
   void stopListeningToAudio() {

@@ -2,25 +2,35 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:waveglow/core/theme/color_palette.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 
 class HomeVisualizerWidget extends StatelessWidget {
   HomeVisualizerWidget({super.key});
 
   final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-
   late final _controller = Get.find<HomeVisualizerStateController>();
+  late final _musicPlayer = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => CustomPaint(
-        // size: const Size(300, 300),
         painter: VisualizerPainter(
           colorPalette: _colorPalette,
           perceptualBands: _controller.smoothedPerceptualBands,
+          circleRadius: 110,
         ),
+        child: _musicPlayer.currentTrack?.albumArt != null
+            ? CircleAvatar(
+                radius: 106,
+                backgroundColor: _colorPalette.background,
+                child: ClipRRect(
+                  borderRadius: BorderRadiusGeometry.circular(1000),
+                  child: Image.memory(_musicPlayer.currentTrack!.albumArt!, fit: BoxFit.fill),
+                ),
+              )
+            : null,
       ),
     );
   }
@@ -97,9 +107,7 @@ class VisualizerPainter extends CustomPainter {
     }
 
     // Update and draw particles
-    final loudnessBoost = (perceptualBands.loudness > 0.05
-        ? perceptualBands.loudness * 40
-        : perceptualBands.loudness * 30);
+    final loudnessBoost = (perceptualBands.loudness > 0.04 ? 2.0 : perceptualBands.loudness * 30);
 
     for (final p in _particles) {
       p.position += p.velocity * dt * loudnessBoost;
@@ -123,26 +131,11 @@ class VisualizerPainter extends CustomPainter {
     final fullBass = (perceptualBands.bass * perceptualBands.subBass);
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
-      (
-        amplitude: fullBass * 170,
-        bumpAngle: pi * 0.4,
-      ),
-      (
-        amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300,
-        bumpAngle: pi * 0.1,
-      ),
-      (
-        amplitude: (perceptualBands.highMid) * 100,
-        bumpAngle: pi * 0.2,
-      ),
-      (
-        amplitude: (perceptualBands.presence) * 100,
-        bumpAngle: pi * 0.15,
-      ),
-      (
-        amplitude: perceptualBands.brilliance * 300,
-        bumpAngle: pi * 0.16,
-      ),
+      (amplitude: fullBass * 170, bumpAngle: pi * 0.4),
+      (amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300, bumpAngle: pi * 0.1),
+      (amplitude: (perceptualBands.highMid) * 100, bumpAngle: pi * 0.2),
+      (amplitude: (perceptualBands.presence) * 100, bumpAngle: pi * 0.15),
+      (amplitude: perceptualBands.brilliance * 300, bumpAngle: pi * 0.16),
     ];
 
     final path = Path();
@@ -223,19 +216,9 @@ class VisualizerPainter extends CustomPainter {
     final shadowColor = colorPalette.surface.withAlpha(loudnessScaled);
 
     canvas.save();
-    canvas.translate(0, -loudnessScaled.toDouble() / 3);
-    canvas.drawShadow(
-      path,
-      shadowColor,
-      loudnessScaled.toDouble().clamp(0, 50),
-      false,
-    );
-    canvas.drawShadow(
-      path,
-      shadowColor,
-      loudnessScaled.toDouble().clamp(0, 50),
-      false,
-    );
+    canvas.translate(0, -loudnessScaled.toDouble() / 4);
+    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
+    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
     canvas.restore();
 
     canvas.drawPath(path, paint);
@@ -259,11 +242,7 @@ class VisualizerPainter extends CustomPainter {
     canvas.drawCircle(size.center(Offset.zero), scaledRadius + 2, shadowPaint);
     canvas.drawCircle(size.center(Offset.zero), scaledRadius, innerCirclePaint);
 
-    canvas.drawCircle(
-      size.center(Offset.zero),
-      circleRadius - 2,
-      outerBorderCirclePaint,
-    );
+    canvas.drawCircle(size.center(Offset.zero), circleRadius - 2, outerBorderCirclePaint);
   }
 
   @override

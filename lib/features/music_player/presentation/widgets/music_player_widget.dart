@@ -54,11 +54,7 @@ class MusicPlayerWidget extends StatelessWidget {
   Widget _musicInfo() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _musicCover(),
-        const Gap(12),
-        _musicTitles(),
-      ],
+      children: [_musicCover(), const Gap(12), _musicTitles()],
     );
   }
 
@@ -73,11 +69,8 @@ class MusicPlayerWidget extends StatelessWidget {
           color: _colorPalette.neutral600,
           borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
         ),
-        child: _musicPlayerService.currentMusicMetaData?.albumArt != null
-            ? Image.memory(
-                _musicPlayerService.currentMusicMetaData!.albumArt!,
-                fit: BoxFit.fill,
-              )
+        child: _musicPlayerService.currentTrack?.albumArt != null
+            ? Image.memory(_musicPlayerService.currentTrack!.albumArt!, fit: BoxFit.fill)
             : const Icon(Icons.music_note_outlined),
       ),
     );
@@ -89,12 +82,9 @@ class MusicPlayerWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text((_musicPlayerService.currentMusicMetaData?.trackName ?? "")
-              .ellipsSize(maxLength: 40)),
+          Text((_musicPlayerService.currentTrack?.trackName ?? "").ellipsSize(maxLength: 40)),
           Text(
-            _musicPlayerService.currentMusicMetaData?.trackArtistNames
-                    ?.join(" - ")
-                    .ellipsSize(maxLength: 40) ??
+            _musicPlayerService.currentTrack?.artistsNames?.join(" - ").ellipsSize(maxLength: 40) ??
                 "",
             style: TextStyle(color: _colorPalette.neutral400),
           ),
@@ -106,13 +96,7 @@ class MusicPlayerWidget extends StatelessWidget {
   Widget _actionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _toggleShuffle(),
-        _previousBtn(),
-        _playPauseBtn(),
-        _nextBtn(),
-        _repeatBtn(),
-      ],
+      children: [_toggleShuffle(), _previousBtn(), _playPauseBtn(), _nextBtn(), _repeatBtn()],
     );
   }
 
@@ -121,9 +105,10 @@ class MusicPlayerWidget extends StatelessWidget {
       () => IconButton(
         onPressed: () async => await _musicPlayerService.toggleShuffle(),
         style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(
-          _musicPlayerService.isShuffle ? _colorPalette.neutral600 : null,
-        )),
+          backgroundColor: WidgetStatePropertyAll(
+            _musicPlayerService.isShuffle ? _colorPalette.neutral600 : null,
+          ),
+        ),
         icon: SvgPicture.asset(AssetSvgs.random),
       ),
     );
@@ -157,18 +142,16 @@ class MusicPlayerWidget extends StatelessWidget {
   Widget _repeatBtn() {
     return IconButton(
       onPressed: () => _musicPlayerService.cyclePlayListMode(),
-      icon: Obx(
-        () {
-          late String path;
-          path = switch (_musicPlayerService.playListMode) {
-            PlaylistMode.none => AssetSvgs.noRepeat,
-            PlaylistMode.single => AssetSvgs.repeatOne,
-            PlaylistMode.loop => AssetSvgs.repeatAll
-          };
+      icon: Obx(() {
+        late String path;
+        path = switch (_musicPlayerService.playListMode) {
+          PlaylistMode.none => AssetSvgs.noRepeat,
+          PlaylistMode.single => AssetSvgs.repeatOne,
+          PlaylistMode.loop => AssetSvgs.repeatAll,
+        };
 
-          return SvgPicture.asset(path);
-        },
-      ),
+        return SvgPicture.asset(path);
+      }),
     );
   }
 
@@ -202,12 +185,8 @@ class MusicPlayerWidget extends StatelessWidget {
         child: Obx(
           () => Slider(
             min: 0.0,
-            max: _musicPlayerService.currentMusicDuration?.inSeconds
-                    .toDouble() ??
-                0.0,
-            value: _musicPlayerService.currentMusicPosition?.inSeconds
-                    .toDouble() ??
-                0.0,
+            max: _musicPlayerService.currentMusicDuration?.inSeconds.toDouble() ?? 0.0,
+            value: _musicPlayerService.currentMusicPosition?.inSeconds.toDouble() ?? 0.0,
             onChanged: (value) => _musicPlayerService.setPosition(value),
           ),
         ),

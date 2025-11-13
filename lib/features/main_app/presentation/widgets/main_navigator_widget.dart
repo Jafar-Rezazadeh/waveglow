@@ -9,11 +9,7 @@ import 'package:waveglow/core/theme/color_palette.dart';
 class MainNavigatorWidget extends StatelessWidget {
   final int currentIndex;
   final Function(int index) onTab;
-  MainNavigatorWidget({
-    super.key,
-    required this.currentIndex,
-    required this.onTab,
-  });
+  MainNavigatorWidget({super.key, required this.currentIndex, required this.onTab});
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
 
@@ -29,12 +25,7 @@ class MainNavigatorWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.borderRadiusMax),
       ),
       child: Column(
-        children: [
-          _home(),
-          _playlist(),
-          _likedMusics(),
-          _settings(),
-        ].withGapInBetween(10),
+        children: [_home(), _playlist(), _likedMusics(), _settings()].withGapInBetween(10),
       ),
     );
   }
@@ -49,18 +40,17 @@ class MainNavigatorWidget extends StatelessWidget {
     );
   }
 
-  _navigatorItem(
-      {required String svgPath,
-      required VoidCallback onTap,
-      required bool active}) {
+  Widget _navigatorItem({
+    required String svgPath,
+    required VoidCallback onTap,
+    required bool active,
+  }) {
     return IconButton(
       onPressed: onTap,
       icon: SvgPicture.asset(
         svgPath,
         colorFilter: ColorFilter.mode(
-          active
-              ? _colorPalette.surface
-              : _colorPalette.neutral400.withValues(alpha: 0.5),
+          active ? _colorPalette.surface : _colorPalette.neutral400.withValues(alpha: 0.5),
           BlendMode.srcIn,
         ),
       ),
