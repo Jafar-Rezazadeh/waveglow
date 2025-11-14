@@ -11,9 +11,7 @@ class HomePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          HomeVisualizerWidget(),
-        ],
+        children: [HomeVisualizerWidget()],
       ),
     );
   }

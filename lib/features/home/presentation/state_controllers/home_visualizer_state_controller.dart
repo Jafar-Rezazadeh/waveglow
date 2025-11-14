@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:waveglow/core/contracts/use_case.dart';
 import 'package:waveglow/core/services/music_player_service.dart';
 import 'package:waveglow/features/home/home_exports.dart';
+import 'package:waveglow/services/home_audio_bands_service.dart';
 
 class _CustomTicker extends TickerProvider {
   @override
@@ -15,16 +15,12 @@ class _CustomTicker extends TickerProvider {
 }
 
 class HomeVisualizerStateController extends GetxController {
-  final GetHomeVisualizerPerceptualBandsStreamUC _getVisualizerLiveBandsUC;
+  final HomeAudioBandsService _audioBandsService;
   late final Ticker _ticker;
-
   late final _musicPlayer = Get.find<MusicPlayerService>();
 
-  HomeVisualizerStateController({
-    required GetHomeVisualizerPerceptualBandsStreamUC getVisualizerPerceptualBandsStreamUC,
-  }) : _getVisualizerLiveBandsUC = getVisualizerPerceptualBandsStreamUC;
-
-  StreamSubscription<HomeVisualizerBandsEntity>? _perceptualBandsStream;
+  HomeVisualizerStateController({required HomeAudioBandsService audioBandsService})
+    : _audioBandsService = audioBandsService;
 
   final _perceptualBands = Rx<HomeVisualizerBandsEntity?>(null);
   late final _smoothedPerceptualBands = Rx<HomeVisualizerBandsEntity>(_initBandsValue);
@@ -40,6 +36,11 @@ class HomeVisualizerStateController extends GetxController {
   );
 
   HomeVisualizerBandsEntity get smoothedPerceptualBands => _smoothedPerceptualBands.value;
+  @visibleForTesting
+  HomeVisualizerBandsEntity? get perceptualBands => _perceptualBands.value;
+
+  @visibleForTesting
+  set setPerceptualBands(HomeVisualizerBandsEntity value) => _perceptualBands.value = value;
 
   @override
   void onInit() {
@@ -47,9 +48,9 @@ class HomeVisualizerStateController extends GetxController {
     _setTicker();
     _musicPlayer.isPlayingStream.listen((isPlaying) {
       if (isPlaying) {
-        startListeningToAudio();
+        startListeningBandsSpectrum();
       } else {
-        stopListeningToAudio();
+        stopListeningBandsSpectrum();
       }
     });
   }
@@ -69,23 +70,23 @@ class HomeVisualizerStateController extends GetxController {
 
   @override
   void dispose() {
+    stopListeningBandsSpectrum();
     _ticker.dispose();
     super.dispose();
   }
 
-  Future<void> startListeningToAudio() async {
-    final bandsResult = await _getVisualizerLiveBandsUC.call(NoParams());
+  @visibleForTesting
+  Future<void> startListeningBandsSpectrum() async {
+    await _audioBandsService.start();
 
-    bandsResult.fold((failure) => debugPrint(failure.message), (stream) {
-      _perceptualBandsStream = stream.listen((event) {
-        _perceptualBands.value = event;
-      });
+    _audioBandsService.bandsStream?.listen((event) {
+      _perceptualBands.value = event;
     });
   }
 
-  void stopListeningToAudio() {
-    _perceptualBandsStream?.cancel();
-    _perceptualBandsStream = null;
+  @visibleForTesting
+  Future<void> stopListeningBandsSpectrum() async {
+    await _audioBandsService.stop();
     _perceptualBands.value = HomeVisualizerBandsEntity(
       subBass: 0,
       bass: 0,
