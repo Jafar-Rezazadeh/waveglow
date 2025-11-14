@@ -20,7 +20,7 @@ add_executable(${BINARY_NAME} WIN32
   "audio_event_streamer.cpp"
   )
 
-# Info ----------FFTW----------
+# ! ----------FFTW----------
 
 # Set root folder
 set(FFTW_ROOT "${PROJECT_BUILD_DIR}/../fftw-3.3.5-dll64")
@@ -40,7 +40,7 @@ add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
         "${FFTW_ROOT}/libfftw3-3.dll"
         $<TARGET_FILE_DIR:${BINARY_NAME}>)
 
-# Info ----------FFTW-end----------
+# ! ----------FFTW-end----------
 
 
 # Apply the standard set of build settings. This can be removed for applications

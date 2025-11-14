@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
-import 'package:waveglow/features/home/services/home_audio_bands_service_impl.dart';
 import 'package:waveglow/services/home_audio_bands_service.dart';
 
 class HomeBindings extends Bindings {
