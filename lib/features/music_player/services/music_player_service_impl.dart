@@ -73,14 +73,18 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
   void _playListListener() {
     _playListSubscription = _player.stream.playlist.listen((playlistState) {
-      final shuffledMedia = playlistState.medias[playlistState.index];
-
-      final originalIndex = _currentPlaylist.value.indexWhere(
-        (m) => m.path == shuffledMedia.uri.replaceAll("/", "\\"),
-      );
-
-      _currentMedia.value = _currentPlaylist.value[originalIndex];
+      _setCurrentPlayingMusic(playlistState);
     });
+  }
+
+  void _setCurrentPlayingMusic(Playlist playlistState) {
+    final shuffledMedia = playlistState.medias[playlistState.index];
+
+    final originalIndex = _currentPlaylist.value.indexWhere(
+      (m) => m.path == shuffledMedia.uri.replaceAll("/", "\\"),
+    );
+
+    _currentMedia.value = _currentPlaylist.value[originalIndex];
   }
 
   void _playingListener() {
@@ -101,7 +105,16 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   @override
   Future<void> openPlayList(List<AudioItemEntity> tracks, {bool play = false}) async {
     _currentPlaylist.value = tracks;
-    _player.open(Playlist(_currentPlaylist.value.map((e) => Media(e.path)).toList()), play: play);
+    await _player.open(
+      Playlist(_currentPlaylist.value.map((e) => Media(e.path)).toList()),
+      play: play,
+    );
+    await _setShuffleOff();
+  }
+
+  Future<void> _setShuffleOff() async {
+    _isShuffle.value = false;
+    await _player.setShuffle(_isShuffle.value);
   }
 
   @override
