@@ -20,17 +20,18 @@ add_executable(${BINARY_NAME} WIN32
   "audio_event_streamer.cpp"
   )
 
-# Set FFTW root folder
+# Info ----------FFTW----------
+
+# Set root folder
 set(FFTW_ROOT "${PROJECT_BUILD_DIR}/../fftw-3.3.5-dll64")
 
-
-# Add include directory for FFTW headers
+# Add include directory for headers
 include_directories(${FFTW_ROOT})
 
 # Link directory where the .lib file is located (optional if you use full path below)
 link_directories(${FFTW_ROOT})
 
-# Link your target with the FFTW lib (full path recommended)
+# Link your target with the lib (full path recommended)
 target_link_libraries(${BINARY_NAME} PRIVATE "${FFTW_ROOT}/libfftw3-3.lib")
 
 # Copy the DLL after build to the executable directory
@@ -38,6 +39,8 @@ add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${FFTW_ROOT}/libfftw3-3.dll"
         $<TARGET_FILE_DIR:${BINARY_NAME}>)
+
+# Info ----------FFTW-end----------
 
 
 # Apply the standard set of build settings. This can be removed for applications

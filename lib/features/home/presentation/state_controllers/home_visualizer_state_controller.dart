@@ -60,7 +60,7 @@ class HomeVisualizerStateController extends GetxController {
         previous: _smoothedPerceptualBands.value,
         current: _perceptualBands.value,
         attack: 0.3,
-        decay: 0.15,
+        decay: 0.10,
       );
     });
 
@@ -136,11 +136,16 @@ class HomeVisualizerStateController extends GetxController {
       subBass: smooth(previous.subBass, current?.subBass),
       bass: smooth(previous.bass, current?.bass),
       lowMid: smooth(previous.lowMid, current?.lowMid),
-      mid: smooth(previous.mid, current?.mid),
-      highMid: smooth(previous.highMid, current?.highMid),
-      presence: smooth(previous.presence, current?.presence),
-      brilliance: smooth(previous.brilliance, current?.brilliance),
+      // mid: smooth(previous.mid, current?.mid),
+      // highMid: smooth(previous.highMid, current?.highMid),
+      // presence: smooth(previous.presence, current?.presence),
+      // brilliance: smooth(previous.brilliance, current?.brilliance),
       loudness: smooth(previous.loudness, current?.loudness),
+      mid: current?.mid ?? 0,
+      highMid: current?.highMid ?? 0,
+      presence: current?.presence ?? 0,
+      brilliance: current?.brilliance ?? 0,
+      // loudness: current?.loudness ?? 0,
     );
   }
 }

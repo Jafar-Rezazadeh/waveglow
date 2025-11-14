@@ -132,10 +132,10 @@ class VisualizerPainter extends CustomPainter {
 
     final List<({double amplitude, double bumpAngle})> bumpDatas = [
       (amplitude: fullBass * 170, bumpAngle: pi * 0.4),
-      (amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 300, bumpAngle: pi * 0.1),
-      (amplitude: (perceptualBands.highMid) * 100, bumpAngle: pi * 0.2),
-      (amplitude: (perceptualBands.presence) * 100, bumpAngle: pi * 0.15),
-      (amplitude: perceptualBands.brilliance * 300, bumpAngle: pi * 0.16),
+      (amplitude: (perceptualBands.mid * perceptualBands.lowMid) * 200, bumpAngle: pi * 0.1),
+      (amplitude: (perceptualBands.highMid) * 120, bumpAngle: pi * 0.2),
+      (amplitude: (perceptualBands.presence) * 150, bumpAngle: pi * 0.15),
+      (amplitude: perceptualBands.brilliance * 400, bumpAngle: pi * 0.16),
     ];
 
     final path = Path();
