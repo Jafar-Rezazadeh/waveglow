@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:waveglow/features/home/presentation/pages/home_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
 import 'package:waveglow/features/music_player/presentation/widgets/music_player_widget.dart';
 import 'package:waveglow/features/tracks_list/presentation/pages/tracks_list_page.dart';
+import 'package:waveglow/services/home_audio_bands_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,17 +64,27 @@ class _MainScreenState extends State<MainScreen> {
     return Positioned(
       left: 24,
       top: 100,
-      child: MainNavigatorWidget(
-        currentIndex: currentPage,
-        onTab: (int index) {
-          setState(() => currentPage = index);
-          pageViewController.animateToPage(
-            index,
-            duration: Durations.medium3,
-            curve: Curves.easeInOutCubic,
-          );
-        },
-      ),
+      child: MainNavigatorWidget(currentIndex: currentPage, onTab: _onNavigationItemTap),
     );
+  }
+
+  void _onNavigationItemTap(int index) {
+    _toggleAudioVisualization(index);
+
+    setState(() => currentPage = index);
+    pageViewController.animateToPage(
+      index,
+      duration: Durations.medium3,
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  Future<void> _toggleAudioVisualization(int index) async {
+    if (index == 0) {
+      await Get.find<HomeAudioBandsService>().start();
+    }
+    if (index != 0) {
+      await Get.find<HomeAudioBandsService>().stop();
+    }
   }
 }

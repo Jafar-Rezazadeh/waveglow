@@ -49,7 +49,7 @@ void main() {
       await serviceImpl.start();
 
       //assert
-      expect(await serviceImpl.bandsStream?.first, isA<HomeVisualizerBandsEntity>());
+      expect(await serviceImpl.bandsStream.first, isA<HomeVisualizerBandsEntity>());
     });
   });
 }

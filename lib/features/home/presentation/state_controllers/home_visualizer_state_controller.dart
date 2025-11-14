@@ -18,9 +18,14 @@ class HomeVisualizerStateController extends GetxController {
   final HomeAudioBandsService _audioBandsService;
   late final Ticker _ticker;
   late final _musicPlayer = Get.find<MusicPlayerService>();
+  @visibleForTesting
+  StreamSubscription<HomeVisualizerBandsEntity>? bandsStreamSub;
 
-  HomeVisualizerStateController({required HomeAudioBandsService audioBandsService})
-    : _audioBandsService = audioBandsService;
+  HomeVisualizerStateController({
+    required HomeAudioBandsService audioBandsService,
+    StreamSubscription<HomeVisualizerBandsEntity>? mockStreamSub,
+  }) : _audioBandsService = audioBandsService,
+       bandsStreamSub = mockStreamSub;
 
   final _perceptualBands = Rx<HomeVisualizerBandsEntity?>(null);
   late final _smoothedPerceptualBands = Rx<HomeVisualizerBandsEntity>(_initBandsValue);
@@ -79,13 +84,15 @@ class HomeVisualizerStateController extends GetxController {
   Future<void> startListeningBandsSpectrum() async {
     await _audioBandsService.start();
 
-    _audioBandsService.bandsStream?.listen((event) {
+    bandsStreamSub = _audioBandsService.bandsStream.listen((event) {
       _perceptualBands.value = event;
     });
   }
 
   @visibleForTesting
   Future<void> stopListeningBandsSpectrum() async {
+    bandsStreamSub?.cancel();
+    bandsStreamSub = null;
     await _audioBandsService.stop();
     _perceptualBands.value = HomeVisualizerBandsEntity(
       subBass: 0,
