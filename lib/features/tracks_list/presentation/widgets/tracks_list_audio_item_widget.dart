@@ -24,18 +24,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
         () => AnimatedContainer(
           duration: Durations.long2,
           curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-            gradient: _isCurrentlyPlaying
-                ? LinearGradient(
-                    colors: [
-                      _colorPalette.primary700,
-                      _colorPalette.primary800,
-                      _colorPalette.primary900,
-                    ],
-                  )
-                : null,
-          ),
+          decoration: _decoration(),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -52,6 +41,15 @@ class TracksListAudioItemWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  BoxDecoration _decoration() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
+      gradient: _isCurrentlyPlaying
+          ? LinearGradient(colors: [_colorPalette.primary900, _colorPalette.primary800])
+          : null,
     );
   }
 

@@ -16,7 +16,7 @@ class MusicPlayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 125,
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
       width: double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -28,33 +28,36 @@ class MusicPlayerWidget extends StatelessWidget {
   }
 
   Widget _body() {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      spacing: 8,
+      children: [_musicActionsAndInfo(), _musicProgressBar()],
+    );
+  }
+
+  Widget _musicActionsAndInfo() {
     return SizedBox(
       width: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
+      height: 48,
+      child: Stack(
+        alignment: Alignment.center,
+        fit: StackFit.loose,
         children: [
-          Expanded(flex: 3, child: _musicActionsAndInfo()),
-          Expanded(flex: 2, child: _musicProgressBar()),
+          Positioned(left: 0, child: _musicInfo()),
+          _actionButtons(),
+          Positioned(right: 0, child: _volume()),
         ],
       ),
     );
   }
 
-  Widget _musicActionsAndInfo() {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Expanded(child: _musicInfo()),
-        Expanded(child: _actionButtons()),
-        Expanded(child: _volume()),
-      ],
-    );
-  }
-
   Widget _musicInfo() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [_musicCover(), const Gap(12), _musicTitles()],
+    return SizedBox(
+      height: 100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [_musicCover(), const Gap(12), _musicTitles()],
+      ),
     );
   }
 
@@ -70,32 +73,46 @@ class MusicPlayerWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
         ),
         child: _musicPlayerService.currentTrack?.albumArt != null
-            ? Image.memory(_musicPlayerService.currentTrack!.albumArt!, fit: BoxFit.fill)
+            ? Image.memory(
+                _musicPlayerService.currentTrack!.albumArt!,
+                fit: BoxFit.cover,
+                width: 48,
+                height: 48,
+              )
             : const Icon(Icons.music_note_outlined),
       ),
     );
   }
 
   Widget _musicTitles() {
-    return Obx(
-      () => Column(
+    return Obx(() {
+      final artistsNames =
+          _musicPlayerService.currentTrack?.artistsNames?.join(" - ").ellipsSize(maxLength: 40) ??
+          "";
+
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text((_musicPlayerService.currentTrack?.trackName ?? "").ellipsSize(maxLength: 40)),
           Text(
-            _musicPlayerService.currentTrack?.artistsNames?.join(" - ").ellipsSize(maxLength: 40) ??
-                "",
-            style: TextStyle(color: _colorPalette.neutral400),
+            (_musicPlayerService.currentTrack?.trackName ?? "").ellipsSize(maxLength: 40),
+            style: TextStyle(fontSize: AppSizes.fontSizeMedium, overflow: TextOverflow.ellipsis),
           ),
+          if (artistsNames.isNotEmpty)
+            Text(
+              artistsNames,
+              style: TextStyle(color: _colorPalette.neutral400, fontSize: AppSizes.fontSizeSmall),
+            ),
         ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _actionButtons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      spacing: 24,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [_toggleShuffle(), _previousBtn(), _playPauseBtn(), _nextBtn(), _repeatBtn()],
     );
   }
@@ -178,7 +195,6 @@ class MusicPlayerWidget extends StatelessWidget {
   Widget _musicProgressBar() {
     return Container(
       width: 0.55.sw,
-      height: double.infinity,
       alignment: Alignment.topCenter,
       child: SizedBox(
         height: 20,

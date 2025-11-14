@@ -7,7 +7,7 @@ class CustomTheme {
     fontFamily: "Vazirmatn",
     colorScheme: ColorScheme(
       brightness: Brightness.dark,
-      primary: AppColorPalette().primary500,
+      primary: AppColorPalette().primary600,
       onPrimary: AppColorPalette().surface,
       secondary: AppColorPalette().neonPink,
       onSecondary: AppColorPalette().background,
