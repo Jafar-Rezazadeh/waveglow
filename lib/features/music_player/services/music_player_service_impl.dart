@@ -6,7 +6,6 @@ import 'package:waveglow/core/core_exports.dart';
 
 class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final Player _player;
-  MusicPlayerServiceImpl({required Player player}) : _player = player;
 
   final _currentMedia = Rx<AudioItemEntity?>(null);
   final _currentPlaylist = Rx<List<AudioItemEntity>>([]);
@@ -16,6 +15,13 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _currentPosition = Rx<Duration?>(null);
   final _currentDuration = Rx<Duration?>(null);
   final _isShuffle = false.obs;
+
+  late final StreamSubscription<Playlist> _playListSubscription;
+  late final StreamSubscription<bool> _playingSubscription;
+  late final StreamSubscription<Duration> _durationSubscription;
+  late final StreamSubscription<Duration> _positionSubscription;
+
+  MusicPlayerServiceImpl({required Player player}) : _player = player;
 
   @override
   bool get isPlaying => _isPlaying.value;
@@ -48,43 +54,48 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   void onInit() {
     super.onInit();
     _listeners();
-    _initData();
   }
 
-  Future<void> _initData() async {}
+  @override
+  void onClose() {
+    _playListSubscription.cancel();
+    _playingSubscription.cancel();
+    _durationSubscription.cancel();
+    _positionSubscription.cancel();
+    super.onClose();
+  }
 
   void _listeners() {
     _playListListener();
     _playingListener();
-    _currentTrackListener();
-    _rxListeners();
+    _durationListener();
   }
 
   void _playListListener() {
-    _player.stream.playlist.listen((playlistState) {
-      final currentIndex = playlistState.index;
+    _playListSubscription = _player.stream.playlist.listen((playlistState) {
+      final shuffledMedia = playlistState.medias[playlistState.index];
 
-      _currentMedia.value = _currentPlaylist.value[currentIndex];
+      final originalIndex = _currentPlaylist.value.indexWhere(
+        (m) => m.path == shuffledMedia.uri.replaceAll("/", "\\"),
+      );
+
+      _currentMedia.value = _currentPlaylist.value[originalIndex];
     });
   }
 
   void _playingListener() {
-    _player.stream.playing.listen((isPlaying) async {
+    _playingSubscription = _player.stream.playing.listen((isPlaying) async {
       _isPlaying.value = isPlaying;
     });
   }
 
-  void _currentTrackListener() {
-    _player.stream.duration.listen((duration) {
+  void _durationListener() {
+    _durationSubscription = _player.stream.duration.listen((duration) {
       _currentDuration.value = duration;
     });
-    _player.stream.position.listen((duration) {
+    _positionSubscription = _player.stream.position.listen((duration) {
       _currentPosition.value = duration;
     });
-  }
-
-  void _rxListeners() {
-    ever(_currentMedia, (callback) {});
   }
 
   @override
