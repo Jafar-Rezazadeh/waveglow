@@ -14,4 +14,14 @@ class MusicPlayerDataSourceImpl implements MusicPlayerDataSource {
   Future<void> saveCurrentPlayList(MusicPlayerPlayListModel model) async {
     await _musicPlayerBox.put(_key, model);
   }
+
+  @override
+  Future<MusicPlayerPlayListModel> getLastSavedPlaylist() async {
+    final result = _musicPlayerBox.get(_key);
+
+    if (result == null) {
+      throw Exception("MusicPlayer_getLastSavedPlaylist: no saved data");
+    }
+    return result;
+  }
 }

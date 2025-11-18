@@ -32,4 +32,20 @@ void main() {
       verify(() => mockBox.put("play_list", any())).called(1);
     });
   });
+
+  group("getLastSavedPlaylist -", () {
+    test(
+      "should call get method of the box with expected key and return value when success",
+      () async {
+        //arrange
+        when(() => mockBox.get("play_list")).thenAnswer((_) => _FakeMusicPlayerPlayListModel());
+
+        //act
+        final result = await dataSourceImpl.getLastSavedPlaylist();
+
+        //assert
+        expect(result, isA<MusicPlayerPlayListModel>());
+      },
+    );
+  });
 }

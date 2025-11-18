@@ -4,4 +4,5 @@ import 'package:waveglow/features/music_player/domain/entities/music_player_play
 
 abstract class MusicPlayerRepository {
   Future<Either<Failure, void>> saveCurrentPlayList(MusicPlayerPlayListEntity params);
+  Future<Either<Failure, MusicPlayerPlayListEntity>> getLastSavedPlaylist();
 }

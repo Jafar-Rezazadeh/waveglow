@@ -7,9 +7,22 @@ class _MockMusicPlayerDataSource extends Mock implements MusicPlayerDataSource {
 
 class _MockFailureFactory extends Mock implements FailureFactory {}
 
-class _FakeMusicPlayerPlayListEntity extends Fake implements MusicPlayerPlayListEntity {}
+class _FakeMusicPlayerPlayListEntity extends Fake implements MusicPlayerPlayListEntity {
+  @override
+  String get id => "id";
+
+  @override
+  List<AudioItemEntity> get audios => [];
+}
 
 class _FakeFailure extends Fake implements Failure {}
+
+class _FakeMusicPlayerPlayListModel extends Fake implements MusicPlayerPlayListModel {
+  @override
+  MusicPlayerPlayListEntity toEntity() {
+    return _FakeMusicPlayerPlayListEntity();
+  }
+}
 
 void main() {
   late _MockMusicPlayerDataSource mockMusicPlayerDataSource;
@@ -17,7 +30,7 @@ void main() {
   late MusicPlayerRepositoryImpl repositoryImpl;
 
   setUpAll(() {
-    registerFallbackValue(_FakeMusicPlayerPlayListEntity());
+    registerFallbackValue(_FakeMusicPlayerPlayListModel());
     registerFallbackValue(StackTrace.empty);
   });
 
@@ -74,5 +87,43 @@ void main() {
       //assert
       expect(result.isRight(), true);
     });
+  });
+
+  group("getLastSavedPlaylist -", () {
+    test("should return expected result when success ", () async {
+      //arrange
+      when(
+        () => mockMusicPlayerDataSource.getLastSavedPlaylist(),
+      ).thenAnswer((_) async => _FakeMusicPlayerPlayListModel());
+
+      //act
+      final result = await repositoryImpl.getLastSavedPlaylist();
+      final rightValue = result.fold((l) => null, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<MusicPlayerPlayListEntity>());
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of failure when any object is thrown",
+      () async {
+        //arrange
+        when(
+          () => mockMusicPlayerDataSource.getLastSavedPlaylist(),
+        ).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.getLastSavedPlaylist();
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
   });
 }

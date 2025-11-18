@@ -2,4 +2,5 @@ import 'package:waveglow/features/music_player/data/models/music_player_play_lis
 
 abstract class MusicPlayerDataSource {
   Future<void> saveCurrentPlayList(MusicPlayerPlayListModel model);
+  Future<MusicPlayerPlayListModel> getLastSavedPlaylist();
 }

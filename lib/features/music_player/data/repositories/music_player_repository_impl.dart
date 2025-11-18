@@ -24,4 +24,15 @@ class MusicPlayerRepositoryImpl implements MusicPlayerRepository {
       return left(_failureFactory.createFailure(e, s));
     }
   }
+
+  @override
+  Future<Either<Failure, MusicPlayerPlayListEntity>> getLastSavedPlaylist() async {
+    try {
+      final result = await _musicPlayerDataSource.getLastSavedPlaylist();
+
+      return right(result.toEntity());
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
 }

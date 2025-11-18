@@ -16,6 +16,8 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _currentDuration = Rx<Duration?>(null);
   final _isShuffle = false.obs;
 
+  // TODO:implement  save the current playing playList
+
   late final StreamSubscription<Playlist> _playListSubscription;
   late final StreamSubscription<bool> _playingSubscription;
   late final StreamSubscription<Duration> _durationSubscription;
