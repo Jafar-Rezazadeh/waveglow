@@ -1,14 +1,20 @@
 import 'dart:async';
 
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/music_player/music_player_exports.dart';
 
 class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
+  final MusicPlayerSaveCurrentPlayListUC _saveCurrentPlayListUC;
+  final MusicPlayerGetLastSavedPlaylistUC _getLastSavedPlaylistUC;
   final Player _player;
+  final Logger _logger;
 
   final _currentMedia = Rx<AudioItemEntity?>(null);
-  final _currentPlaylist = Rx<List<AudioItemEntity>>([]);
+  final _currentPlaylist = Rx<MusicPlayerPlayListEntity?>(null);
   final _isPlaying = RxBool(false);
   final _playListModel = Rx<PlaylistMode>(PlaylistMode.loop);
   final _volume = RxDouble(100);
@@ -16,14 +22,20 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final _currentDuration = Rx<Duration?>(null);
   final _isShuffle = false.obs;
 
-  // TODO:implement  save the current playing playList
-
   late final StreamSubscription<Playlist> _playListSubscription;
   late final StreamSubscription<bool> _playingSubscription;
   late final StreamSubscription<Duration> _durationSubscription;
   late final StreamSubscription<Duration> _positionSubscription;
 
-  MusicPlayerServiceImpl({required Player player}) : _player = player;
+  MusicPlayerServiceImpl({
+    required Player player,
+    required MusicPlayerSaveCurrentPlayListUC saveCurrentPlayListUC,
+    required MusicPlayerGetLastSavedPlaylistUC getLastSavedPlaylistUC,
+    required Logger logger,
+  }) : _saveCurrentPlayListUC = saveCurrentPlayListUC,
+       _getLastSavedPlaylistUC = getLastSavedPlaylistUC,
+       _player = player,
+       _logger = logger;
 
   @override
   bool get isPlaying => _isPlaying.value;
@@ -47,7 +59,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Duration? get currentMusicDuration => _currentDuration.value;
 
   @override
-  List<AudioItemEntity> get currentPlaylist => _currentPlaylist.value;
+  MusicPlayerPlayListEntity? get currentPlaylist => _currentPlaylist.value;
 
   @override
   bool get isShuffle => _isShuffle.value;
@@ -55,7 +67,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   @override
   void onInit() {
     super.onInit();
-    _listeners();
+    _initAsync();
   }
 
   @override
@@ -65,6 +77,14 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     _durationSubscription.cancel();
     _positionSubscription.cancel();
     super.onClose();
+  }
+
+  Future<void> _initAsync() async {
+    _listeners();
+    await getLastSavedPlaylist();
+    if (_currentPlaylist.value != null) {
+      await openPlayList(_currentPlaylist.value!);
+    }
   }
 
   void _listeners() {
@@ -82,11 +102,15 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   void _setCurrentPlayingMusic(Playlist playlistState) {
     final shuffledMedia = playlistState.medias[playlistState.index];
 
-    final originalIndex = _currentPlaylist.value.indexWhere(
-      (m) => m.path == shuffledMedia.uri.replaceAll("/", "\\"),
-    );
+    final originalIndex =
+        _currentPlaylist.value?.audios.indexWhere(
+          (m) => m.path == shuffledMedia.uri.replaceAll("/", "\\"),
+        ) ??
+        -1;
 
-    _currentMedia.value = _currentPlaylist.value[originalIndex];
+    if (originalIndex != -1) {
+      _currentMedia.value = _currentPlaylist.value?.audios[originalIndex];
+    }
   }
 
   void _playingListener() {
@@ -104,14 +128,33 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     });
   }
 
-  @override
-  Future<void> openPlayList(List<AudioItemEntity> tracks, {bool play = false}) async {
-    _currentPlaylist.value = tracks;
-    await _player.open(
-      Playlist(_currentPlaylist.value.map((e) => Media(e.path)).toList()),
-      play: play,
+  @visibleForTesting
+  Future<void> getLastSavedPlaylist() async {
+    final result = await _getLastSavedPlaylistUC.call(NoParams());
+
+    result.fold(
+      (failure) {
+        _logger.e("${failure.message}\n${failure.stackTrace}");
+      },
+      (data) {
+        _currentPlaylist.value = data;
+      },
     );
+  }
+
+  @visibleForTesting
+  Future<void> savePlaylist(MusicPlayerPlayListEntity entity) async {
+    final result = await _saveCurrentPlayListUC.call(entity);
+
+    result.fold((failure) => _logger.e("${failure.message}\n${failure.stackTrace}"), (_) {});
+  }
+
+  @override
+  Future<void> openPlayList(MusicPlayerPlayListEntity playList, {bool play = false}) async {
+    _currentPlaylist.value = playList;
+    await _player.open(Playlist(playList.audios.map((e) => Media(e.path)).toList()), play: play);
     await _setShuffleOff();
+    await savePlaylist(playList);
   }
 
   Future<void> _setShuffleOff() async {

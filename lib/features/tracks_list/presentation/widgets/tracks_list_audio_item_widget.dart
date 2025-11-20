@@ -68,7 +68,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
     );
   }
 
-  bool get _isCurrentlyPlaying => _musicPlayer.currentTrack == item;
+  bool get _isCurrentlyPlaying => _musicPlayer.currentTrack?.path == item.path;
 
   Widget _albumArt() {
     return Container(

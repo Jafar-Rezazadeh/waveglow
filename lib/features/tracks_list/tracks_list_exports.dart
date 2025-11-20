@@ -21,4 +21,3 @@ export 'package:waveglow/features/tracks_list/presentation/state_controllers/tra
 export 'package:waveglow/features/tracks_list/presentation/view_templates/tracks_list_directory_template.dart';
 
 // extras
-export 'package:waveglow/features/tracks_list/tracks_list_constants.dart';

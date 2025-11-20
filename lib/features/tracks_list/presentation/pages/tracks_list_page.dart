@@ -12,12 +12,13 @@ class TracksListPage extends StatelessWidget {
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _controller = Get.find<TracksListStateController>();
+  late final _musicPlayerService = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final currentPlayingMusicDirIndex = _controller.allDirectories.indexWhere(
-        (e) => e.dirEntity.id == _controller.currentPlayingMusicDirId,
+        (e) => e.dirEntity.id == _musicPlayerService.currentPlaylist?.id,
       );
       return DefaultTabController(
         length: _controller.allDirectories.length,

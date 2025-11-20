@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/utils/test_mode_checker.dart';
+import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListStateController extends GetxController {
@@ -16,7 +17,6 @@ class TracksListStateController extends GetxController {
   final TracksListToggleAudioFavoriteUC _toggleAudioFavoriteUC;
   final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
 
-  String? _currentPlayingMusicDirId;
   final _isLoadingDir = false.obs;
 
   TracksListStateController({
@@ -28,6 +28,7 @@ class TracksListStateController extends GetxController {
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
+
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -43,11 +44,6 @@ class TracksListStateController extends GetxController {
   set setAllDirectories(List<TracksListDirectoryTemplate> list) {
     _allDirectories.value = list;
   }
-
-  @visibleForTesting
-  set setCurrentDirKey(String? value) => _currentPlayingMusicDirId = value;
-
-  String? get currentPlayingMusicDirId => _currentPlayingMusicDirId;
 
   List<TracksListDirectoryTemplate> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;
@@ -103,20 +99,26 @@ class TracksListStateController extends GetxController {
   }
 
   Future<void> playTrack(AudioItemEntity item, String dirId) async {
-    if (dirId != _currentPlayingMusicDirId || _musicPlayerService.currentPlaylist.isEmpty) {
+    if (_dirIsDifferentOrPlaylistIsEmpty(dirId)) {
       final dirAudiosItems =
           _allDirectories.firstWhereOrNull((e) => e.dirEntity.id == dirId)?.dirEntity.audios ?? [];
 
-      await _musicPlayerService.openPlayList(dirAudiosItems, play: false);
+      final playList = MusicPlayerPlayListEntity(id: dirId, audios: dirAudiosItems);
+
+      await _musicPlayerService.openPlayList(playList, play: false);
     }
 
-    final itemIndex = _musicPlayerService.currentPlaylist.indexOf(item);
+    final itemIndex = _musicPlayerService.currentPlaylist?.audios.indexOf(item) ?? -1;
 
     if (itemIndex != -1) {
       await _musicPlayerService.playAt(itemIndex);
     }
+  }
 
-    _currentPlayingMusicDirId = dirId;
+  bool _dirIsDifferentOrPlaylistIsEmpty(String dirId) {
+    return dirId != _musicPlayerService.currentPlaylist?.id ||
+        (_musicPlayerService.currentPlaylist == null ||
+            _musicPlayerService.currentPlaylist!.audios.isEmpty);
   }
 
   @visibleForTesting

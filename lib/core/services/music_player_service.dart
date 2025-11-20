@@ -1,5 +1,6 @@
 import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/music_player/music_player_exports.dart';
 
 abstract class MusicPlayerService {
   bool get isPlaying;
@@ -10,9 +11,9 @@ abstract class MusicPlayerService {
   Duration? get currentMusicPosition;
   Duration? get currentMusicDuration;
   bool get isShuffle;
-  List<AudioItemEntity> get currentPlaylist;
+  MusicPlayerPlayListEntity? get currentPlaylist;
 
-  Future<void> openPlayList(List<AudioItemEntity> audios, {bool play});
+  Future<void> openPlayList(MusicPlayerPlayListEntity audios, {bool play});
   Future<void> playOrPause();
   Future<void> goPrevious();
   Future<void> goNext();

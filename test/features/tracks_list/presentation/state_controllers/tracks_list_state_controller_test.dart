@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class _MockPickTracksListDirectoryUC extends Mock implements PickTracksListDirectoryUC {}
@@ -61,6 +62,19 @@ class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
 class _FakeTracksListToggleAudioFavoriteParams extends Fake
     implements TracksListToggleAudioFavoriteParams {}
 
+class _FakeMusicPlayerPlayListEntity extends Fake implements MusicPlayerPlayListEntity {
+  final String dirIdT;
+  final List<AudioItemEntity> audiosT;
+
+  _FakeMusicPlayerPlayListEntity({this.dirIdT = "", this.audiosT = const []});
+
+  @override
+  String get id => dirIdT;
+
+  @override
+  List<AudioItemEntity> get audios => audiosT;
+}
+
 void main() {
   late _MockPickTracksListDirectoryUC mockPickTracksListDirectoryUC;
   late _MockMusicPlayerService mockMusicPlayerService;
@@ -79,6 +93,7 @@ void main() {
     registerFallbackValue(<AudioItemEntity>[]);
     registerFallbackValue(_FakeTracksListDirectoryEntity());
     registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
+    registerFallbackValue(_FakeMusicPlayerPlayListEntity());
     registerFallbackValue(SortType.byModifiedDate);
   });
 
@@ -242,11 +257,13 @@ void main() {
       "should call musicService.openPlaylist when given dir is different from current",
       () async {
         //arrange
-        controller.setCurrentDirKey = "1";
+        when(
+          () => mockMusicPlayerService.currentPlaylist,
+        ).thenAnswer((_) => _FakeMusicPlayerPlayListEntity(dirIdT: "1525"));
         when(
           () => mockMusicPlayerService.openPlayList(any(), play: false),
         ).thenAnswer((_) async {});
-        when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => []);
+        when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => null);
 
         //act
         await controller.playTrack(_FakeAudioItemEntity(), "0");
@@ -257,17 +274,19 @@ void main() {
     );
 
     test(
-      "should get all songs of directory and call musicService.openPlaylist when musicPlayer playlist is empty",
+      "should call musicService.openPlaylist when playList is empty but the dir is same",
       () async {
         //arrange
-        controller.setCurrentDirKey = "1";
+        const dirId = "124";
         when(
           () => mockMusicPlayerService.openPlayList(any(), play: false),
         ).thenAnswer((_) async {});
-        when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => []);
+        when(
+          () => mockMusicPlayerService.currentPlaylist,
+        ).thenAnswer((_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId));
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
+        await controller.playTrack(_FakeAudioItemEntity(), dirId);
 
         //assert
         verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
@@ -275,19 +294,38 @@ void main() {
     );
 
     test(
-      "should Not call musicService.openPlaylist when given dir == currentDir and musicPlayer.currentPlaylist is not empty",
+      "should call musicService.openPlaylist when playList is (NOT) Empty (BUT) the dir is different",
       () async {
         //arrange
-        controller.setCurrentDirKey = "1";
         when(
           () => mockMusicPlayerService.openPlayList(any(), play: false),
         ).thenAnswer((_) async {});
-        when(
-          () => mockMusicPlayerService.currentPlaylist,
-        ).thenAnswer((_) => [_FakeAudioItemEntity()]);
+        when(() => mockMusicPlayerService.currentPlaylist).thenAnswer(
+          (_) => _FakeMusicPlayerPlayListEntity(dirIdT: "65521", audiosT: [_FakeAudioItemEntity()]),
+        );
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
+        await controller.playTrack(_FakeAudioItemEntity(), "1");
+
+        //assert
+        verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
+      },
+    );
+
+    test(
+      "should Not call musicService.openPlaylist when given dir == currentDir and musicPlayer.currentPlaylist.audios is not empty",
+      () async {
+        //arrange
+        const dirId = "564";
+        when(
+          () => mockMusicPlayerService.openPlayList(any(), play: false),
+        ).thenAnswer((_) async {});
+        when(() => mockMusicPlayerService.currentPlaylist).thenAnswer(
+          (_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId, audiosT: [_FakeAudioItemEntity()]),
+        );
+
+        //act
+        await controller.playTrack(_FakeAudioItemEntity(), dirId);
 
         //assert
         verifyNever(() => mockMusicPlayerService.openPlayList(any(), play: false));
@@ -296,14 +334,16 @@ void main() {
 
     test("should call musicService.playAt when given item is found on currentPlaylist", () async {
       //arrange
+      const dirId = "425";
       final item = _FakeAudioItemEntity();
-      controller.setCurrentDirKey = "1";
       when(() => mockMusicPlayerService.openPlayList(any(), play: false)).thenAnswer((_) async {});
-      when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => [item]);
+      when(
+        () => mockMusicPlayerService.currentPlaylist,
+      ).thenAnswer((_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId, audiosT: [item]));
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(item, controller.currentPlayingMusicDirId!);
+      await controller.playTrack(item, dirId);
 
       //assert
       verify(() => mockMusicPlayerService.playAt(any())).called(1);
@@ -311,13 +351,15 @@ void main() {
 
     test("should NOT call musicService.playAt when given item is Not on currentPlaylist", () async {
       //arrange
-      controller.setCurrentDirKey = "1";
+      const dirId = "1";
       when(() => mockMusicPlayerService.openPlayList(any(), play: false)).thenAnswer((_) async {});
-      when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => []);
+      when(
+        () => mockMusicPlayerService.currentPlaylist,
+      ).thenAnswer((_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId, audiosT: []));
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(_FakeAudioItemEntity(), controller.currentPlayingMusicDirId!);
+      await controller.playTrack(_FakeAudioItemEntity(), dirId);
 
       //assert
       verifyNever(() => mockMusicPlayerService.playAt(any()));

@@ -22,7 +22,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     @visibleForTesting Directory? directory,
     Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,
-       _directoriesBox = testBox ?? Hive.box(TracksListConstants.tracksListDirectoryBoxName),
+       _directoriesBox = testBox ?? Hive.box(HiveBoxesName.tracksList),
        _testDirectory = directory;
 
   @override
