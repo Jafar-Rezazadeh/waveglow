@@ -10,13 +10,15 @@ import 'package:waveglow/features/music_player/music_player_exports.dart';
 class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   final MusicPlayerSaveCurrentPlayListUC _saveCurrentPlayListUC;
   final MusicPlayerGetLastSavedPlaylistUC _getLastSavedPlaylistUC;
+  final MusicPlayerSaveControlsUC _saveControlsUC;
+  final MusicPlayerGetSavedControlsUC _getSavedControlsUC;
   final Player _player;
   final Logger _logger;
 
   final _currentMedia = Rx<AudioItemEntity?>(null);
   final _currentPlaylist = Rx<MusicPlayerPlayListEntity?>(null);
   final _isPlaying = RxBool(false);
-  final _playListModel = Rx<PlaylistMode>(PlaylistMode.loop);
+  final _playListMode = Rx<PlaylistMode>(PlaylistMode.loop);
   final _volume = RxDouble(100);
   final _currentPosition = Rx<Duration?>(null);
   final _currentDuration = Rx<Duration?>(null);
@@ -31,11 +33,15 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     required Player player,
     required MusicPlayerSaveCurrentPlayListUC saveCurrentPlayListUC,
     required MusicPlayerGetLastSavedPlaylistUC getLastSavedPlaylistUC,
+    required MusicPlayerSaveControlsUC saveControlsUC,
+    required MusicPlayerGetSavedControlsUC getSavedControlsUC,
     required Logger logger,
   }) : _saveCurrentPlayListUC = saveCurrentPlayListUC,
        _getLastSavedPlaylistUC = getLastSavedPlaylistUC,
        _player = player,
-       _logger = logger;
+       _logger = logger,
+       _saveControlsUC = saveControlsUC,
+       _getSavedControlsUC = getSavedControlsUC;
 
   @override
   bool get isPlaying => _isPlaying.value;
@@ -44,7 +50,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Stream<bool> get isPlayingStream => _player.stream.playing;
 
   @override
-  PlaylistMode get playListMode => _playListModel.value;
+  PlaylistMode get playListMode => _playListMode.value;
 
   @override
   double get volume => _volume.value;
@@ -70,17 +76,9 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     _initAsync();
   }
 
-  @override
-  void onClose() {
-    _playListSubscription.cancel();
-    _playingSubscription.cancel();
-    _durationSubscription.cancel();
-    _positionSubscription.cancel();
-    super.onClose();
-  }
-
   Future<void> _initAsync() async {
     _listeners();
+    initializeMediaControls();
     await getLastSavedPlaylist();
     if (_currentPlaylist.value != null) {
       await openPlayList(_currentPlaylist.value!);
@@ -91,6 +89,14 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
     _playListListener();
     _playingListener();
     _durationListener();
+
+    //
+    ever(_volume, (callback) {
+      savePlayerControls();
+    });
+    ever(_playListMode, (callback) {
+      savePlayerControls();
+    });
   }
 
   void _playListListener() {
@@ -143,6 +149,23 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   }
 
   @visibleForTesting
+  Future<void> initializeMediaControls() async {
+    final result = await _getSavedControlsUC.call(NoParams());
+
+    result.fold(
+      (failure) {
+        _logger.e(failure.message);
+      },
+      (data) {
+        _volume.value = data.volume;
+        _playListMode.value = PlaylistMode.values[data.playlistModeIndex];
+        _player.setVolume(_volume.value);
+        _player.setPlaylistMode(_playListMode.value);
+      },
+    );
+  }
+
+  @visibleForTesting
   Future<void> savePlaylist(MusicPlayerPlayListEntity entity) async {
     final result = await _saveCurrentPlayListUC.call(entity);
 
@@ -185,16 +208,16 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
   @override
   Future<void> cyclePlayListMode() async {
-    int index = _playListModel.value.index;
+    int index = _playListMode.value.index;
 
     if (index < PlaylistMode.values.length - 1) {
       index++;
     } else {
       index = 0;
     }
-    _playListModel.value = PlaylistMode.values[index];
+    _playListMode.value = PlaylistMode.values[index];
 
-    await _player.setPlaylistMode(_playListModel.value);
+    await _player.setPlaylistMode(_playListMode.value);
   }
 
   @override
@@ -221,5 +244,26 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Future<void> playAt(int index) async {
     await _player.jump(index);
     await _player.play();
+  }
+
+  @visibleForTesting
+  Future<void> savePlayerControls() async {
+    final params = MusicPlayerSaveControlsParam(
+      volume: _volume.value,
+      playListModeIndex: _playListMode.value.index,
+    );
+
+    final result = await _saveControlsUC.call(params);
+
+    result.fold((failure) => _logger.e(failure.message), (_) {});
+  }
+
+  @override
+  void onClose() {
+    _playListSubscription.cancel();
+    _playingSubscription.cancel();
+    _durationSubscription.cancel();
+    _positionSubscription.cancel();
+    super.onClose();
   }
 }

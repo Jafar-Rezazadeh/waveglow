@@ -11,10 +11,6 @@ final getXRoutes = [
   GetPage(
     name: mainScreenRoute,
     page: () => const MainScreen(),
-    bindings: [
-      MusicPlayerServiceBindings(),
-      HomeBindings(),
-      TracksListBindings(),
-    ],
+    bindings: [MusicPlayerServiceBindings(), HomeBindings(), TracksListBindings()],
   ),
 ];

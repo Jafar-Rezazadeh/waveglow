@@ -7,6 +7,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
 import 'package:waveglow/hive_initialization.dart';
+import 'package:waveglow/main_injections.dart';
 
 import 'shared/routing/routes.dart';
 
@@ -14,6 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   await hiveInitialization();
+  await mainInjections();
 
   runApp(const WaveGlowApp());
 

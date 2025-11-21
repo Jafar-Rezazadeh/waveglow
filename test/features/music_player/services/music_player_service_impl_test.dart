@@ -16,6 +16,10 @@ class _MockPlayer extends Mock implements Player {}
 
 class _MockLogger extends Mock implements Logger {}
 
+class _MockMusicPlayerSaveControlsUC extends Mock implements MusicPlayerSaveControlsUC {}
+
+class _MockMusicPlayerGetSavedControlsUC extends Mock implements MusicPlayerGetSavedControlsUC {}
+
 class _FakeMusicPlayerPlayListEntity extends Fake implements MusicPlayerPlayListEntity {
   final List<AudioItemEntity> audiosT;
 
@@ -40,9 +44,13 @@ class _FakeFailure extends Fake implements Failure {
   StackTrace get stackTrace => StackTrace.empty;
 }
 
+class _FakeMusicPlayerSaveControlsParam extends Fake implements MusicPlayerSaveControlsParam {}
+
 void main() {
   late _MockMusicPlayerGetLastSavedPlaylistUC mockGetLastSavedPlaylistUC;
   late _MockMusicPlayerSaveCurrentPlayListUC mockSaveCurrentPlayListUC;
+  late _MockMusicPlayerSaveControlsUC mockMusicPlayerSaveControlsUC;
+  late _MockMusicPlayerGetSavedControlsUC mockMusicPlayerGetControlsUC;
   late _MockPlayer mockPlayer;
   late _MockLogger mockLogger;
   late MusicPlayerServiceImpl serviceImpl;
@@ -51,6 +59,8 @@ void main() {
     registerFallbackValue(NoParams());
     registerFallbackValue(_FakePlaylist());
     registerFallbackValue(_FakeMusicPlayerPlayListEntity());
+    registerFallbackValue(_FakeMusicPlayerSaveControlsParam());
+    registerFallbackValue(PlaylistMode.none);
   });
 
   setUp(() {
@@ -58,11 +68,15 @@ void main() {
     mockSaveCurrentPlayListUC = _MockMusicPlayerSaveCurrentPlayListUC();
     mockPlayer = _MockPlayer();
     mockLogger = _MockLogger();
+    mockMusicPlayerSaveControlsUC = _MockMusicPlayerSaveControlsUC();
+    mockMusicPlayerGetControlsUC = _MockMusicPlayerGetSavedControlsUC();
     serviceImpl = MusicPlayerServiceImpl(
       player: mockPlayer,
       saveCurrentPlayListUC: mockSaveCurrentPlayListUC,
       getLastSavedPlaylistUC: mockGetLastSavedPlaylistUC,
       logger: mockLogger,
+      saveControlsUC: mockMusicPlayerSaveControlsUC,
+      getSavedControlsUC: mockMusicPlayerGetControlsUC,
     );
   });
 
@@ -163,6 +177,98 @@ void main() {
       ).called(1);
 
       verify(() => mockPlayer.setShuffle(false)).called(1);
+    });
+  });
+
+  group("savePlayerControls -", () {
+    test("should should call expected useCase with expected params when invoked", () async {
+      //arrange
+      when(() => mockMusicPlayerSaveControlsUC.call(any())).thenAnswer((_) async => right(null));
+      when(() => mockPlayer.setVolume(any())).thenAnswer((_) async {});
+      when(() => mockPlayer.setPlaylistMode(any())).thenAnswer((_) async {});
+      serviceImpl.cyclePlayListMode();
+      serviceImpl.setVolume(521);
+
+      //act
+      await serviceImpl.savePlayerControls();
+
+      //assert
+      verify(
+        () => mockMusicPlayerSaveControlsUC.call(
+          any(
+            that: isA<MusicPlayerSaveControlsParam>().having(
+              (params) =>
+                  params.volume == serviceImpl.volume &&
+                  params.playListModeIndex == serviceImpl.playListMode.index,
+              "has correct params",
+              true,
+            ),
+          ),
+        ),
+      ).called(1);
+    });
+
+    test("should should call $Logger.e when result is a failure", () async {
+      //arrange
+      when(
+        () => mockMusicPlayerSaveControlsUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockLogger.e(any())).thenAnswer((_) async {});
+
+      //act
+      await serviceImpl.savePlayerControls();
+
+      //assert
+      verify(() => mockLogger.e(any())).called(1);
+    });
+  });
+
+  group("initializeMediaControls -", () {
+    test("should call the expected useCase when invoked", () async {
+      //arrange
+      when(
+        () => mockMusicPlayerGetControlsUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockLogger.e(any())).thenAnswer((_) async {});
+
+      //act
+      await serviceImpl.initializeMediaControls();
+
+      //assert
+      verify(() => mockMusicPlayerGetControlsUC.call(any())).called(1);
+    });
+
+    test("should call $Logger.e when result is a failure", () async {
+      //arrange
+      when(
+        () => mockMusicPlayerGetControlsUC.call(any()),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockLogger.e(any())).thenAnswer((_) async {});
+
+      //act
+      await serviceImpl.initializeMediaControls();
+
+      //assert
+      verify(() => mockLogger.e(any())).called(1);
+    });
+
+    test("should set expected variables and call expected functionalities  when success", () async {
+      //arrange
+      final controls = MusicPlayerControlsEntity(volume: 22.25, playlistModeIndex: 2);
+      when(() => mockMusicPlayerGetControlsUC.call(any())).thenAnswer((_) async => right(controls));
+      when(() => mockPlayer.setVolume(any())).thenAnswer((_) async {});
+      when(() => mockPlayer.setPlaylistMode(any())).thenAnswer((_) async {});
+
+      //act
+      await serviceImpl.initializeMediaControls();
+
+      //assert
+      expect(serviceImpl.volume, controls.volume);
+      expect(serviceImpl.playListMode.index, controls.playlistModeIndex);
+      verify(() => mockPlayer.setVolume(controls.volume)).called(1);
+      verify(
+        () => mockPlayer.setPlaylistMode(PlaylistMode.values[controls.playlistModeIndex]),
+      ).called(1);
     });
   });
 }
