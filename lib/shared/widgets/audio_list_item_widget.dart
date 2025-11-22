@@ -7,13 +7,12 @@ import 'package:waveglow/core/core_exports.dart';
 
 class AudioListItemWidget extends StatelessWidget {
   final AudioItemEntity item;
-  final String dirId;
+
   final VoidCallback onTap;
   final VoidCallback onFavoriteTap;
   AudioListItemWidget({
     super.key,
     required this.item,
-    required this.dirId,
     required this.onTap,
     required this.onFavoriteTap,
   });

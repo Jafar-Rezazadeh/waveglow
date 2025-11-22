@@ -100,15 +100,11 @@ class TracksListStateController extends GetxController {
 
   Future<void> playTrack(AudioItemEntity item, String dirId) async {
     if (_dirIsDifferentOrPlaylistIsEmpty(dirId)) {
-      final dirAudiosItems =
-          _allDirectories.firstWhereOrNull((e) => e.dirEntity.id == dirId)?.dirEntity.audios ?? [];
-
-      final playList = MusicPlayerPlayListEntity(id: dirId, audios: dirAudiosItems);
-
-      await _musicPlayerService.openPlayList(playList, play: false);
+      await _openSelectedDirectoryAudios(dirId);
     }
 
-    final itemIndex = _musicPlayerService.currentPlaylist?.audios.indexOf(item) ?? -1;
+    final itemIndex =
+        _musicPlayerService.currentPlaylist?.audios.indexWhere((e) => e.path == item.path) ?? -1;
 
     if (itemIndex != -1) {
       await _musicPlayerService.playAt(itemIndex);
@@ -119,6 +115,15 @@ class TracksListStateController extends GetxController {
     return dirId != _musicPlayerService.currentPlaylist?.id ||
         (_musicPlayerService.currentPlaylist == null ||
             _musicPlayerService.currentPlaylist!.audios.isEmpty);
+  }
+
+  Future<void> _openSelectedDirectoryAudios(String dirId) async {
+    final dirAudiosItems =
+        _allDirectories.firstWhereOrNull((e) => e.dirEntity.id == dirId)?.dirEntity.audios ?? [];
+
+    final playList = MusicPlayerPlayListEntity(id: dirId, audios: dirAudiosItems);
+
+    await _musicPlayerService.openPlayList(playList, play: false);
   }
 
   @visibleForTesting
