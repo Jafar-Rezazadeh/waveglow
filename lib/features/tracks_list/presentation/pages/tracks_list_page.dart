@@ -4,7 +4,7 @@ import 'package:flutter_handy_utils/flutter_handy_utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
-import 'package:waveglow/features/tracks_list/presentation/widgets/tracks_list_audio_item_widget.dart';
+import 'package:waveglow/shared/widgets/audio_list_item_widget.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class TracksListPage extends StatelessWidget {
@@ -108,7 +108,21 @@ class TracksListPage extends StatelessWidget {
         ? ListView(
             padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
             children: dirTemplate.dirEntity.audios
-                .map((e) => TracksListAudioItemWidget(item: e, dirId: dirTemplate.dirEntity.id))
+                .map(
+                  (e) => AudioListItemWidget(
+                    item: e,
+                    dirId: dirTemplate.dirEntity.id,
+                    onTap: () => _controller.playTrack(e, dirTemplate.dirEntity.id),
+                    onFavoriteTap: () {
+                      () => _controller.toggleAudioFavorite(
+                        TracksListToggleAudioFavoriteParams(
+                          dirId: dirTemplate.dirEntity.id,
+                          audioPath: e.path,
+                        ),
+                      );
+                    },
+                  ),
+                )
                 .toList()
                 .withGapInBetween(10),
           )

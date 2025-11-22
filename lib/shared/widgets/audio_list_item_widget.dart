@@ -4,22 +4,28 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
-import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
-class TracksListAudioItemWidget extends StatelessWidget {
+class AudioListItemWidget extends StatelessWidget {
   final AudioItemEntity item;
   final String dirId;
-  TracksListAudioItemWidget({super.key, required this.item, required this.dirId});
+  final VoidCallback onTap;
+  final VoidCallback onFavoriteTap;
+  AudioListItemWidget({
+    super.key,
+    required this.item,
+    required this.dirId,
+    required this.onTap,
+    required this.onFavoriteTap,
+  });
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-  late final _controller = Get.find<TracksListStateController>();
   late final _musicPlayer = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-      onTap: () => _controller.playTrack(item, dirId),
+      onTap: onTap,
       child: Obx(
         () => AnimatedContainer(
           duration: Durations.long2,
@@ -55,9 +61,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
 
   Widget _favoriteToggleButton() {
     return IconButton(
-      onPressed: () => _controller.toggleAudioFavorite(
-        TracksListToggleAudioFavoriteParams(dirId: dirId, audioPath: item.path),
-      ),
+      onPressed: onFavoriteTap,
       icon: SvgPicture.asset(
         AssetSvgs.heart,
         colorFilter: ColorFilter.mode(
