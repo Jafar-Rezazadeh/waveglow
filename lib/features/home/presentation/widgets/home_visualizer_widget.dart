@@ -27,7 +27,12 @@ class HomeVisualizerWidget extends StatelessWidget {
                 backgroundColor: _colorPalette.background,
                 child: ClipRRect(
                   borderRadius: BorderRadiusGeometry.circular(1000),
-                  child: Image.memory(_musicPlayer.currentTrack!.albumArt!, fit: BoxFit.fill),
+                  child: Image.memory(
+                    _musicPlayer.currentTrack!.albumArt!,
+                    fit: BoxFit.cover,
+                    height: 215,
+                    width: 215,
+                  ),
                 ),
               )
             : null,

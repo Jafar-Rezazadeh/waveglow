@@ -77,7 +77,7 @@ class TracksListAudioItemWidget extends StatelessWidget {
       width: 39,
       height: 39,
       child: item.albumArt == null
-          ? Container(color: _colorPalette.neutral600)
+          ? Container(color: _colorPalette.neutral600, child: Icon(Icons.music_note_outlined))
           : Image.memory(item.albumArt!, fit: BoxFit.cover),
     );
   }
