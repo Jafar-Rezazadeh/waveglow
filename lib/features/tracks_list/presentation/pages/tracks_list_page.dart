@@ -23,60 +23,54 @@ class TracksListPage extends StatelessWidget {
       return DefaultTabController(
         length: _controller.allDirectories.length,
         initialIndex: currentPlayingMusicDirIndex != -1 ? currentPlayingMusicDirIndex : 0,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 90),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  _tabBar(),
-                  Expanded(child: _tabView()),
-                ],
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                _tabBar(),
+                Expanded(child: _tabView()),
+              ],
+            ),
+            if (_controller.isLoadingDir)
+              Container(
+                color: _colorPalette.backgroundLow.withValues(alpha: 0.2),
+                alignment: Alignment.center,
+                child: const CustomLoadingWidget(),
               ),
-              if (_controller.isLoadingDir)
-                Container(
-                  color: _colorPalette.backgroundLow.withValues(alpha: 0.2),
-                  alignment: Alignment.center,
-                  child: const CustomLoadingWidget(),
-                ),
-            ],
-          ),
+          ],
         ),
       );
     });
   }
 
   Widget _tabBar() {
-    return Container(
-      margin: const EdgeInsets.only(top: AppSizes.toolBarSize),
-      child: Row(
-        children: [
-          Obx(
-            () => TabBar(
-              dividerColor: Colors.transparent,
-              tabAlignment: TabAlignment.start,
-              unselectedLabelColor: _colorPalette.neutral500,
-              labelColor: _colorPalette.neutral100,
-              isScrollable: true,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              tabs: _controller.allDirectories.map((e) => _tabItem(e)).toList(),
-            ),
+    return Row(
+      children: [
+        Obx(
+          () => TabBar(
+            dividerColor: Colors.transparent,
+            tabAlignment: TabAlignment.start,
+            unselectedLabelColor: _colorPalette.neutral500,
+            labelColor: _colorPalette.neutral100,
+            isScrollable: true,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            tabs: _controller.allDirectories.map((e) => _tabItem(e)).toList(),
           ),
-          IconButton(
-            onPressed: () => _controller.pickDirectory(),
-            icon: const Icon(FontAwesomeIcons.plus),
-            iconSize: 16,
-            style: ButtonStyle(
-              iconColor: WidgetStateColor.resolveWith((states) {
-                if (states.contains(WidgetState.hovered)) {
-                  return _colorPalette.neutral100;
-                }
-                return _colorPalette.neutral500;
-              }),
-            ),
+        ),
+        IconButton(
+          onPressed: () => _controller.pickDirectory(),
+          icon: const Icon(FontAwesomeIcons.plus),
+          iconSize: 16,
+          style: ButtonStyle(
+            iconColor: WidgetStateColor.resolveWith((states) {
+              if (states.contains(WidgetState.hovered)) {
+                return _colorPalette.neutral100;
+              }
+              return _colorPalette.neutral500;
+            }),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -106,7 +100,7 @@ class TracksListPage extends StatelessWidget {
   Widget _tabViewItem(TracksListDirectoryTemplate dirTemplate) {
     return dirTemplate.isExists
         ? ListView(
-            padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            padding: const EdgeInsets.only(bottom: 16),
             children: dirTemplate.dirEntity.audios
                 .map(
                   (e) => AudioListItemWidget(

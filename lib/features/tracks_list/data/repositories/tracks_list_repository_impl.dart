@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
+import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class TracksListRepositoryImpl implements TracksListRepository {
   final TracksListDataSource _dataSource;
@@ -84,6 +85,17 @@ class TracksListRepositoryImpl implements TracksListRepository {
     try {
       final result = await _dataSource.toggleAudioFavorite(params);
       return right(result);
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AudioItemEntity>>> getFavoriteSongs() async {
+    try {
+      final result = await _dataSource.getFavoriteSongs();
+
+      return right(result.map((e) => e.toEntity()).toList());
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));
     }

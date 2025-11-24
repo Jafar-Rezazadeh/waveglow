@@ -13,7 +13,7 @@ abstract class MusicPlayerService {
   bool get isShuffle;
   MusicPlayerPlayListEntity? get currentPlaylist;
 
-  Future<void> openPlayList(MusicPlayerPlayListEntity audios, {bool play});
+  Future<void> openPlayList(MusicPlayerPlayListEntity playList, {bool play});
   Future<void> playOrPause();
   Future<void> goPrevious();
   Future<void> goNext();

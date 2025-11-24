@@ -1,10 +1,13 @@
+export 'package:waveglow/core/contracts/use_case.dart';
 export 'package:waveglow/core/constants/constants.dart';
 export 'package:waveglow/core/constants/app_sizes.dart';
 export 'package:waveglow/core/constants/svgs.dart';
-export 'package:waveglow/core/services/music_player_service.dart';
 export 'package:waveglow/core/theme/color_palette.dart';
-export 'package:waveglow/core/contracts/use_case.dart';
 export 'package:waveglow/core/errors/failures.dart';
+
+// service
+export 'package:waveglow/core/services/music_player_service.dart';
+export 'package:waveglow/core/services/tracks_list_service.dart';
 
 // Shared
 export 'package:waveglow/shared/widgets/failure_widget.dart';

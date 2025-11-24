@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:waveglow/features/favorite_songs/presentation/bindings/favorite_songs_page_bindings.dart';
 import 'package:waveglow/features/home/home_bindings.dart';
 import 'package:waveglow/features/main_app/presentation/screens/main_screen.dart';
 import 'package:waveglow/features/music_player/music_player_service_bindings.dart';
@@ -11,6 +12,11 @@ final getXRoutes = [
   GetPage(
     name: mainScreenRoute,
     page: () => const MainScreen(),
-    bindings: [MusicPlayerServiceBindings(), HomeBindings(), TracksListBindings()],
+    bindings: [
+      MusicPlayerServiceBindings(),
+      HomeBindings(),
+      TracksListBindings(),
+      FavoriteSongsPageBindings(),
+    ],
   ),
 ];

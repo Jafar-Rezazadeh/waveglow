@@ -383,4 +383,50 @@ void main() {
       expect(rightValue, isA<bool>());
     });
   });
+
+  group("getFavoriteSongs -", () {
+    test("should call expected method of dataSource when invoked", () async {
+      //arrange
+      when(() => mockDataSource.getFavoriteSongs()).thenAnswer((_) async => []);
+
+      //act
+      await repositoryImpl.getFavoriteSongs();
+
+      //assert
+      verify(() => mockDataSource.getFavoriteSongs()).called(1);
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of failure when any object is thrown",
+      () async {
+        //arrange
+        when(() => mockDataSource.getFavoriteSongs()).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.getFavoriteSongs();
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(() => mockDataSource.getFavoriteSongs()).thenAnswer((_) async => []);
+
+      //act
+      final result = await repositoryImpl.getFavoriteSongs();
+      final rightValue = result.fold((l) => l, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<List<AudioItemEntity>>());
+    });
+  });
 }

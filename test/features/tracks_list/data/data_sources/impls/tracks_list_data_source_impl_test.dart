@@ -672,6 +672,48 @@ void main() {
       expect(result, !audio.isFavorite);
     });
   });
+
+  group("getFavoriteSongs -", () {
+    test("should call expected box method", () async {
+      //arrange
+      when(() => mockBox.values).thenAnswer((_) => []);
+
+      //act
+      await dataSourceImpl.getFavoriteSongs();
+
+      //assert
+      verify(() => mockBox.values).called(1);
+    });
+
+    test("should get only favorite songs from al directories", () async {
+      //arrange
+      when(() => mockBox.values).thenAnswer(
+        (_) => [
+          _FakeTracksListDirectoryModel(
+            idT: "dir1",
+            audioT: [
+              _FakeAudioItemModel(isFavoriteT: true),
+              _FakeAudioItemModel(isFavoriteT: false),
+            ],
+          ),
+          _FakeTracksListDirectoryModel(
+            idT: "dir2",
+            audioT: [
+              _FakeAudioItemModel(isFavoriteT: false),
+              _FakeAudioItemModel(isFavoriteT: true),
+              _FakeAudioItemModel(isFavoriteT: false),
+            ],
+          ),
+        ],
+      );
+
+      //act
+      final result = await dataSourceImpl.getFavoriteSongs();
+
+      //assert
+      expect(result.length, 2);
+    });
+  });
 }
 
 void _setMetaReceiverMethodChannel() {

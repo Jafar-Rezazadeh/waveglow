@@ -223,4 +223,13 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
     return toggledFavorite;
   }
+
+  @override
+  Future<List<AudioItemModel>> getFavoriteSongs() async {
+    final dirs = _directoriesBox.values;
+
+    final favoriteSongs = dirs.expand((e) => e.audios.where((j) => j.isFavorite)).toList();
+
+    return favoriteSongs;
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/favorite_songs/presentation/pages/favorite_songs_page.dart';
 import 'package:waveglow/features/home/presentation/pages/home_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
@@ -47,16 +49,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _pageView() {
-    return PageView(
-      controller: pageViewController,
-      scrollDirection: Axis.vertical,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        const HomePage(),
-        TracksListPage(),
-        const Text("favorites"),
-        const Text("setting"),
-      ],
+    return Container(
+      margin: const EdgeInsets.only(top: AppSizes.toolBarSize),
+      padding: const EdgeInsets.symmetric(horizontal: 106),
+      child: PageView(
+        controller: pageViewController,
+        scrollDirection: Axis.vertical,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [const HomePage(), TracksListPage(), FavoriteSongsPage(), const Text("setting")],
+      ),
     );
   }
 

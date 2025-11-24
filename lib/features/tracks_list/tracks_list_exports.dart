@@ -14,10 +14,12 @@ export 'package:waveglow/features/tracks_list/domain/use_cases/delete_tracks_lis
 export 'package:waveglow/features/tracks_list/domain/use_cases/is_tracks_list_directory_exists.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_sync_audios_uc.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_toggle_audio_favorite.dart';
+export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_get_favorite_songs.dart';
+
+// services
+export 'package:waveglow/features/tracks_list/services/tracks_list_service_impl.dart';
 
 // Presentation
 export 'package:waveglow/features/tracks_list/presentation/bindings/tracks_list_bindings.dart';
 export 'package:waveglow/features/tracks_list/presentation/state_controllers/tracks_list_state_controller.dart';
 export 'package:waveglow/features/tracks_list/presentation/view_templates/tracks_list_directory_template.dart';
-
-// extras
