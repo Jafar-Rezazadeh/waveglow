@@ -6,8 +6,12 @@ import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class _MockTracksListGetFavoriteSongsUC extends Mock implements TracksListGetFavoriteSongsUC {}
 
+class _MockTracksListGetFavoriteSongsStreamUC extends Mock
+    implements TracksListGetFavoriteSongsStreamUC {}
+
 void main() {
   late _MockTracksListGetFavoriteSongsUC mockTracksListGetFavoriteSongsUC;
+  late _MockTracksListGetFavoriteSongsStreamUC mockGetFavoriteSongsStreamUC;
   late TracksListServiceImpl serviceImpl;
 
   setUpAll(() {
@@ -16,7 +20,11 @@ void main() {
 
   setUp(() {
     mockTracksListGetFavoriteSongsUC = _MockTracksListGetFavoriteSongsUC();
-    serviceImpl = TracksListServiceImpl(getFavoriteSongsUC: mockTracksListGetFavoriteSongsUC);
+    mockGetFavoriteSongsStreamUC = _MockTracksListGetFavoriteSongsStreamUC();
+    serviceImpl = TracksListServiceImpl(
+      getFavoriteSongsUC: mockTracksListGetFavoriteSongsUC,
+      getFavoriteSongsStreamUC: mockGetFavoriteSongsStreamUC,
+    );
   });
 
   group("getFavoriteSongs -", () {
@@ -29,6 +37,21 @@ void main() {
 
       //assert
       verify(() => mockTracksListGetFavoriteSongsUC.call(any())).called(1);
+    });
+  });
+
+  group("getFavoriteSongsStream -", () {
+    test("should call expected useCase when invoked", () async {
+      //arrange
+      when(
+        () => mockGetFavoriteSongsStreamUC.call(any()),
+      ).thenAnswer((_) async => right(Stream.empty()));
+
+      //act
+      await serviceImpl.getFavoriteSongsStream();
+
+      //assert
+      verify(() => mockGetFavoriteSongsStreamUC.call(any())).called(1);
     });
   });
 }

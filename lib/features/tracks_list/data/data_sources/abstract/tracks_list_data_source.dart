@@ -11,4 +11,5 @@ abstract class TracksListDataSource {
   Future<void> syncAudios();
   Future<bool> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params);
   Future<List<AudioItemModel>> getFavoriteSongs();
+  Future<Stream<List<AudioItemModel>>> getFavoriteSongsStream();
 }

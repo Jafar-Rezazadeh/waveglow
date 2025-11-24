@@ -15,6 +15,7 @@ export 'package:waveglow/features/tracks_list/domain/use_cases/is_tracks_list_di
 export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_sync_audios_uc.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_toggle_audio_favorite.dart';
 export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_get_favorite_songs.dart';
+export 'package:waveglow/features/tracks_list/domain/use_cases/tracks_list_get_favorite_songs_stream_uc.dart';
 
 // services
 export 'package:waveglow/features/tracks_list/services/tracks_list_service_impl.dart';

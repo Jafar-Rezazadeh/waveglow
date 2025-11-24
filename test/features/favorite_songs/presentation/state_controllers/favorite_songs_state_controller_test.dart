@@ -177,4 +177,51 @@ void main() {
       },
     );
   });
+
+  group("listenFavoriteSongsStream -", () {
+    test("should call expected functionality when invoked", () async {
+      //arrange
+      when(
+        () => mockTracksListService.getFavoriteSongsStream(),
+      ).thenAnswer((_) async => right(Stream.empty()));
+
+      //act
+      await controller.listenFavoriteSongsStream();
+
+      //assert
+      verify(() => mockTracksListService.getFavoriteSongsStream()).called(1);
+    });
+
+    test("should call $CustomDialogs.showFailure when result is failure", () async {
+      //arrange
+      when(
+        () => mockTracksListService.getFavoriteSongsStream(),
+      ).thenAnswer((_) async => left(_FakeFailure()));
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
+
+      //act
+      await controller.listenFavoriteSongsStream();
+
+      //assert
+      verify(() => mockCustomDialogs.showFailure(any())).called(1);
+    });
+
+    test("should set expected variable when success", () async {
+      //arrange
+      when(() => mockTracksListService.getFavoriteSongsStream()).thenAnswer(
+        (_) async => right(
+          Stream.fromIterable([
+            [_FakeAudioItemEntity()],
+          ]),
+        ),
+      );
+
+      //act
+      await controller.listenFavoriteSongsStream();
+      await Future.delayed(Duration(milliseconds: 5));
+
+      //assert
+      expect(controller.allFavoriteSongs, isNotEmpty);
+    });
+  });
 }

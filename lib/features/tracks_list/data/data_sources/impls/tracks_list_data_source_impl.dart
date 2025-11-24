@@ -232,4 +232,15 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
     return favoriteSongs;
   }
+
+  @override
+  Future<Stream<List<AudioItemModel>>> getFavoriteSongsStream() async {
+    return _directoriesBox.watch().map((event) {
+      final dirs = _directoriesBox.values;
+
+      final favoriteSongs = dirs.expand((e) => e.audios.where((j) => j.isFavorite)).toList();
+
+      return favoriteSongs;
+    });
+  }
 }

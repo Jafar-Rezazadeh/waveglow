@@ -100,4 +100,15 @@ class TracksListRepositoryImpl implements TracksListRepository {
       return left(_failureFactory.createFailure(e, s));
     }
   }
+
+  @override
+  Future<Either<Failure, Stream<List<AudioItemEntity>>>> getFavoriteSongsStream() async {
+    try {
+      final result = await _dataSource.getFavoriteSongsStream();
+
+      return right(result.map((event) => event.map((audio) => audio.toEntity()).toList()));
+    } catch (e, s) {
+      return left(_failureFactory.createFailure(e, s));
+    }
+  }
 }

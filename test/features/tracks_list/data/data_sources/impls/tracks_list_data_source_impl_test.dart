@@ -714,6 +714,47 @@ void main() {
       expect(result.length, 2);
     });
   });
+
+  group("getFavoriteSongsStream -", () {
+    test(
+      "should listen to box.watch() and emit the current favorite audios from all directories (collected via box.values) when a box event occurs",
+      () async {
+        //arrange
+        when(() => mockBox.watch()).thenAnswer(
+          (_) => Stream<BoxEvent>.fromIterable([
+            BoxEvent("key1", _FakeTracksListDirectoryModel(), false),
+          ]),
+        );
+        when(() => mockBox.values).thenAnswer(
+          (_) => [
+            _FakeTracksListDirectoryModel(
+              idT: "dir1",
+              audioT: [
+                _FakeAudioItemModel(isFavoriteT: true),
+                _FakeAudioItemModel(isFavoriteT: false),
+              ],
+            ),
+            _FakeTracksListDirectoryModel(
+              idT: "dir2",
+              audioT: [
+                _FakeAudioItemModel(isFavoriteT: false),
+                _FakeAudioItemModel(isFavoriteT: true),
+                _FakeAudioItemModel(isFavoriteT: false),
+              ],
+            ),
+          ],
+        );
+
+        //act
+        final stream = await dataSourceImpl.getFavoriteSongsStream();
+
+        final result = await stream.toList();
+
+        //assert
+        expect(result.first.length, 2);
+      },
+    );
+  });
 }
 
 void _setMetaReceiverMethodChannel() {

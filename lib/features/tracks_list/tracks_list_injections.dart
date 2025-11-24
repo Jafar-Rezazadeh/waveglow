@@ -15,7 +15,13 @@ Future<void> initTracksListInjections() async {
 
   // useCases
   final getFavoriteSongsUC = TracksListGetFavoriteSongsUC(repository: repository);
+  final getFavoriteSongsStreamUC = TracksListGetFavoriteSongsStreamUC(repository: repository);
 
   // services
-  Get.put<TracksListService>(TracksListServiceImpl(getFavoriteSongsUC: getFavoriteSongsUC));
+  Get.put<TracksListService>(
+    TracksListServiceImpl(
+      getFavoriteSongsUC: getFavoriteSongsUC,
+      getFavoriteSongsStreamUC: getFavoriteSongsStreamUC,
+    ),
+  );
 }

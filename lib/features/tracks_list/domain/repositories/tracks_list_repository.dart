@@ -12,4 +12,5 @@ abstract class TracksListRepository {
   Future<Either<Failure, void>> syncAudios();
   Future<Either<Failure, bool>> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params);
   Future<Either<Failure, List<AudioItemEntity>>> getFavoriteSongs();
+  Future<Either<Failure, Stream<List<AudioItemEntity>>>> getFavoriteSongsStream();
 }

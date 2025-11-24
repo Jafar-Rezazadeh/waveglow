@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/music_player/music_player_exports.dart';
@@ -6,14 +8,11 @@ class FavoriteSongsStateController extends GetxController {
   final TracksListService _tracksListService;
   final MusicPlayerService _musicPlayerService;
   final CustomDialogs _customDialogs;
-
   final favoriteSongsPlayListId = "favorite_songs_id";
 
   final _allFavoriteSongs = RxList<AudioItemEntity>([]);
 
   List<AudioItemEntity> get allFavoriteSongs => _allFavoriteSongs;
-
-  // TODO: test getting favorite song as Stream (bcs we need to refresh every time a favorite button is toggle)
 
   FavoriteSongsStateController({
     required TracksListService tracksListService,
@@ -26,7 +25,7 @@ class FavoriteSongsStateController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getFavoriteSongs();
+    listenFavoriteSongsStream();
   }
 
   Future<void> getFavoriteSongs() async {
@@ -51,5 +50,20 @@ class FavoriteSongsStateController extends GetxController {
     if (index != -1) {
       await _musicPlayerService.playAt(index);
     }
+  }
+
+  Future<void> listenFavoriteSongsStream() async {
+    final result = await _tracksListService.getFavoriteSongsStream();
+
+    result.fold(
+      (failure) {
+        _customDialogs.showFailure(failure);
+      },
+      (stream) {
+        stream.listen((event) {
+          _allFavoriteSongs.value = event;
+        });
+      },
+    );
   }
 }

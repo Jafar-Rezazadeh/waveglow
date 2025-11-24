@@ -429,4 +429,52 @@ void main() {
       expect(rightValue, isA<List<AudioItemEntity>>());
     });
   });
+
+  group("getFavoriteSongsStream -", () {
+    test("should call expected dataSource method when invoked", () async {
+      //arrange
+      when(() => mockDataSource.getFavoriteSongsStream()).thenAnswer((_) async => Stream.empty());
+
+      //act
+      await repositoryImpl.getFavoriteSongsStream();
+
+      //assert
+      verify(() => mockDataSource.getFavoriteSongsStream()).called(1);
+    });
+
+    test(
+      "should call $FailureFactory.createFailure and return kind of failure when any object is thrown",
+      () async {
+        //arrange
+        when(
+          () => mockDataSource.getFavoriteSongsStream(),
+        ).thenAnswer((_) async => throw TypeError());
+        when(
+          () => mockFailureFactory.createFailure(any(), any()),
+        ).thenAnswer((_) => _FakeFailure());
+
+        //act
+        final result = await repositoryImpl.getFavoriteSongsStream();
+        final leftValue = result.fold((l) => l, (r) => null);
+
+        //assert
+        verify(() => mockFailureFactory.createFailure(any(), any())).called(1);
+        expect(result.isLeft(), true);
+        expect(leftValue, isA<Failure>());
+      },
+    );
+
+    test("should return expected result when success", () async {
+      //arrange
+      when(() => mockDataSource.getFavoriteSongsStream()).thenAnswer((_) async => Stream.empty());
+
+      //act
+      final result = await repositoryImpl.getFavoriteSongsStream();
+      final rightValue = result.fold((l) => null, (r) => r);
+
+      //assert
+      expect(result.isRight(), true);
+      expect(rightValue, isA<Stream<List<AudioItemEntity>>>());
+    });
+  });
 }
