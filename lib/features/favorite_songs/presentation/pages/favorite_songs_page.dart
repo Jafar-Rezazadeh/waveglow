@@ -37,7 +37,7 @@ class FavoriteSongsPage extends StatelessWidget {
     return AudioListItemWidget(
       item: e,
       onTap: () => _controller.playTrack(e),
-      onFavoriteTap: () {},
+      onFavoriteTap: () => _controller.toggleFavorite(e),
     );
   }
 }

@@ -140,7 +140,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
     result.fold(
       (failure) {
-        _logger.e("${failure.message}\n${failure.stackTrace}");
+        _logger.e(failure.message);
       },
       (data) {
         _currentPlaylist.value = data;
@@ -169,7 +169,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
   Future<void> savePlaylist(MusicPlayerPlayListEntity entity) async {
     final result = await _saveCurrentPlayListUC.call(entity);
 
-    result.fold((failure) => _logger.e("${failure.message}\n${failure.stackTrace}"), (_) {});
+    result.fold((failure) => _logger.e(failure.message), (_) {});
   }
 
   @override

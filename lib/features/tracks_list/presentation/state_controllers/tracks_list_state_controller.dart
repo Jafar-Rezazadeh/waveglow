@@ -98,9 +98,9 @@ class TracksListStateController extends GetxController {
     );
   }
 
-  Future<void> playTrack(AudioItemEntity item, String dirId) async {
-    if (_dirIsDifferentOrPlaylistIsEmpty(dirId)) {
-      await _openSelectedDirectoryAudios(dirId);
+  Future<void> playTrack(AudioItemEntity item) async {
+    if (_dirIsDifferentOrPlaylistIsEmpty(item.dirId)) {
+      await _openSelectedDirectoryAudios(item.dirId);
     }
 
     final itemIndex =
@@ -158,21 +158,20 @@ class TracksListStateController extends GetxController {
     return result.fold((l) => false, (r) => r);
   }
 
-  Future<void> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params) async {
-    final result = await _toggleAudioFavoriteUC.call(params);
+  Future<void> toggleAudioFavorite(AudioItemEntity item) async {
+    final result = await _toggleAudioFavoriteUC.call(item);
 
     result.fold(
       (failure) {
         return _customDialogs.showFailure(failure);
       },
       (isFavorite) {
-        final dirIndex = _allDirectories.indexWhere((e) => e.dirEntity.id == params.dirId);
+        final dirIndex = _allDirectories.indexWhere((e) => e.dirEntity.id == item.dirId);
         final dirTemp = _allDirectories[dirIndex];
-        final audio = dirTemp.dirEntity.audios.firstWhere((e) => e.path == params.audioPath);
 
-        final updatedAudio = audio.copyWith(isFavorite: isFavorite);
+        final updatedAudio = item.copyWith(isFavorite: isFavorite);
 
-        final indexOdAudio = dirTemp.dirEntity.audios.indexOf(audio);
+        final indexOdAudio = dirTemp.dirEntity.audios.indexOf(item);
         if (indexOdAudio != -1) {
           dirTemp.dirEntity.audios[indexOdAudio] = updatedAudio;
         }

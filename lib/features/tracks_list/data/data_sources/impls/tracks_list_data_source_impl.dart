@@ -22,16 +22,17 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     @visibleForTesting Directory? directory,
     Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,
-       _directoriesBox = testBox ?? Hive.box(HiveBoxesName.tracksList),
+       _directoriesBox = testBox ?? Hive.box(HiveBoxEnum.tracksList.value),
        _testDirectory = directory;
 
   @override
-  Future<TracksListDirectoryModel?> pickDirectory(SortType sortType) async {
+  Future<TracksListDirectoryModel?> pickDirectory(SortTypeEnum sortType) async {
     final directoryPath = await _filePicker.getDirectoryPath();
-
     if (directoryPath == null) {
       return null;
     }
+
+    final uniqueDirId = const Uuid().v4();
 
     Directory dir = _createDirectoryInstance(directoryPath);
 
@@ -44,7 +45,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     final files = entities.whereType<File>().toList();
 
     // Sort files by givenType
-    if (sortType == SortType.byModifiedDate) {
+    if (sortType == SortTypeEnum.byModifiedDate) {
       files.sort((a, b) {
         final aMod = a.statSync().modified;
         final bMod = b.statSync().modified;
@@ -52,7 +53,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
       });
     }
 
-    if (sortType == SortType.byTitle) {
+    if (sortType == SortTypeEnum.byTitle) {
       files.sort((a, b) {
         final aName = a.uri.pathSegments.last;
         final bName = b.uri.pathSegments.last;
@@ -62,7 +63,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     }
 
     for (var file in files) {
-      final item = await _createAudioModel(file);
+      final item = await _createAudioModel(file, uniqueDirId);
       if (item != null) {
         tracks.add(item);
       }
@@ -77,7 +78,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     }
 
     return TracksListDirectoryModel(
-      id: const Uuid().v4(),
+      id: uniqueDirId,
       directoryName: directoryName.capitalizeFirst ?? "",
       directoryPath: directoryPath,
       audios: tracks.toList(),
@@ -94,7 +95,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     return dir;
   }
 
-  Future<AudioItemModel?> _createAudioModel(File file) async {
+  Future<AudioItemModel?> _createAudioModel(File file, String dirId) async {
     final ext = file.path.toLowerCase();
 
     final metaData = await MetadataRetriever.fromFile(File(file.path));
@@ -108,6 +109,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
         trackName: file.uri.pathSegments.last,
         modifiedDate: file.statSync().modified.toIso8601String(),
         isFavorite: false,
+        dirId: dirId,
       );
     }
     return null;
@@ -119,19 +121,19 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   }
 
   @override
-  Future<List<TracksListDirectoryModel>> getDirectories(SortType sortType) async {
+  Future<List<TracksListDirectoryModel>> getDirectories(SortTypeEnum sortType) async {
     final dirs = _directoriesBox.values.toList();
 
     for (var dir in dirs) {
       dir.audios.sort((a, b) {
         switch (sortType) {
-          case SortType.byModifiedDate:
+          case SortTypeEnum.byModifiedDate:
             return b.modifiedDate.compareTo(a.modifiedDate);
 
-          case SortType.byTitle:
+          case SortTypeEnum.byTitle:
             return (a.trackName?.toLowerCase() ?? "").compareTo(b.trackName?.toLowerCase() ?? "");
 
-          case SortType.byFavorite:
+          case SortTypeEnum.byFavorite:
             if (a.isFavorite == b.isFavorite) return 0;
             return a.isFavorite ? -1 : 1;
         }
@@ -182,7 +184,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
 
       if (newFiles.isNotEmpty) {
         for (var file in newFiles) {
-          final item = await _createAudioModel(file);
+          final item = await _createAudioModel(file, savedDir.id);
           if (item != null) savedDir.audios.add(item);
         }
 
@@ -204,10 +206,10 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   }
 
   @override
-  Future<bool> toggleAudioFavorite(TracksListToggleAudioFavoriteParams params) async {
-    final dir = _directoriesBox.values.firstWhere((e) => e.id == params.dirId);
+  Future<bool> toggleAudioFavorite(AudioItemModel item) async {
+    final dir = _directoriesBox.values.firstWhere((e) => e.id == item.dirId);
 
-    final audio = dir.audios.firstWhere((e) => e.path == params.audioPath);
+    final audio = dir.audios.firstWhere((e) => e.path == item.path);
 
     final toggledFavorite = !audio.isFavorite;
 

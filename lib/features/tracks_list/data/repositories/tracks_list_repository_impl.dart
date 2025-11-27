@@ -1,8 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:waveglow/core/constants/enums.dart';
-import 'package:waveglow/core/errors/failures.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class TracksListRepositoryImpl implements TracksListRepository {
   final TracksListDataSource _dataSource;
@@ -15,7 +14,7 @@ class TracksListRepositoryImpl implements TracksListRepository {
        _failureFactory = failureFactory;
 
   @override
-  Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory(SortType sortType) async {
+  Future<Either<Failure, TracksListDirectoryEntity?>> pickDirectory(SortTypeEnum sortType) async {
     try {
       final result = await _dataSource.pickDirectory(sortType);
       return right(result?.toEntity());
@@ -36,7 +35,9 @@ class TracksListRepositoryImpl implements TracksListRepository {
   }
 
   @override
-  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories(SortType sortType) async {
+  Future<Either<Failure, List<TracksListDirectoryEntity>>> getDirectories(
+    SortTypeEnum sortType,
+  ) async {
     try {
       final result = await _dataSource.getDirectories(sortType);
 
@@ -79,11 +80,9 @@ class TracksListRepositoryImpl implements TracksListRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> toggleAudioFavorite(
-    TracksListToggleAudioFavoriteParams params,
-  ) async {
+  Future<Either<Failure, bool>> toggleAudioFavorite(AudioItemEntity item) async {
     try {
-      final result = await _dataSource.toggleAudioFavorite(params);
+      final result = await _dataSource.toggleAudioFavorite(AudioItemModel.fromEntity(item));
       return right(result);
     } catch (e, s) {
       return left(_failureFactory.createFailure(e, s));

@@ -12,6 +12,7 @@ void main() {
     artistsNames: ["artistsNames"],
     modifiedDate: "modifiedDate",
     isFavorite: true,
+    dirId: "dirId",
   );
 
   group("fromEntity -", () {

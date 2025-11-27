@@ -14,6 +14,7 @@ void main() {
         artistsNames: ["artistsNames"],
         modifiedDate: "modifiedDate",
         isFavorite: false,
+        dirId: 'dirId',
       );
 
       //act
@@ -27,6 +28,7 @@ void main() {
       expect(result.artistsNames, entity.artistsNames);
       expect(result.modifiedDate, entity.modifiedDate);
       expect(result.isFavorite, entity.isFavorite);
+      expect(result.dirId, entity.dirId);
     });
   });
 
@@ -41,6 +43,7 @@ void main() {
         artistsNames: ["artistsNames"],
         modifiedDate: "modifiedDate",
         isFavorite: false,
+        dirId: "dirId",
       );
 
       //act
@@ -54,13 +57,14 @@ void main() {
       expect(result.artistsNames, model.artistsNames);
       expect(result.modifiedDate, model.modifiedDate);
       expect(result.isFavorite, model.isFavorite);
+      expect(result.dirId, model.dirId);
     });
   });
 
   group("copyWith -", () {
     test("should change the give prop but others ", () {
       //arrange
-      final audio = AudioItemModel(
+      final model = AudioItemModel(
         path: "path",
         trackName: "trackName",
         albumArt: Uint8List.fromList([5]),
@@ -68,19 +72,21 @@ void main() {
         artistsNames: ["artistsNames"],
         modifiedDate: "modifiedDate",
         isFavorite: false,
+        dirId: 'dirId',
       );
 
       //act
-      final result = audio.copyWith(isFavorite: true);
+      final result = model.copyWith(isFavorite: true);
 
       //assert
-      expect(result.path, audio.path);
-      expect(result.trackName, audio.trackName);
-      expect(result.albumArt, audio.albumArt);
-      expect(result.durationInSeconds, audio.durationInSeconds);
-      expect(result.artistsNames, audio.artistsNames);
-      expect(result.modifiedDate, audio.modifiedDate);
+      expect(result.path, model.path);
+      expect(result.trackName, model.trackName);
+      expect(result.albumArt, model.albumArt);
+      expect(result.durationInSeconds, model.durationInSeconds);
+      expect(result.artistsNames, model.artistsNames);
+      expect(result.modifiedDate, model.modifiedDate);
       expect(result.isFavorite, true);
+      expect(result.dirId, model.dirId);
     });
   });
 }

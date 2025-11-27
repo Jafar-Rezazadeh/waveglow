@@ -16,6 +16,8 @@ class AudioItemEntity {
 
   final bool isFavorite;
 
+  final String dirId;
+
   AudioItemEntity({
     required this.path,
     required this.trackName,
@@ -24,6 +26,7 @@ class AudioItemEntity {
     required this.artistsNames,
     required this.modifiedDate,
     required this.isFavorite,
+    required this.dirId,
   });
 
   AudioItemEntity copyWith({bool? isFavorite}) {
@@ -35,6 +38,7 @@ class AudioItemEntity {
       artistsNames: artistsNames,
       modifiedDate: modifiedDate,
       isFavorite: isFavorite ?? this.isFavorite,
+      dirId: dirId,
     );
   }
 }

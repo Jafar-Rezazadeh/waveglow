@@ -105,13 +105,8 @@ class TracksListPage extends StatelessWidget {
                 .map(
                   (e) => AudioListItemWidget(
                     item: e,
-                    onTap: () => _controller.playTrack(e, dirTemplate.dirEntity.id),
-                    onFavoriteTap: () => _controller.toggleAudioFavorite(
-                      TracksListToggleAudioFavoriteParams(
-                        dirId: dirTemplate.dirEntity.id,
-                        audioPath: e.path,
-                      ),
-                    ),
+                    onTap: () => _controller.playTrack(e),
+                    onFavoriteTap: () => _controller.toggleAudioFavorite(e),
                   ),
                 )
                 .toList()

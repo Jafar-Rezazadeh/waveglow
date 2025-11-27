@@ -29,6 +29,9 @@ class AudioItemModel implements Model<AudioItemEntity> {
   @HiveField(6)
   final bool isFavorite;
 
+  @HiveField(7)
+  final String dirId;
+
   AudioItemModel({
     required this.path,
     required this.trackName,
@@ -37,6 +40,7 @@ class AudioItemModel implements Model<AudioItemEntity> {
     required this.artistsNames,
     required this.modifiedDate,
     required this.isFavorite,
+    required this.dirId,
   });
 
   factory AudioItemModel.fromEntity(AudioItemEntity entity) {
@@ -48,6 +52,7 @@ class AudioItemModel implements Model<AudioItemEntity> {
       artistsNames: entity.artistsNames,
       modifiedDate: entity.modifiedDate,
       isFavorite: entity.isFavorite,
+      dirId: entity.dirId,
     );
   }
 
@@ -61,6 +66,7 @@ class AudioItemModel implements Model<AudioItemEntity> {
       artistsNames: artistsNames,
       modifiedDate: modifiedDate,
       isFavorite: isFavorite,
+      dirId: dirId,
     );
   }
 
@@ -73,6 +79,7 @@ class AudioItemModel implements Model<AudioItemEntity> {
       artistsNames: artistsNames,
       modifiedDate: modifiedDate,
       isFavorite: isFavorite ?? this.isFavorite,
+      dirId: dirId,
     );
   }
 }

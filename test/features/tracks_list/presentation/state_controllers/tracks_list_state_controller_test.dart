@@ -52,15 +52,19 @@ class _FakeTracksListDirectoryTemplate extends Fake implements TracksListDirecto
 class _FakeFailure extends Fake implements Failure {}
 
 class _FakeAudioItemEntity extends Fake implements AudioItemEntity {
+  final String dirIdT;
+
+  _FakeAudioItemEntity({this.dirIdT = ""});
+
   @override
   bool get isFavorite => false;
 
   @override
   String get path => "pathT";
-}
 
-class _FakeTracksListToggleAudioFavoriteParams extends Fake
-    implements TracksListToggleAudioFavoriteParams {}
+  @override
+  String get dirId => dirIdT;
+}
 
 class _FakeMusicPlayerPlayListEntity extends Fake implements MusicPlayerPlayListEntity {
   final String dirIdT;
@@ -92,9 +96,9 @@ void main() {
     registerFallbackValue(_FakeFailure());
     registerFallbackValue(<AudioItemEntity>[]);
     registerFallbackValue(_FakeTracksListDirectoryEntity());
-    registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
+    registerFallbackValue(_FakeAudioItemEntity());
     registerFallbackValue(_FakeMusicPlayerPlayListEntity());
-    registerFallbackValue(SortType.byModifiedDate);
+    registerFallbackValue(SortTypeEnum.byModifiedDate);
   });
 
   setUp(() {
@@ -266,7 +270,7 @@ void main() {
         when(() => mockMusicPlayerService.currentPlaylist).thenAnswer((_) => null);
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), "0");
+        await controller.playTrack(_FakeAudioItemEntity(dirIdT: "someThing"));
 
         //assert
         verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
@@ -286,7 +290,7 @@ void main() {
         ).thenAnswer((_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId));
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), dirId);
+        await controller.playTrack(_FakeAudioItemEntity(dirIdT: dirId));
 
         //assert
         verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
@@ -303,9 +307,10 @@ void main() {
         when(() => mockMusicPlayerService.currentPlaylist).thenAnswer(
           (_) => _FakeMusicPlayerPlayListEntity(dirIdT: "65521", audiosT: [_FakeAudioItemEntity()]),
         );
+        when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), "1");
+        await controller.playTrack(_FakeAudioItemEntity(dirIdT: "otherDir"));
 
         //assert
         verify(() => mockMusicPlayerService.openPlayList(any(), play: false)).called(1);
@@ -323,9 +328,10 @@ void main() {
         when(() => mockMusicPlayerService.currentPlaylist).thenAnswer(
           (_) => _FakeMusicPlayerPlayListEntity(dirIdT: dirId, audiosT: [_FakeAudioItemEntity()]),
         );
+        when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
         //act
-        await controller.playTrack(_FakeAudioItemEntity(), dirId);
+        await controller.playTrack(_FakeAudioItemEntity(dirIdT: dirId));
 
         //assert
         verifyNever(() => mockMusicPlayerService.openPlayList(any(), play: false));
@@ -343,7 +349,7 @@ void main() {
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(item, dirId);
+      await controller.playTrack(item);
 
       //assert
       verify(() => mockMusicPlayerService.playAt(any())).called(1);
@@ -359,7 +365,7 @@ void main() {
       when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 
       //act
-      await controller.playTrack(_FakeAudioItemEntity(), dirId);
+      await controller.playTrack(_FakeAudioItemEntity(dirIdT: dirId));
 
       //assert
       verifyNever(() => mockMusicPlayerService.playAt(any()));
@@ -505,9 +511,15 @@ void main() {
   });
 
   group("toggleFavorite -", () {
-    final toggleFavoriteParams = TracksListToggleAudioFavoriteParams(
-      dirId: "idDir",
-      audioPath: "path",
+    final audioItem = AudioItemEntity(
+      path: "path",
+      trackName: "trackName",
+      albumArt: null,
+      durationInSeconds: 42,
+      artistsNames: [],
+      modifiedDate: "modifiedDate",
+      isFavorite: false,
+      dirId: "dirId",
     );
     test("should call the expected useCase when invoked", () async {
       //arrange
@@ -517,7 +529,7 @@ void main() {
       when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       //act
-      await controller.toggleAudioFavorite(toggleFavoriteParams);
+      await controller.toggleAudioFavorite(audioItem);
 
       //assert
       verify(() => mockToggleAudioFavoriteUC.call(any())).called(1);
@@ -531,7 +543,7 @@ void main() {
       when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       //act
-      await controller.toggleAudioFavorite(toggleFavoriteParams);
+      await controller.toggleAudioFavorite(audioItem);
 
       //assert
       verify(() => mockCustomDialogs.showFailure(any())).called(1);
@@ -542,34 +554,32 @@ void main() {
       when(() => mockToggleAudioFavoriteUC.call(any())).thenAnswer((_) async => right(true));
 
       final audio = AudioItemEntity(
-        path: toggleFavoriteParams.audioPath,
+        path: "audioPath",
         isFavorite: false,
         albumArt: Uint8List.fromList([]),
         artistsNames: [],
         durationInSeconds: 5,
         modifiedDate: "",
         trackName: "",
+        dirId: "dirId",
       );
 
       controller.setAllDirectories = [
         TracksListDirectoryTemplate(
           isExists: true,
-          dirEntity: _FakeTracksListDirectoryEntity(
-            idT: toggleFavoriteParams.dirId,
-            audiosT: [audio],
-          ),
+          dirEntity: _FakeTracksListDirectoryEntity(idT: audio.dirId, audiosT: [audio]),
         ),
       ];
 
       //act
-      await controller.toggleAudioFavorite(toggleFavoriteParams);
+      await controller.toggleAudioFavorite(audio);
 
       //assert
       final expectedAudio = controller.allDirectories
-          .firstWhere((e) => e.dirEntity.id == toggleFavoriteParams.dirId)
+          .firstWhere((e) => e.dirEntity.id == audio.dirId)
           .dirEntity
           .audios
-          .firstWhere((e) => e.path == toggleFavoriteParams.audioPath);
+          .firstWhere((e) => e.path == audio.path);
 
       expect(expectedAudio.isFavorite, !audio.isFavorite);
     });

@@ -15,6 +15,7 @@ void main() {
         artistsNames: ["artistsNames"],
         modifiedDate: "modifiedDate",
         isFavorite: false,
+        dirId: "dirId",
       );
 
       //act
@@ -28,6 +29,7 @@ void main() {
       expect(result.artistsNames, entity.artistsNames);
       expect(result.modifiedDate, entity.modifiedDate);
       expect(result.isFavorite, !entity.isFavorite);
+      expect(result.dirId, entity.dirId);
     });
   });
 }

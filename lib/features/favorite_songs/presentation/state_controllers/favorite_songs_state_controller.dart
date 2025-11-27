@@ -44,8 +44,7 @@ class FavoriteSongsStateController extends GetxController {
       );
     }
 
-    final index =
-        _musicPlayerService.currentPlaylist?.audios.indexWhere((e) => e.path == item.path) ?? -1;
+    final index = _allFavoriteSongs.indexWhere((e) => e.path == item.path);
 
     if (index != -1) {
       await _musicPlayerService.playAt(index);
@@ -59,10 +58,20 @@ class FavoriteSongsStateController extends GetxController {
       (failure) {
         _customDialogs.showFailure(failure);
       },
-      (stream) {
-        stream.listen((event) {
-          _allFavoriteSongs.value = event;
-        });
+      (stream) => stream.listen((event) {
+        _allFavoriteSongs.value = event;
+      }),
+    );
+  }
+
+  Future<void> toggleFavorite(AudioItemEntity item) async {
+    await _customDialogs.showAreYouSure(
+      title: "حذف",
+      content: "آیا از حذف آیتم از علاقمندی ها مطمئن هستید؟",
+      onAccept: () async {
+        final result = await _tracksListService.toggleAudioFavorite(item);
+
+        result.fold((failure) => _customDialogs.showFailure(failure), (_) {});
       },
     );
   }

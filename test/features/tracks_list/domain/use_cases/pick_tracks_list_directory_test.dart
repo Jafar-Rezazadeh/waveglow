@@ -13,7 +13,7 @@ void main() {
   late PickTracksListDirectoryUC useCase;
 
   setUpAll(() {
-    registerFallbackValue(SortType.byModifiedDate);
+    registerFallbackValue(SortTypeEnum.byModifiedDate);
   });
 
   setUp(() {

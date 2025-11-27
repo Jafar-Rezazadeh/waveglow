@@ -52,6 +52,7 @@ class HomeVisualizerStateController extends GetxController {
     super.onInit();
     _setTicker();
     _musicPlayer.isPlayingStream.listen((isPlaying) {
+      // TODO: add one more condition that check is current page home
       if (isPlaying) {
         startListeningBandsSpectrum();
       } else {

@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/constants/enums.dart';
-import 'package:waveglow/core/errors/failures.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/entities/audio_item_entity.dart';
 
 class _MockTracksListDataSource extends Mock implements TracksListDataSource {}
 
@@ -29,19 +28,28 @@ class _FakeTracksListDirectoryEntity extends Fake implements TracksListDirectory
 
 class _FakeFailure extends Fake implements Failure {}
 
-class _FakeTracksListToggleAudioFavoriteParams extends Fake
-    implements TracksListToggleAudioFavoriteParams {}
+class _FakeAudioItemModel extends Fake implements AudioItemModel {}
 
 void main() {
   late _MockTracksListDataSource mockDataSource;
   late _MockFailureFactory mockFailureFactory;
   late TracksListRepositoryImpl repositoryImpl;
+  final audioEntity = AudioItemEntity(
+    path: "path",
+    trackName: "trackName",
+    albumArt: null,
+    durationInSeconds: 4,
+    artistsNames: [],
+    modifiedDate: "modifiedDate",
+    isFavorite: false,
+    dirId: "dirId",
+  );
 
   setUpAll(() {
     registerFallbackValue(StackTrace.empty);
     registerFallbackValue(_FakeTracksListDirectoryModel());
-    registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
-    registerFallbackValue(SortType.byModifiedDate);
+    registerFallbackValue(_FakeAudioItemModel());
+    registerFallbackValue(SortTypeEnum.byModifiedDate);
   });
 
   setUp(() {
@@ -61,7 +69,7 @@ void main() {
       ).thenAnswer((_) async => _FakeTracksListDirectoryModel());
 
       //act
-      await repositoryImpl.pickDirectory(SortType.byModifiedDate);
+      await repositoryImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       verify(() => mockDataSource.pickDirectory(any())).called(1);
@@ -78,7 +86,7 @@ void main() {
         when(() => mockDataSource.pickDirectory(any())).thenAnswer((_) async => throw TypeError());
 
         //act
-        final result = await repositoryImpl.pickDirectory(SortType.byModifiedDate);
+        final result = await repositoryImpl.pickDirectory(SortTypeEnum.byModifiedDate);
         final leftValue = result.fold((l) => l, (r) => null);
 
         //assert
@@ -95,7 +103,7 @@ void main() {
       ).thenAnswer((_) async => _FakeTracksListDirectoryModel());
 
       //act
-      final result = await repositoryImpl.pickDirectory(SortType.byModifiedDate);
+      final result = await repositoryImpl.pickDirectory(SortTypeEnum.byModifiedDate);
       final rightValue = result.fold((l) => null, (r) => r);
 
       //assert
@@ -154,7 +162,7 @@ void main() {
       when(() => mockDataSource.getDirectories(any())).thenAnswer((_) async => []);
 
       //act
-      await repositoryImpl.getDirectories(SortType.byModifiedDate);
+      await repositoryImpl.getDirectories(SortTypeEnum.byModifiedDate);
 
       //assert
       verify(() => mockDataSource.getDirectories(any())).called(1);
@@ -170,7 +178,7 @@ void main() {
         ).thenAnswer((_) => _FakeFailure());
 
         //act
-        final result = await repositoryImpl.getDirectories(SortType.byModifiedDate);
+        final result = await repositoryImpl.getDirectories(SortTypeEnum.byModifiedDate);
         final leftValue = result.fold((l) => l, (r) => null);
 
         //assert
@@ -187,7 +195,7 @@ void main() {
       ).thenAnswer((_) async => [_FakeTracksListDirectoryModel()]);
 
       //act
-      final result = await repositoryImpl.getDirectories(SortType.byModifiedDate);
+      final result = await repositoryImpl.getDirectories(SortTypeEnum.byModifiedDate);
       final rightValue = result.fold((l) => null, (r) => r);
 
       //assert
@@ -338,7 +346,7 @@ void main() {
       when(() => mockDataSource.toggleAudioFavorite(any())).thenAnswer((_) async => true);
 
       //act
-      await repositoryImpl.toggleAudioFavorite(_FakeTracksListToggleAudioFavoriteParams());
+      await repositoryImpl.toggleAudioFavorite(audioEntity);
 
       //assert
       verify(() => mockDataSource.toggleAudioFavorite(any())).called(1);
@@ -356,9 +364,7 @@ void main() {
         ).thenAnswer((_) => _FakeFailure());
 
         //act
-        final result = await repositoryImpl.toggleAudioFavorite(
-          _FakeTracksListToggleAudioFavoriteParams(),
-        );
+        final result = await repositoryImpl.toggleAudioFavorite(audioEntity);
         final leftValue = result.fold((l) => l, (r) => null);
 
         //assert
@@ -373,9 +379,7 @@ void main() {
       when(() => mockDataSource.toggleAudioFavorite(any())).thenAnswer((_) async => true);
 
       //act
-      final result = await repositoryImpl.toggleAudioFavorite(
-        _FakeTracksListToggleAudioFavoriteParams(),
-      );
+      final result = await repositoryImpl.toggleAudioFavorite(audioEntity);
       final rightValue = result.fold((l) => null, (r) => r);
 
       //assert

@@ -18,7 +18,7 @@ void main() {
   });
 
   group("showFailure -", () {
-    testWidgets("should show $FailureWidget and show a dialog using Get", (tester) async {
+    testWidgets("should show expected Widget and show a dialog using Get", (tester) async {
       //arrange
       await tester.pumpWidget(
         GetMaterialApp(

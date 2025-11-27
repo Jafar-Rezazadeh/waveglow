@@ -20,6 +20,7 @@ void main() {
             artistsNames: ["artistsNames"],
             modifiedDate: "modifiedDate",
             isFavorite: false,
+            dirId: "dirId",
           ),
         ],
       );
@@ -51,6 +52,7 @@ void main() {
             artistsNames: ["artistsNames_"],
             modifiedDate: "modifiedDate_",
             isFavorite: false,
+            dirId: "DirId",
           ),
         ],
       );

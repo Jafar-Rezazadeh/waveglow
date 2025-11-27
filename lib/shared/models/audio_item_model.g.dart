@@ -24,13 +24,14 @@ class AudioItemModelAdapter extends TypeAdapter<AudioItemModel> {
       artistsNames: (fields[4] as List?)?.cast<String>(),
       modifiedDate: fields[5] as String,
       isFavorite: fields[6] as bool,
+      dirId: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, AudioItemModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.path)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class AudioItemModelAdapter extends TypeAdapter<AudioItemModel> {
       ..writeByte(5)
       ..write(obj.modifiedDate)
       ..writeByte(6)
-      ..write(obj.isFavorite);
+      ..write(obj.isFavorite)
+      ..writeByte(7)
+      ..write(obj.dirId);
   }
 
   @override

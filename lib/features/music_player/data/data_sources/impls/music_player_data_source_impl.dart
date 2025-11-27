@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/features/music_player/music_player_exports.dart';
 
 class MusicPlayerDataSourceImpl implements MusicPlayerDataSource {
@@ -14,7 +14,7 @@ class MusicPlayerDataSourceImpl implements MusicPlayerDataSource {
     Box<MusicPlayerPlayListModel>? testMusicPlayerBox,
     required SharedPreferences sharedPreferences,
   }) : _musicPlayerBox =
-           testMusicPlayerBox ?? Hive.box<MusicPlayerPlayListModel>(HiveBoxesName.musicPlayer),
+           testMusicPlayerBox ?? Hive.box<MusicPlayerPlayListModel>(HiveBoxEnum.musicPlayer.value),
        _sharedPreferences = sharedPreferences;
 
   @override

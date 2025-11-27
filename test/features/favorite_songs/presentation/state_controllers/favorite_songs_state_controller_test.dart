@@ -133,18 +133,15 @@ void main() {
     );
 
     test(
-      "should call $MusicPlayerService.playAt when given item found in the musicPlayerService currentPlayList",
+      "should call $MusicPlayerService.playAt when given item found in the favoriteSongs",
       () async {
         //arrange
         final item = _FakeAudioItemEntity(pathT: "test.mp3");
+        controller.allFavoriteSongs.addAll([item, _FakeAudioItemEntity(pathT: "jdf-k")]);
+
         when(() => mockMusicPlayerService.currentPlaylist).thenAnswer(
-          (_) => _FakeMusicPlayerPlayListEntity(
-            idT: controller.favoriteSongsPlayListId,
-            audiosT: [
-              item,
-              _FakeAudioItemEntity(pathT: "jdf-k"),
-            ],
-          ),
+          (_) =>
+              _FakeMusicPlayerPlayListEntity(idT: controller.favoriteSongsPlayListId, audiosT: []),
         );
         when(() => mockMusicPlayerService.playAt(any())).thenAnswer((_) async {});
 

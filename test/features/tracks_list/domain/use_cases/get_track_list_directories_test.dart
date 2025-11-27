@@ -11,7 +11,7 @@ void main() {
   late GetTrackListDirectoriesUC useCase;
 
   setUpAll(() {
-    registerFallbackValue(SortType.byModifiedDate);
+    registerFallbackValue(SortTypeEnum.byModifiedDate);
   });
 
   setUp(() {

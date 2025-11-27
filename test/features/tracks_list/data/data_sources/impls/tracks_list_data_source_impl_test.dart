@@ -94,7 +94,7 @@ void main() {
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => null);
 
       //act
-      await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       verify(() => mockFilePicker.getDirectoryPath()).called(1);
@@ -106,7 +106,7 @@ void main() {
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => null);
 
       //act
-      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       expect(result, null);
@@ -133,7 +133,7 @@ void main() {
         );
 
         //act
-        final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+        final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
         //assert
         expect(result?.directoryPath, directoryPath);
@@ -151,7 +151,7 @@ void main() {
       ).thenAnswer((_) => Stream.fromIterable([_FakeFileSystemEntity()]));
 
       //act
-      await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       verify(() => mockDirectory.list(recursive: false, followLinks: false)).called(1);
@@ -170,7 +170,7 @@ void main() {
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       expect(result?.audios.length, 2);
@@ -192,7 +192,7 @@ void main() {
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       expect(result?.audios.length, 6);
@@ -213,7 +213,7 @@ void main() {
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+      final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
       //assert
       expect(result?.audios.length, 2);
@@ -222,7 +222,7 @@ void main() {
     });
 
     test(
-      "should sort the files bases on modified date when given $SortType.byModifiedDate",
+      "should sort the files bases on modified date when given $SortTypeEnum.byModifiedDate",
       () async {
         //arrange
         _setMetaReceiverMethodChannel();
@@ -248,7 +248,7 @@ void main() {
         ).thenAnswer((_) => Stream.fromIterable([file1, file2, file3]));
 
         //act
-        final result = await dataSourceImpl.pickDirectory(SortType.byModifiedDate);
+        final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byModifiedDate);
 
         //assert
         expect(result?.audios.first.modifiedDate, newDate.toIso8601String());
@@ -258,7 +258,7 @@ void main() {
       },
     );
 
-    test("should sort the files bases on it names when given $SortType.byTitle", () async {
+    test("should sort the files bases on it names when given $SortTypeEnum.byTitle", () async {
       //arrange
       _setMetaReceiverMethodChannel();
 
@@ -272,7 +272,7 @@ void main() {
       );
 
       //act
-      final result = await dataSourceImpl.pickDirectory(SortType.byTitle);
+      final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byTitle);
 
       //assert
       expect(result?.audios.first.trackName, "file1.mp3");
@@ -298,7 +298,7 @@ void main() {
       when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel()]);
 
       //act
-      await dataSourceImpl.getDirectories(SortType.byModifiedDate);
+      await dataSourceImpl.getDirectories(SortTypeEnum.byModifiedDate);
 
       //assert
       verify(() => mockBox.values).called(1);
@@ -309,13 +309,13 @@ void main() {
       when(() => mockBox.values).thenAnswer((_) => [_FakeTracksListDirectoryModel()]);
 
       //act
-      final result = await dataSourceImpl.getDirectories(SortType.byModifiedDate);
+      final result = await dataSourceImpl.getDirectories(SortTypeEnum.byModifiedDate);
 
       //assert
       expect(result.length, 1);
     });
 
-    test("should sort the audio based on given $SortType", () async {
+    test("should sort the audio based on given $SortTypeEnum", () async {
       //arrange
       when(() => mockBox.values).thenAnswer(
         (_) => [
@@ -347,9 +347,9 @@ void main() {
       );
 
       //act
-      final resultByModified = await dataSourceImpl.getDirectories(SortType.byModifiedDate);
-      final resultByTitle = await dataSourceImpl.getDirectories(SortType.byTitle);
-      final resultByFavorite = await dataSourceImpl.getDirectories(SortType.byFavorite);
+      final resultByModified = await dataSourceImpl.getDirectories(SortTypeEnum.byModifiedDate);
+      final resultByTitle = await dataSourceImpl.getDirectories(SortTypeEnum.byTitle);
+      final resultByFavorite = await dataSourceImpl.getDirectories(SortTypeEnum.byFavorite);
 
       //assert
       expect(DateTime.parse(resultByModified.first.audios.first.modifiedDate), DateTime(2050));
@@ -599,8 +599,6 @@ void main() {
   });
 
   group("toggleAudioFavorite -", () {
-    final toggleParams = TracksListToggleAudioFavoriteParams(dirId: "id1", audioPath: "path1");
-
     test(
       "should get audio from expected dir and change the favorite and replace using box.put",
       () async {
@@ -611,12 +609,13 @@ void main() {
           modifiedDate: "",
           trackName: "",
           albumArt: Uint8List.fromList([]),
-          path: toggleParams.audioPath,
+          path: "testPath",
           isFavorite: true,
+          dirId: "dirId",
         );
         when(() => mockBox.values).thenAnswer(
           (_) => [
-            _FakeTracksListDirectoryModel(idT: toggleParams.dirId, audioT: [audio]),
+            _FakeTracksListDirectoryModel(idT: audio.dirId, audioT: [audio]),
             _FakeTracksListDirectoryModel(idT: "sjk", audioT: [audio]),
           ],
         );
@@ -624,7 +623,7 @@ void main() {
         when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
 
         //act
-        await dataSourceImpl.toggleAudioFavorite(toggleParams);
+        await dataSourceImpl.toggleAudioFavorite(audio);
 
         //assert
         verify(
@@ -633,8 +632,8 @@ void main() {
             any(
               that: isA<_FakeTracksListDirectoryModel>().having(
                 (dir) =>
-                    dir.id == toggleParams.dirId &&
-                    dir.audios.firstWhere((e) => e.path == toggleParams.audioPath).isFavorite ==
+                    dir.id == audio.dirId &&
+                    dir.audios.firstWhere((e) => e.path == audio.path).isFavorite ==
                         !audio.isFavorite,
                 "has changed the audio favorite",
                 true,
@@ -653,12 +652,13 @@ void main() {
         modifiedDate: "",
         trackName: "",
         albumArt: Uint8List.fromList([]),
-        path: toggleParams.audioPath,
+        path: "audioPath",
         isFavorite: true,
+        dirId: "dirId",
       );
       when(() => mockBox.values).thenAnswer(
         (_) => [
-          _FakeTracksListDirectoryModel(idT: toggleParams.dirId, audioT: [audio]),
+          _FakeTracksListDirectoryModel(idT: audio.dirId, audioT: [audio]),
           _FakeTracksListDirectoryModel(idT: "sjk", audioT: [audio]),
         ],
       );
@@ -666,7 +666,7 @@ void main() {
       when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
 
       //act
-      final result = await dataSourceImpl.toggleAudioFavorite(toggleParams);
+      final result = await dataSourceImpl.toggleAudioFavorite(audio);
 
       //assert
       expect(result, !audio.isFavorite);

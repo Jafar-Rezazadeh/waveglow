@@ -1,19 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
 class _MockTracksListRepository extends Mock implements TracksListRepository {}
 
-class _FakeTracksListToggleAudioFavoriteParams extends Fake
-    implements TracksListToggleAudioFavoriteParams {}
+class _FakeAudioItemEntity extends Fake implements AudioItemEntity {}
 
 void main() {
   late _MockTracksListRepository mockTracksListRepository;
   late TracksListToggleAudioFavoriteUC useCase;
 
   setUpAll(() {
-    registerFallbackValue(_FakeTracksListToggleAudioFavoriteParams());
+    registerFallbackValue(_FakeAudioItemEntity());
   });
 
   setUp(() {
@@ -28,7 +28,7 @@ void main() {
     ).thenAnswer((_) async => right(true));
 
     //act
-    await useCase.call(_FakeTracksListToggleAudioFavoriteParams());
+    await useCase.call(_FakeAudioItemEntity());
 
     //assert
     verify(() => mockTracksListRepository.toggleAudioFavorite(any())).called(1);

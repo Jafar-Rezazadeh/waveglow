@@ -3,7 +3,7 @@ import 'package:waveglow/features/home/home_exports.dart';
 
 void main() {
   group("fromMap -", () {
-    test("should convert the map to $VisualizerBandsModel with expected values ", () async {
+    test("should convert the map to expected model with expected values ", () async {
       //arrange
       final map = {
         "Sub-bass": 0.35,
@@ -13,7 +13,7 @@ void main() {
         "High-mid": 0.27,
         "Presence": 0.19,
         "Brilliance": 0.14,
-        "Loudness": 0.41
+        "Loudness": 0.41,
       };
 
       //act
