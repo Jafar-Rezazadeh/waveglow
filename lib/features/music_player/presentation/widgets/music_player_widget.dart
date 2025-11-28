@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_handy_utils/extensions/string_ellips_size_extension.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -173,22 +174,36 @@ class MusicPlayerWidget extends StatelessWidget {
   }
 
   Widget _volume() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(AssetSvgs.volumeHigh),
-        SizedBox(
-          width: 156,
-          child: Obx(
-            () => Slider(
-              min: 0.0,
-              max: 100.0,
-              value: _musicPlayerService.volume,
-              onChanged: (value) => _musicPlayerService.setVolume(value),
+    void onMouseScroll(event) {
+      if (event is PointerScrollEvent) {
+        const step = 4;
+        if (event.scrollDelta.dy > 0) {
+          _musicPlayerService.setVolume((_musicPlayerService.volume - step).clamp(0, 100));
+        } else {
+          _musicPlayerService.setVolume((_musicPlayerService.volume + step).clamp(0, 100));
+        }
+      }
+    }
+
+    return Listener(
+      onPointerSignal: onMouseScroll,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(AssetSvgs.volumeHigh),
+          SizedBox(
+            width: 156,
+            child: Obx(
+              () => Slider(
+                min: 0.0,
+                max: 100.0,
+                value: _musicPlayerService.volume,
+                onChanged: (value) => _musicPlayerService.setVolume(value),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
