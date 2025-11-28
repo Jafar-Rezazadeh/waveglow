@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_handy_utils/extensions/string_ellips_size_extension.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -56,7 +55,7 @@ class MusicPlayerWidget extends StatelessWidget {
     return SizedBox(
       height: 100,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [_musicCover(), const Gap(12), _musicTitles()],
       ),
     );
@@ -86,27 +85,32 @@ class MusicPlayerWidget extends StatelessWidget {
   }
 
   Widget _musicTitles() {
-    return Obx(() {
-      final artistsNames =
-          _musicPlayerService.currentTrack?.artistsNames?.join(" - ").ellipsSize(maxLength: 40) ??
-          "";
+    return SizedBox(
+      width: 0.19.sw,
+      child: Obx(() {
+        final artistsNames = _musicPlayerService.currentTrack?.artistsNames?.join(" - ") ?? "";
 
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            (_musicPlayerService.currentTrack?.trackName ?? "").ellipsSize(maxLength: 40),
-            style: TextStyle(fontSize: AppSizes.fontSizeMedium, overflow: TextOverflow.ellipsis),
-          ),
-          if (artistsNames.isNotEmpty)
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(
-              artistsNames,
-              style: TextStyle(color: _colorPalette.neutral400, fontSize: AppSizes.fontSizeSmall),
+              (_musicPlayerService.currentTrack?.trackName ?? ""),
+              style: TextStyle(fontSize: AppSizes.fontSizeMedium, overflow: TextOverflow.ellipsis),
             ),
-        ],
-      );
-    });
+            if (artistsNames.isNotEmpty)
+              Text(
+                artistsNames,
+                style: TextStyle(
+                  color: _colorPalette.neutral400,
+                  fontSize: AppSizes.fontSizeSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+        );
+      }),
+    );
   }
 
   Widget _actionButtons() {

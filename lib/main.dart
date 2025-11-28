@@ -21,7 +21,7 @@ Future<void> main() async {
   runApp(const WaveGlowApp());
 
   doWhenWindowReady(() {
-    appWindow.minSize = const Size(1200, 600);
+    appWindow.minSize = const Size(800, 600);
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
