@@ -5,11 +5,11 @@ import 'package:hive/hive.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
-class TracksListBindings extends Bindings {
+class TracksListPageBindings extends Bindings {
   final FilePicker? _filePicker;
   final Box<TracksListDirectoryModel>? _testBox;
 
-  TracksListBindings({
+  TracksListPageBindings({
     @visibleForTesting FilePicker? filePicker,
     @visibleForTesting Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,

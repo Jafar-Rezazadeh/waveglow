@@ -25,7 +25,7 @@ void main() {
   group("dependencies -", () {
     test("should put the expected controller to get", () {
       //act
-      TracksListBindings(filePicker: _MockFilePicker(), testBox: _MockBox()).dependencies();
+      TracksListPageBindings(filePicker: _MockFilePicker(), testBox: _MockBox()).dependencies();
 
       //assert
       expect(Get.isRegistered<TracksListStateController>(), true);

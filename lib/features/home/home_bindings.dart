@@ -3,7 +3,7 @@ import 'package:waveglow/core/errors/failures.dart';
 import 'package:waveglow/features/home/home_exports.dart';
 import 'package:waveglow/services/home_audio_bands_service.dart';
 
-class HomeBindings extends Bindings {
+class HomePageBindings extends Bindings {
   @override
   void dependencies() {
     // dataSources

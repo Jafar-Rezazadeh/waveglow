@@ -14,6 +14,7 @@ import 'shared/routing/routes.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+
   await hiveInitialization();
   await mainInjections();
 

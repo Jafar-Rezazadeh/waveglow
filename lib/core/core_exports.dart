@@ -6,6 +6,7 @@ export 'package:waveglow/core/theme/color_palette.dart';
 export 'package:waveglow/core/errors/failures.dart';
 
 // service
+export 'package:waveglow/core/services/main_service.dart';
 export 'package:waveglow/core/services/music_player_service.dart';
 export 'package:waveglow/core/services/tracks_list_service.dart';
 
