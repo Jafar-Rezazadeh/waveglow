@@ -57,6 +57,7 @@ dependencies:
   uuid: ^4.5.2
   shared_preferences: ^2.5.3
   super_hot_key: ^0.9.1
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

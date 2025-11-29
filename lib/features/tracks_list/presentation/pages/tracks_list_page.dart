@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_handy_utils/flutter_handy_utils.dart';
@@ -16,6 +18,10 @@ class TracksListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _tabsOfDirectories();
+  }
+
+  Widget _tabsOfDirectories() {
     return Obx(() {
       final currentPlayingMusicDirIndex = _controller.allDirectories.indexWhere(
         (e) => e.dirEntity.id == _musicPlayerService.currentPlaylist?.id,
@@ -28,14 +34,15 @@ class TracksListPage extends StatelessWidget {
             Column(
               children: [
                 _tabBar(),
-                Expanded(child: _tabView()),
+                _controller.allDirectories.isEmpty
+                    ? Expanded(child: _emptyInfo())
+                    : Expanded(child: _tabView()),
               ],
             ),
             if (_controller.isLoadingDir)
-              Container(
-                color: _colorPalette.backgroundLow.withValues(alpha: 0.2),
-                alignment: Alignment.center,
-                child: const CustomLoadingWidget(),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Center(child: const CustomLoadingWidget()),
               ),
           ],
         ),
@@ -43,35 +50,55 @@ class TracksListPage extends StatelessWidget {
     });
   }
 
+  Widget _emptyInfo() {
+    return Center(
+      child: Obx(
+        () => Row(
+          spacing: 16,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "لطفا پوشه مورد نظر را انتخاب کنید",
+              style: TextStyle(fontSize: AppSizes.fontSizeMedium),
+            ),
+            if (_controller.allDirectories.isEmpty) _addDirectoryBtn(filled: true),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _tabBar() {
-    return Row(
-      children: [
-        Obx(
-          () => TabBar(
+    return Obx(
+      () => Row(
+        children: [
+          TabBar(
             dividerColor: Colors.transparent,
             tabAlignment: TabAlignment.start,
-            unselectedLabelColor: _colorPalette.neutral500,
-            labelColor: _colorPalette.neutral100,
+            unselectedLabelColor: _colorPalette.neutral200,
+            labelColor: _colorPalette.neutral50,
             isScrollable: true,
             labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             tabs: _controller.allDirectories.map((e) => _tabItem(e)).toList(),
           ),
-        ),
-        IconButton(
-          onPressed: () => _controller.pickDirectory(),
-          icon: const Icon(FontAwesomeIcons.plus),
-          iconSize: 16,
-          style: ButtonStyle(
-            iconColor: WidgetStateColor.resolveWith((states) {
-              if (states.contains(WidgetState.hovered)) {
-                return _colorPalette.neutral100;
-              }
-              return _colorPalette.neutral500;
-            }),
-          ),
-        ),
-      ],
+          if (_controller.allDirectories.isNotEmpty) _addDirectoryBtn(),
+        ],
+      ),
     );
+  }
+
+  Widget _addDirectoryBtn({bool filled = false}) {
+    return filled
+        ? IconButton.filled(
+            onPressed: () => _controller.pickDirectory(),
+            iconSize: 16,
+            icon: const Icon(FontAwesomeIcons.plus),
+          )
+        : IconButton(
+            onPressed: () => _controller.pickDirectory(),
+            iconSize: 16,
+            icon: const Icon(FontAwesomeIcons.plus),
+          );
   }
 
   Widget _tabItem(TracksListDirectoryTemplate e) {

@@ -29,7 +29,9 @@ class FavoriteSongsPage extends StatelessWidget {
 
   Widget _listOfSongs() {
     return Obx(
-      () => ListView(children: _controller.allFavoriteSongs.map((e) => _audioItem(e)).toList()),
+      () => _controller.allFavoriteSongs.isEmpty
+          ? Center(child: Text("شما هنوز آهنگ های مورد علاقه تان را انتخاب نکرده اید."))
+          : ListView(children: _controller.allFavoriteSongs.map((e) => _audioItem(e)).toList()),
     );
   }
 
