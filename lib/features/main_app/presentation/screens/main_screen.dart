@@ -51,12 +51,16 @@ class _MainScreenState extends State<MainScreen> {
   Widget _pageView() {
     return Container(
       margin: const EdgeInsets.only(top: AppSizes.toolBarSize),
-      padding: const EdgeInsets.symmetric(horizontal: 106),
       child: PageView(
         controller: pageViewController,
         scrollDirection: Axis.vertical,
         physics: const NeverScrollableScrollPhysics(),
-        children: [const HomePage(), TracksListPage(), FavoriteSongsPage(), const Text("setting")],
+        children: [
+          const HomePage(),
+          Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: TracksListPage()),
+          Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: FavoriteSongsPage()),
+          const Text("setting"),
+        ],
       ),
     );
   }

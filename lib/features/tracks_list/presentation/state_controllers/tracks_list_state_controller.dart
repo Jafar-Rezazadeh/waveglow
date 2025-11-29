@@ -99,7 +99,7 @@ class TracksListStateController extends GetxController {
   }
 
   Future<void> playTrack(AudioItemEntity item) async {
-    if (_dirIsDifferentOrPlaylistIsEmpty(item.dirId)) {
+    if (_dirIsDifferentOrPlaylistDoesNOTContainAudio(item)) {
       await _openSelectedDirectoryAudios(item.dirId);
     }
 
@@ -111,10 +111,9 @@ class TracksListStateController extends GetxController {
     }
   }
 
-  bool _dirIsDifferentOrPlaylistIsEmpty(String dirId) {
-    return dirId != _musicPlayerService.currentPlaylist?.id ||
-        (_musicPlayerService.currentPlaylist == null ||
-            _musicPlayerService.currentPlaylist!.audios.isEmpty);
+  bool _dirIsDifferentOrPlaylistDoesNOTContainAudio(AudioItemEntity item) {
+    return item.dirId != _musicPlayerService.currentPlaylist?.id ||
+        _musicPlayerService.currentPlaylist?.audios.any((e) => e.path == item.path) == false;
   }
 
   Future<void> _openSelectedDirectoryAudios(String dirId) async {
