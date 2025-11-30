@@ -1,3 +1,4 @@
+import 'package:dyn_mouse_scroll/dyn_mouse_scroll.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/features/favorite_songs/presentation/state_controllers/favorite_songs_state_controller.dart';
@@ -31,7 +32,14 @@ class FavoriteSongsPage extends StatelessWidget {
     return Obx(
       () => _controller.allFavoriteSongs.isEmpty
           ? Center(child: Text("شما هنوز آهنگ های مورد علاقه تان را انتخاب نکرده اید."))
-          : ListView(children: _controller.allFavoriteSongs.map((e) => _audioItem(e)).toList()),
+          : DynMouseScroll(
+              durationMS: 500,
+              builder: (_, controller, physics) => ListView(
+                controller: controller,
+                physics: physics,
+                children: _controller.allFavoriteSongs.map((e) => _audioItem(e)).toList(),
+              ),
+            ),
     );
   }
 

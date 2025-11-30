@@ -58,6 +58,7 @@ dependencies:
   shared_preferences: ^2.5.3
   super_hot_key: ^0.9.1
   flutter_animate: ^4.5.2
+  dyn_mouse_scroll: ^1.0.7
 
 dev_dependencies:
   flutter_test:

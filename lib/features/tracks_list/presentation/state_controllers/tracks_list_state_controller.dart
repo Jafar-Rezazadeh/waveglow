@@ -28,7 +28,6 @@ class TracksListStateController extends GetxController {
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
-
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,

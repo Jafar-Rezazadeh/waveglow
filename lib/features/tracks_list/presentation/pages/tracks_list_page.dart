@@ -1,9 +1,10 @@
 import 'dart:ui';
 
 import 'package:context_menus/context_menus.dart';
+import 'package:dyn_mouse_scroll/dyn_mouse_scroll.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_handy_utils/flutter_handy_utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/shared/widgets/audio_list_item_widget.dart';
@@ -126,18 +127,23 @@ class TracksListPage extends StatelessWidget {
 
   Widget _tabViewItem(TracksListDirectoryTemplate dirTemplate) {
     return dirTemplate.isExists
-        ? ListView(
-            padding: const EdgeInsets.only(bottom: 16),
-            children: dirTemplate.dirEntity.audios
-                .map(
-                  (e) => AudioListItemWidget(
-                    item: e,
-                    onTap: () => _controller.playTrack(e),
-                    onFavoriteTap: () => _controller.toggleAudioFavorite(e),
-                  ),
-                )
-                .toList()
-                .withGapInBetween(10),
+        ? DynMouseScroll(
+            durationMS: 500,
+            builder: (_, controller, physics) => ListView.separated(
+              controller: controller,
+              physics: physics,
+              itemCount: dirTemplate.dirEntity.audios.length,
+              padding: const EdgeInsets.only(bottom: 16),
+              separatorBuilder: (context, index) => Gap(8),
+              itemBuilder: (context, index) {
+                final item = dirTemplate.dirEntity.audios[index];
+                return AudioListItemWidget(
+                  item: item,
+                  onTap: () => _controller.playTrack(item),
+                  onFavoriteTap: () => _controller.toggleAudioFavorite(item),
+                );
+              },
+            ),
           )
         : const Center(
             child: Text("مسیر پوشه تغییر کرده یا حذف شده است.", textDirection: TextDirection.rtl),
