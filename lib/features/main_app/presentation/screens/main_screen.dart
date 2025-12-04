@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/favorite_songs/presentation/pages/favorite_songs_page.dart';
-import 'package:waveglow/features/home/presentation/pages/home_page.dart';
+import 'package:waveglow/features/visualizer/presentation/pages/visualizer_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
 import 'package:waveglow/features/music_player/presentation/widgets/music_player_widget.dart';
 import 'package:waveglow/features/tracks_list/presentation/pages/tracks_list_page.dart';
-import 'package:waveglow/services/home_audio_bands_service.dart';
+import 'package:waveglow/core/services/visualizer_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         scrollDirection: Axis.vertical,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          const HomePage(),
+          const VisualizerPage(),
           Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: TracksListPage()),
           Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: FavoriteSongsPage()),
           const Text("setting"),
@@ -86,10 +86,10 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _toggleAudioVisualization(int index) async {
     if (index == 0) {
-      await Get.find<HomeAudioBandsService>().start();
+      await Get.find<VisualizerService>().start();
     }
     if (index != 0) {
-      await Get.find<HomeAudioBandsService>().stop();
+      await Get.find<VisualizerService>().stop();
     }
   }
 }
