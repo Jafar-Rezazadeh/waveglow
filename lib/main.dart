@@ -53,7 +53,7 @@ class WaveGlowApp extends StatelessWidget {
           initialRoute: mainScreenRoute,
           debugShowCheckedModeBanner: false,
           getPages: getXRoutes,
-          theme: CustomTheme.neonTheme,
+          theme: CustomTheme().neonTheme(),
         ),
       ),
     );

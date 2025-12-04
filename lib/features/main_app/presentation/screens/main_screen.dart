@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/favorite_songs/presentation/pages/favorite_songs_page.dart';
+import 'package:waveglow/features/settings/presentation/pages/settings_page.dart';
 import 'package:waveglow/features/visualizer/presentation/pages/visualizer_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
@@ -57,12 +58,16 @@ class _MainScreenState extends State<MainScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: [
           const VisualizerPage(),
-          Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: TracksListPage()),
-          Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: FavoriteSongsPage()),
-          const Text("setting"),
+          _pageLayout(TracksListPage()),
+          _pageLayout(FavoriteSongsPage()),
+          _pageLayout(SettingsPage()),
         ],
       ),
     );
+  }
+
+  Widget _pageLayout(Widget child) {
+    return Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: child);
   }
 
   Widget _navigator() {
