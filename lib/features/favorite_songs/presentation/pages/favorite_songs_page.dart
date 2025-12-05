@@ -1,5 +1,6 @@
 import 'package:dyn_mouse_scroll/dyn_mouse_scroll.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/features/favorite_songs/presentation/state_controllers/favorite_songs_state_controller.dart';
 import 'package:waveglow/shared/entities/audio_item_entity.dart';
@@ -34,10 +35,12 @@ class FavoriteSongsPage extends StatelessWidget {
           ? Center(child: Text("شما هنوز آهنگ های مورد علاقه تان را انتخاب نکرده اید."))
           : DynMouseScroll(
               durationMS: 500,
-              builder: (_, controller, physics) => ListView(
+              builder: (_, controller, physics) => ListView.separated(
                 controller: controller,
                 physics: physics,
-                children: _controller.allFavoriteSongs.map((e) => _audioItem(e)).toList(),
+                itemCount: _controller.allFavoriteSongs.length,
+                itemBuilder: (context, index) => _audioItem(_controller.allFavoriteSongs[index]),
+                separatorBuilder: (context, index) => Gap(8),
               ),
             ),
     );

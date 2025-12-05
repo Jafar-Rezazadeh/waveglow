@@ -4,15 +4,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/constants/app_sizes.dart';
 import 'package:waveglow/core/constants/svgs.dart';
-import 'package:waveglow/core/theme/color_palette.dart';
+import 'package:waveglow/core/utils/extensions.dart';
 
 class MainTitleBarWidget extends StatelessWidget {
-  MainTitleBarWidget({super.key});
-
-  late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+  const MainTitleBarWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    context.theme;
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.only(top: 2),
@@ -40,14 +39,8 @@ class MainTitleBarWidget extends StatelessWidget {
           showHoverColor: true,
           onTap: () => appWindow.close(),
         ),
-        _actionButtonStyle(
-          svgPath: AssetSvgs.maximize,
-          onTap: () => appWindow.maximizeOrRestore(),
-        ),
-        _actionButtonStyle(
-          svgPath: AssetSvgs.minimize,
-          onTap: () => appWindow.minimize(),
-        ),
+        _actionButtonStyle(svgPath: AssetSvgs.maximize, onTap: () => appWindow.maximizeOrRestore()),
+        _actionButtonStyle(svgPath: AssetSvgs.minimize, onTap: () => appWindow.minimize()),
       ],
     );
   }
@@ -61,21 +54,28 @@ class MainTitleBarWidget extends StatelessWidget {
       width: 56,
       child: ElevatedButton(
         onPressed: onTap,
+
         style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(_colorPalette.background),
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
           alignment: Alignment.center,
+          elevation: WidgetStatePropertyAll(0),
           padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-          overlayColor: WidgetStateProperty.resolveWith(
-            (states) {
-              if (states.contains(WidgetState.hovered) && showHoverColor) {
-                return _colorPalette.danger;
-              }
-              return null;
-            },
-          ),
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.hovered) && showHoverColor) {
+              return Get.context?.palette.danger;
+            }
+            return null;
+          }),
           shape: const WidgetStatePropertyAll(LinearBorder()),
         ),
-        child: SvgPicture.asset(svgPath),
+        child: SvgPicture.asset(
+          svgPath,
+          colorFilter: ColorFilter.mode(
+            (Get.isDarkMode ? Get.context?.palette.neutral200 : Get.context?.palette.neutral700) ??
+                Colors.grey,
+            BlendMode.srcIn,
+          ),
+        ),
       ),
     );
   }

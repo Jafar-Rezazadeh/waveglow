@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/shared/widgets/custom_drop_down_menu.dart';
 
+// TODO: implement storing the settings
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -21,8 +23,19 @@ class SettingsPage extends StatelessWidget {
     return CustomDropDownMenu(
       label: "theme".capitalizeFirst,
       hintText: "selectTheme",
-      items: [DropdownMenuEntry(value: "value", label: "label")],
-      onSelected: (value) {},
+      initialSelect: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      items: [
+        DropdownMenuEntry(value: ThemeMode.dark, label: ThemeMode.dark.name.capitalizeFirst ?? ""),
+        DropdownMenuEntry(
+          value: ThemeMode.light,
+          label: ThemeMode.light.name.capitalizeFirst ?? "",
+        ),
+      ],
+      onSelected: (value) {
+        if (value != null) {
+          Get.changeThemeMode(value);
+        }
+      },
     );
   }
 

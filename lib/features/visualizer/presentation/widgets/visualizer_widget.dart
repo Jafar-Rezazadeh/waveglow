@@ -17,25 +17,38 @@ class VisualizerWidget extends StatelessWidget {
     return Obx(
       () => CustomPaint(
         painter: VisualizerPainter(
-          colorPalette: _colorPalette,
           perceptualBands: _controller.smoothedPerceptualBands,
           circleRadius: 110,
+          particleColor: Get.isDarkMode ? _colorPalette.neutral50 : _colorPalette.neutral700,
+          waveColor: _waveColor(),
+          shadowColor: Get.isDarkMode ? _colorPalette.surface : _colorPalette.neutral700,
+          circleColor: _colorPalette.background,
+          circleBorderColor: isAlbumArtEmptyAndLightMode(context)
+              ? _colorPalette.neutral400
+              : _waveColor(),
         ),
-        child: _musicPlayer.currentTrack?.albumArt != null
-            ? CircleAvatar(
-                radius: 106,
-                backgroundColor: _colorPalette.background,
-                child: ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(1000),
-                  child: Image.memory(
-                    _musicPlayer.currentTrack!.albumArt!,
-                    fit: BoxFit.cover,
-                    height: 215,
-                    width: 215,
-                  ),
-                ),
-              )
-            : null,
+        child: _musicPlayer.currentTrack?.albumArt != null ? _musicArt() : null,
+      ),
+    );
+  }
+
+  bool isAlbumArtEmptyAndLightMode(BuildContext context) =>
+      _musicPlayer.currentTrack?.albumArt == null && !context.isDarkMode;
+
+  Color _waveColor() => Get.isDarkMode ? _colorPalette.neutral50 : _colorPalette.neutral700;
+
+  Widget _musicArt() {
+    return CircleAvatar(
+      radius: 106,
+      backgroundColor: _colorPalette.background,
+      child: ClipRRect(
+        borderRadius: BorderRadiusGeometry.circular(1000),
+        child: Image.memory(
+          _musicPlayer.currentTrack!.albumArt!,
+          fit: BoxFit.cover,
+          height: 215,
+          width: 215,
+        ),
       ),
     );
   }
@@ -65,14 +78,22 @@ class VisualizerPainter extends CustomPainter {
   final particleCount = 15;
 
   // Particle class
-  final AppColorPalette colorPalette;
   final VisualizerFrequencyBandsEntity perceptualBands;
   final double circleRadius;
+  final Color particleColor;
+  final Color waveColor;
+  final Color shadowColor;
+  final Color circleColor;
+  final Color circleBorderColor;
 
   VisualizerPainter({
     super.repaint,
-    required this.colorPalette,
     required this.perceptualBands,
+    required this.particleColor,
+    required this.waveColor,
+    required this.shadowColor,
+    required this.circleColor,
+    required this.circleBorderColor,
     this.circleRadius = 110,
   });
 
@@ -103,7 +124,7 @@ class VisualizerPainter extends CustomPainter {
           _Particle(
             position: center,
             velocity: Offset(cos(angle), sin(angle)) * speed,
-            color: colorPalette.neutral50,
+            color: particleColor,
             life: 3,
             size: size,
           ),
@@ -145,7 +166,7 @@ class VisualizerPainter extends CustomPainter {
 
     final path = Path();
     final paint = Paint()
-      ..color = colorPalette.neutral50
+      ..color = waveColor
       ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -218,12 +239,12 @@ class VisualizerPainter extends CustomPainter {
     // gloving shadow
     final loudnessScaled = (perceptualBands.loudness * 1000).clamp(0, 255).toInt();
 
-    final shadowColor = colorPalette.surface.withAlpha(loudnessScaled);
+    final scaledShadowColor = shadowColor.withAlpha(loudnessScaled);
 
     canvas.save();
     canvas.translate(0, -loudnessScaled.toDouble() / 4);
-    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
-    canvas.drawShadow(path, shadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
+    canvas.drawShadow(path, scaledShadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
+    canvas.drawShadow(path, scaledShadowColor, loudnessScaled.toDouble().clamp(0, 50), false);
     canvas.restore();
 
     canvas.drawPath(path, paint);
@@ -232,16 +253,16 @@ class VisualizerPainter extends CustomPainter {
   void _baseCircle(Size size, Canvas canvas, double scaledRadius) {
     final outerBorderCirclePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = colorPalette.neutral50
+      ..color = circleBorderColor
       ..strokeWidth = 5;
 
     final innerCirclePaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = colorPalette.background
+      ..color = circleColor
       ..strokeWidth = 2;
 
     final shadowPaint = Paint()
-      ..color = colorPalette.neutral50.withValues(alpha: 0.2)
+      ..color = circleBorderColor
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
     canvas.drawCircle(size.center(Offset.zero), scaledRadius + 2, shadowPaint);

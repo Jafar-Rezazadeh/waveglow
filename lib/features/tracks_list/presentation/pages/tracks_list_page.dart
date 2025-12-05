@@ -76,8 +76,10 @@ class TracksListPage extends StatelessWidget {
           TabBar(
             dividerColor: Colors.transparent,
             tabAlignment: TabAlignment.start,
-            unselectedLabelColor: _colorPalette.neutral200,
-            labelColor: _colorPalette.neutral50,
+            unselectedLabelColor: Get.isDarkMode
+                ? _colorPalette.neutral300
+                : _colorPalette.neutral400,
+            labelColor: Get.isDarkMode ? _colorPalette.neutral50 : _colorPalette.neutral900,
             isScrollable: true,
             labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             tabs: _controller.allDirectories.map((e) => _tabItem(e)).toList(),
@@ -128,7 +130,7 @@ class TracksListPage extends StatelessWidget {
   Widget _tabViewItem(TracksListDirectoryTemplate dirTemplate) {
     return dirTemplate.isExists
         ? DynMouseScroll(
-            durationMS: 500,
+            durationMS: 200,
             builder: (_, controller, physics) => ListView.separated(
               controller: controller,
               physics: physics,

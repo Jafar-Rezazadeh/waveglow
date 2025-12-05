@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:super_hot_key/super_hot_key.dart';
@@ -15,7 +16,12 @@ class MainService extends GetxService {
   @override
   void onInit() {
     super.onInit();
+    _setThemeModel();
     _listenKeyboardEvents();
+  }
+
+  void _setThemeModel() {
+    Get.changeThemeMode(ThemeMode.dark);
   }
 
   void _listenKeyboardEvents() {

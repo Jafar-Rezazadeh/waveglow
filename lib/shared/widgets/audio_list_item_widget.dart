@@ -53,10 +53,14 @@ class AudioListItemWidget extends StatelessWidget {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
       gradient: _isCurrentlyPlaying
-          ? LinearGradient(colors: [_colorPalette.primary900, _colorPalette.primary800])
-          : null,
+          ? _isPlayingColor()
+          : LinearGradient(colors: [_colorPalette.backgroundLow, _colorPalette.backgroundLow]),
     );
   }
+
+  LinearGradient _isPlayingColor() => Get.isDarkMode
+      ? LinearGradient(colors: [_colorPalette.primary900, _colorPalette.primary800])
+      : LinearGradient(colors: [_colorPalette.primary600, _colorPalette.primary500]);
 
   Widget _favoriteToggleButton() {
     return IconButton(
@@ -64,7 +68,11 @@ class AudioListItemWidget extends StatelessWidget {
       icon: SvgPicture.asset(
         AssetSvgs.heart,
         colorFilter: ColorFilter.mode(
-          item.isFavorite ? _colorPalette.hotMagenta : _colorPalette.neutral100,
+          item.isFavorite
+              ? _colorPalette.hotMagenta
+              : _isCurrentlyPlaying
+              ? _colorPalette.neutral100
+              : _colorPalette.neutral400,
           BlendMode.srcIn,
         ),
       ),
@@ -80,7 +88,10 @@ class AudioListItemWidget extends StatelessWidget {
       width: 39,
       height: 39,
       child: item.albumArt == null
-          ? Container(color: _colorPalette.neutral600, child: Icon(Icons.music_note_outlined))
+          ? Container(
+              color: Get.isDarkMode ? _colorPalette.neutral700 : _colorPalette.neutral200,
+              child: Icon(Icons.music_note_outlined),
+            )
           : Image.memory(item.albumArt!, fit: BoxFit.cover),
     );
   }
@@ -93,12 +104,18 @@ class AudioListItemWidget extends StatelessWidget {
       children: [
         Text(
           item.trackName?.ellipsSize(maxLength: 50) ?? "",
-          style: TextStyle(fontSize: AppSizes.fontSizeMedium),
+          style: TextStyle(
+            fontSize: AppSizes.fontSizeMedium,
+            color: _isCurrentlyPlaying ? _colorPalette.neutral100 : null,
+          ),
         ),
         if (artistNames.isNotEmpty)
           Text(
             artistNames,
-            style: TextStyle(fontSize: AppSizes.fontSizeSmall, color: _colorPalette.neutral300),
+            style: TextStyle(
+              fontSize: AppSizes.fontSizeSmall,
+              color: _isCurrentlyPlaying ? _colorPalette.neutral400 : null,
+            ),
           ),
       ],
     );
@@ -108,6 +125,7 @@ class AudioListItemWidget extends StatelessWidget {
     final duration = Duration(seconds: item.durationInSeconds ?? 0);
     return Text(
       "${duration.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration.inSeconds.remainder(60).toString().padLeft(2, "0")}",
+      style: TextStyle(color: _isCurrentlyPlaying ? _colorPalette.neutral100 : null),
     );
   }
 }

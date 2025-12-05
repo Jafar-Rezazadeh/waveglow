@@ -9,8 +9,6 @@ import 'package:waveglow/core/core_exports.dart';
 
 class MusicPlayerWidget extends StatelessWidget {
   MusicPlayerWidget({super.key});
-
-  late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _musicPlayerService = Get.find<MusicPlayerService>();
 
   @override
@@ -20,8 +18,12 @@ class MusicPlayerWidget extends StatelessWidget {
       width: double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: _colorPalette.background,
-        border: Border(top: BorderSide(color: _colorPalette.neutral700)),
+        color: context.palette.backgroundLow,
+        border: Border(
+          top: BorderSide(
+            color: context.isDarkMode ? context.palette.neutral700 : context.palette.neutral200,
+          ),
+        ),
       ),
       child: _body(),
     );
@@ -69,7 +71,7 @@ class MusicPlayerWidget extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: _colorPalette.neutral600,
+          color: Get.isDarkMode ? Get.context?.palette.neutral600 : Get.context?.palette.neutral200,
           borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
         ),
         child: _musicPlayerService.currentTrack?.albumArt != null
@@ -102,7 +104,9 @@ class MusicPlayerWidget extends StatelessWidget {
               Text(
                 artistsNames,
                 style: TextStyle(
-                  color: _colorPalette.neutral400,
+                  color: Get.isDarkMode
+                      ? Get.context?.palette.neutral400
+                      : Get.context?.palette.neutral600,
                   fontSize: AppSizes.fontSizeSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -128,18 +132,26 @@ class MusicPlayerWidget extends StatelessWidget {
         onPressed: () async => await _musicPlayerService.toggleShuffle(),
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
-            _musicPlayerService.isShuffle ? _colorPalette.neutral600 : null,
+            _musicPlayerService.isShuffle ? Get.context?.palette.neutral600 : null,
           ),
         ),
-        icon: SvgPicture.asset(AssetSvgs.random),
+        icon: SvgPicture.asset(AssetSvgs.random, colorFilter: _svgIconColorFilter()),
       ),
+    );
+  }
+
+  ColorFilter _svgIconColorFilter() {
+    return ColorFilter.mode(
+      (Get.isDarkMode ? Get.context?.palette.neutral200 : Get.context?.palette.neutral800) ??
+          Colors.grey,
+      BlendMode.srcIn,
     );
   }
 
   Widget _previousBtn() {
     return IconButton(
       onPressed: () async => await _musicPlayerService.goPrevious(),
-      icon: SvgPicture.asset(AssetSvgs.previous),
+      icon: SvgPicture.asset(AssetSvgs.previous, colorFilter: _svgIconColorFilter()),
     );
   }
 
@@ -148,8 +160,8 @@ class MusicPlayerWidget extends StatelessWidget {
       () => IconButton(
         onPressed: () => _musicPlayerService.playOrPause(),
         icon: _musicPlayerService.isPlaying
-            ? SvgPicture.asset(AssetSvgs.pause)
-            : SvgPicture.asset(AssetSvgs.play),
+            ? SvgPicture.asset(AssetSvgs.pause, colorFilter: _svgIconColorFilter())
+            : SvgPicture.asset(AssetSvgs.play, colorFilter: _svgIconColorFilter()),
       ),
     );
   }
@@ -157,7 +169,7 @@ class MusicPlayerWidget extends StatelessWidget {
   Widget _nextBtn() {
     return IconButton(
       onPressed: () => _musicPlayerService.goNext(),
-      icon: SvgPicture.asset(AssetSvgs.next),
+      icon: SvgPicture.asset(AssetSvgs.next, colorFilter: _svgIconColorFilter()),
     );
   }
 
@@ -172,7 +184,7 @@ class MusicPlayerWidget extends StatelessWidget {
           PlaylistMode.loop => AssetSvgs.repeatAll,
         };
 
-        return SvgPicture.asset(path);
+        return SvgPicture.asset(path, colorFilter: _svgIconColorFilter());
       }),
     );
   }
@@ -194,7 +206,7 @@ class MusicPlayerWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(AssetSvgs.volumeHigh),
+          SvgPicture.asset(AssetSvgs.volumeHigh, colorFilter: _svgIconColorFilter()),
           SizedBox(
             width: 156,
             child: Obx(

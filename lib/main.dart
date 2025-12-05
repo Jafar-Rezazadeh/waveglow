@@ -34,27 +34,34 @@ class WaveGlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      child: ContextMenuOverlay(
-        buttonStyle: ContextMenuButtonStyle(
-          fgColor: AppColorPalette().neutral50,
-          hoverFgColor: AppColorPalette().neutral50,
-          hoverBgColor: AppColorPalette().neutral700,
-        ),
-        cardBuilder: (context, children) => Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
-            color: AppColorPalette().backgroundLow,
-          ),
-          clipBehavior: Clip.antiAlias,
-          width: 200,
-          child: Column(children: children),
-        ),
-        child: GetMaterialApp(
-          initialRoute: mainScreenRoute,
-          debugShowCheckedModeBanner: false,
-          getPages: getXRoutes,
-          theme: CustomTheme().neonTheme(),
-        ),
+      child: GetMaterialApp(
+        initialRoute: mainScreenRoute,
+
+        debugShowCheckedModeBanner: false,
+        getPages: getXRoutes,
+        theme: CustomTheme().lightTheme(),
+        darkTheme: CustomTheme().darkTheme(),
+
+        builder: (context, child) {
+          final palette = context.theme.extension<AppColorPalette>()!;
+          return ContextMenuOverlay(
+            buttonStyle: ContextMenuButtonStyle(
+              fgColor: palette.neutral50,
+              hoverFgColor: palette.neutral50,
+              hoverBgColor: palette.neutral700,
+            ),
+            cardBuilder: (context, children) => Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
+                color: palette.backgroundLow,
+              ),
+              clipBehavior: Clip.antiAlias,
+              width: 200,
+              child: Column(children: children),
+            ),
+            child: child ?? Container(),
+          );
+        },
       ),
     );
   }
