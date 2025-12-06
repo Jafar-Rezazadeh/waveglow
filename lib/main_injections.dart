@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/core/services/settings_service.dart';
 import 'package:waveglow/features/music_player/music_player_injection.dart';
+import 'package:waveglow/features/settings/settings_service_injection.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_injections.dart';
 
 Future<void> mainInjections() async {
@@ -10,9 +12,10 @@ Future<void> mainInjections() async {
 
   await initTracksListInjections();
   final musicPlayerService = await initMusicPlayerInjections();
-  _initMainService(musicPlayerService);
+  final settingsService = initSettingsInjection();
+  _initMainService(musicPlayerService, settingsService);
 }
 
-void _initMainService(MusicPlayerService musicPlayerService) {
-  Get.put(MainService(musicPlayerService: musicPlayerService));
+void _initMainService(MusicPlayerService musicPlayerService, SettingsService settingsService) {
+  Get.put(MainService(musicPlayerService: musicPlayerService, settingsService: settingsService));
 }

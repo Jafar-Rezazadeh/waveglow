@@ -1,17 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:logger/web.dart';
 import 'package:super_hot_key/super_hot_key.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/core/services/settings_service.dart';
 
 class MainService extends GetxService {
   final MusicPlayerService _musicPlayerService;
+  final SettingsService _settingsService;
 
   HotKey? _nextMediaHotKey;
   HotKey? _playOrPauseMediaHotKey;
   HotKey? _previousMediaHotKey;
-  MainService({required MusicPlayerService musicPlayerService})
-    : _musicPlayerService = musicPlayerService;
+  MainService({
+    required MusicPlayerService musicPlayerService,
+    required SettingsService settingsService,
+  }) : _musicPlayerService = musicPlayerService,
+       _settingsService = settingsService;
 
   @override
   void onInit() {
@@ -20,8 +25,13 @@ class MainService extends GetxService {
     _listenKeyboardEvents();
   }
 
-  void _setThemeModel() {
-    Get.changeThemeMode(ThemeMode.dark);
+  Future<void> _setThemeModel() async {
+    final result = await _settingsService.getSavedData();
+
+    result.fold(
+      (failure) => Logger().e(failure.message),
+      (settings) => Get.changeThemeMode(settings.themeMode),
+    );
   }
 
   void _listenKeyboardEvents() {

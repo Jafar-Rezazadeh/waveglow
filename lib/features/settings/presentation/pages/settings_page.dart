@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:waveglow/features/settings/settings_export.dart';
 import 'package:waveglow/shared/widgets/custom_drop_down_menu.dart';
 
-// TODO: implement storing the settings
-
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  SettingsPage({super.key});
+  late final _controller = Get.find<SettingsStateController>();
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +20,27 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _themeSelector() {
-    return CustomDropDownMenu(
-      label: "theme".capitalizeFirst,
-      hintText: "selectTheme",
-      initialSelect: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      items: [
-        DropdownMenuEntry(value: ThemeMode.dark, label: ThemeMode.dark.name.capitalizeFirst ?? ""),
-        DropdownMenuEntry(
-          value: ThemeMode.light,
-          label: ThemeMode.light.name.capitalizeFirst ?? "",
-        ),
-      ],
-      onSelected: (value) {
-        if (value != null) {
-          Get.changeThemeMode(value);
-        }
-      },
+    return Obx(
+      () => CustomDropDownMenu(
+        label: "theme".capitalizeFirst,
+        hintText: "selectTheme",
+        initialSelect: _controller.settings?.themeMode,
+        items: [
+          DropdownMenuEntry(
+            value: ThemeMode.dark,
+            label: ThemeMode.dark.name.capitalizeFirst ?? "",
+          ),
+          DropdownMenuEntry(
+            value: ThemeMode.light,
+            label: ThemeMode.light.name.capitalizeFirst ?? "",
+          ),
+        ],
+        onSelected: (value) {
+          if (value != null) {
+            _controller.changeTheme(value);
+          }
+        },
+      ),
     );
   }
 
