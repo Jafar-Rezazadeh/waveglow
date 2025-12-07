@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/settings/domain/repositories/settings_repository.dart';
 
@@ -14,7 +15,8 @@ class SettingsSaveUC implements UseCase<void, SettingsSaveParams> {
 }
 
 class SettingsSaveParams {
-  final ThemeMode themeMode;
+  final ThemeMode? themeMode;
+  final LanguageEnum? language;
 
-  SettingsSaveParams({required this.themeMode});
+  SettingsSaveParams({required this.themeMode, required this.language});
 }

@@ -4,11 +4,12 @@ import 'package:logger/web.dart';
 import 'package:super_hot_key/super_hot_key.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/services/settings_service.dart';
+import 'package:waveglow/features/settings/domain/entities/settings_entity.dart';
 
 class MainService extends GetxService {
   final MusicPlayerService _musicPlayerService;
   final SettingsService _settingsService;
-
+  final _settings = Rx<SettingsEntity?>(null);
   HotKey? _nextMediaHotKey;
   HotKey? _playOrPauseMediaHotKey;
   HotKey? _previousMediaHotKey;
@@ -18,19 +19,27 @@ class MainService extends GetxService {
   }) : _musicPlayerService = musicPlayerService,
        _settingsService = settingsService;
 
+  SettingsEntity? get settings => _settings.value;
+
   @override
   void onInit() {
     super.onInit();
-    _setThemeModel();
+    _setAppSettings();
     _listenKeyboardEvents();
   }
 
-  Future<void> _setThemeModel() async {
+  Future<void> _setAppSettings() async {
     final result = await _settingsService.getSavedData();
 
     result.fold(
-      (failure) => Logger().e(failure.message),
-      (settings) => Get.changeThemeMode(settings.themeMode),
+      (failure) {
+        Logger().e(failure.message);
+      },
+      (settings) {
+        Get.changeThemeMode(settings.themeMode);
+        Get.updateLocale(settings.languageEnum.locale);
+        _settings.value = settings;
+      },
     );
   }
 

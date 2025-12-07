@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/services/settings_service.dart';
 import 'package:waveglow/features/settings/settings_export.dart';
@@ -34,7 +35,7 @@ class SettingsStateController extends GetxController {
   }
 
   Future<void> changeTheme(ThemeMode themeMode) async {
-    final params = SettingsSaveParams(themeMode: themeMode);
+    final params = SettingsSaveParams(themeMode: themeMode, language: null);
 
     final result = await _settingsService.saveSettings(params);
 
@@ -47,5 +48,23 @@ class SettingsStateController extends GetxController {
         Get.changeThemeMode(themeMode);
       },
     );
+  }
+
+  Future<void> changeLocale(LanguageEnum? language) async {
+    if (language != null) {
+      final result = await _settingsService.saveSettings(
+        SettingsSaveParams(themeMode: null, language: language),
+      );
+
+      result.fold(
+        (failure) {
+          _customDialogs.showFailure(failure);
+        },
+        (_) {
+          getSavedData();
+          Get.updateLocale(language.locale);
+        },
+      );
+    }
   }
 }

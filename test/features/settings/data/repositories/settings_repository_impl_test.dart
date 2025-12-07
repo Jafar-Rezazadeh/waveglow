@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/settings/settings_export.dart';
 
@@ -16,7 +17,10 @@ void main() {
   late _MockSettingsDataSource mockSettingsDataSource;
   late _MockFailureFactory mockFailureFactory;
   late SettingsRepositoryImpl repositoryImpl;
-  final fakeSettingsModel = SettingsModel(themeMode: ThemeMode.light);
+  final fakeSettingsModel = SettingsModel(
+    themeMode: ThemeMode.light,
+    languageEnum: LanguageEnum.english,
+  );
 
   setUpAll(() {
     registerFallbackValue(_FakeSettingsSaveParams());

@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waveglow/core/core_exports.dart';
@@ -11,6 +10,8 @@ class _MockSettingsSaveUC extends Mock implements SettingsSaveUC {}
 
 class _FakeFailure extends Fake implements Failure {}
 
+class _FakeSettingsSaveParams extends Fake implements SettingsSaveParams {}
+
 void main() {
   late _MockSettingsGetSavedDataUC mockSettingsGetSavedDataUC;
   late _MockSettingsSaveUC mockSettingsSaveUC;
@@ -18,7 +19,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(NoParams());
-    registerFallbackValue(SettingsSaveParams(themeMode: ThemeMode.dark));
+    registerFallbackValue(_FakeSettingsSaveParams());
   });
 
   setUp(() {
@@ -52,7 +53,7 @@ void main() {
       when(() => mockSettingsSaveUC.call(any())).thenAnswer((_) async => right(null));
 
       //act
-      final result = await serviceImpl.saveSettings(SettingsSaveParams(themeMode: ThemeMode.dark));
+      final result = await serviceImpl.saveSettings(_FakeSettingsSaveParams());
 
       //assert
       verify(() => mockSettingsSaveUC.call(any())).called(1);

@@ -12,19 +12,22 @@ class MainTitleBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.theme;
-    return Container(
-      color: Colors.transparent,
-      padding: const EdgeInsets.only(top: 2),
-      alignment: Alignment.center,
-      height: AppSizes.toolBarSize,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(child: MoveWindow()),
-          _titleActionButtons(),
-        ],
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.only(top: 2),
+        alignment: Alignment.center,
+        height: AppSizes.toolBarSize,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(child: MoveWindow()),
+            _titleActionButtons(),
+          ],
+        ),
       ),
     );
   }

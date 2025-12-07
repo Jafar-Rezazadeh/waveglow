@@ -13,20 +13,21 @@ class FavoriteSongsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      spacing: 16,
-      children: [
-        _header(),
-        Expanded(child: _listOfSongs()),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        spacing: 16,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _header(),
+          Expanded(child: _listOfSongs()),
+        ],
+      ),
     );
   }
 
   Widget _header() {
-    return Align(
-      alignment: AlignmentGeometry.centerLeft,
-      child: Text("علاقمندی ها", style: TextStyle(fontWeight: FontWeight.bold)),
-    );
+    return Text("favorites".tr, style: TextStyle(fontWeight: FontWeight.bold));
   }
 
   Widget _listOfSongs() {

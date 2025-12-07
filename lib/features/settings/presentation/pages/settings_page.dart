@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/features/settings/settings_export.dart';
 import 'package:waveglow/shared/widgets/custom_drop_down_menu.dart';
 
@@ -22,8 +23,8 @@ class SettingsPage extends StatelessWidget {
   Widget _themeSelector() {
     return Obx(
       () => CustomDropDownMenu(
-        label: "theme".capitalizeFirst,
-        hintText: "selectTheme",
+        label: "theme".tr,
+        hintText: "selectTheme".tr,
         initialSelect: _controller.settings?.themeMode,
         items: [
           DropdownMenuEntry(
@@ -46,10 +47,13 @@ class SettingsPage extends StatelessWidget {
 
   Widget _languageSelector() {
     return CustomDropDownMenu(
-      label: "language".capitalizeFirst,
-      hintText: "selectLanguage",
-      items: [DropdownMenuEntry(value: "value", label: "label")],
-      onSelected: (value) {},
+      label: "language".tr,
+      hintText: "selectLanguage".tr,
+      initialSelect: _controller.settings?.languageEnum,
+      items: LanguageEnum.values
+          .map((e) => DropdownMenuEntry(value: e, label: e.name.capitalizeFirst ?? e.name))
+          .toList(),
+      onSelected: (value) => _controller.changeLocale(value),
     );
   }
 }

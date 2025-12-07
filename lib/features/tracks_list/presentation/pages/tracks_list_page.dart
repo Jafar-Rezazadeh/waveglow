@@ -19,7 +19,7 @@ class TracksListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _tabsOfDirectories();
+    return Padding(padding: const EdgeInsets.only(top: 16), child: _tabsOfDirectories());
   }
 
   Widget _tabsOfDirectories() {
@@ -108,7 +108,7 @@ class TracksListPage extends StatelessWidget {
     return ContextMenuRegion(
       contextMenu: GenericContextMenu(
         buttonConfigs: [
-          ContextMenuButtonConfig('حذف', onPressed: () => _controller.removeDirectory(e)),
+          ContextMenuButtonConfig('delete'.tr, onPressed: () => _controller.removeDirectory(e)),
         ],
       ),
       child: Text(e.dirEntity.directoryName),

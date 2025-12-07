@@ -13,19 +13,22 @@ class MusicPlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: context.palette.backgroundLow,
-        border: Border(
-          top: BorderSide(
-            color: context.isDarkMode ? context.palette.neutral700 : context.palette.neutral200,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        width: double.infinity,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: context.palette.backgroundLow,
+          border: Border(
+            top: BorderSide(
+              color: context.isDarkMode ? context.palette.neutral700 : context.palette.neutral200,
+            ),
           ),
         ),
+        child: _body(),
       ),
-      child: _body(),
     );
   }
 
