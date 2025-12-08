@@ -11,6 +11,8 @@ class AppTranslations extends Translations {
       "language": "زبان",
       "selectLanguage": "انتخاب زبان",
       "selectTheme": "انتخاب تم",
+      "pleaseSelectFolder": "لطفا پوشه مورد نظر را انتخاب کنید",
+      "favoriteSongsNotSelected": "شما هنوز آهنگ های مورد علاقه تان را انتخاب نکرده اید.",
     },
     LanguageEnum.english.value: {
       "delete": "Delete",
@@ -19,6 +21,8 @@ class AppTranslations extends Translations {
       "language": "Language",
       "selectLanguage": "Select Language",
       "selectTheme": "Select Theme",
+      "pleaseSelectFolder": "Please Selected a Folder",
+      "favoriteSongsNotSelected": "You haven't chosen your favorite songs yet.",
     },
   };
 }

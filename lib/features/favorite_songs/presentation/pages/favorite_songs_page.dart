@@ -33,7 +33,7 @@ class FavoriteSongsPage extends StatelessWidget {
   Widget _listOfSongs() {
     return Obx(
       () => _controller.allFavoriteSongs.isEmpty
-          ? Center(child: Text("شما هنوز آهنگ های مورد علاقه تان را انتخاب نکرده اید."))
+          ? Center(child: Text("favoriteSongsNotSelected".tr))
           : DynMouseScroll(
               durationMS: 500,
               builder: (_, controller, physics) => ListView.separated(

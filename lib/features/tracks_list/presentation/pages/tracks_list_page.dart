@@ -58,11 +58,8 @@ class TracksListPage extends StatelessWidget {
           spacing: 16,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "لطفا پوشه مورد نظر را انتخاب کنید",
-              style: TextStyle(fontSize: AppSizes.fontSizeMedium),
-            ),
             if (_controller.allDirectories.isEmpty) _addDirectoryBtn(filled: true),
+            Text("pleaseSelectFolder".tr, style: TextStyle(fontSize: AppSizes.fontSizeMedium)),
           ],
         ),
       ),
