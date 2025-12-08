@@ -135,13 +135,16 @@ class MusicPlayerWidget extends StatelessWidget {
         onPressed: () async => await _musicPlayerService.toggleShuffle(),
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll(
-            _musicPlayerService.isShuffle ? Get.context?.palette.neutral600 : null,
+            _musicPlayerService.isShuffle ? _shuffleBackgroundColor() : null,
           ),
         ),
         icon: SvgPicture.asset(AssetSvgs.random, colorFilter: _svgIconColorFilter()),
       ),
     );
   }
+
+  Color? _shuffleBackgroundColor() =>
+      Get.isDarkMode ? Get.context?.palette.neutral600 : Get.context?.palette.neutral300;
 
   ColorFilter _svgIconColorFilter() {
     return ColorFilter.mode(
