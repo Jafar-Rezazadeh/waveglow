@@ -15,21 +15,18 @@ class TracksListPage extends StatelessWidget {
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
   late final _controller = Get.find<TracksListStateController>();
-  late final _musicPlayerService = Get.find<MusicPlayerService>();
 
   @override
   Widget build(BuildContext context) {
+    _controller.setInitTabIndex();
     return Padding(padding: const EdgeInsets.only(top: 16), child: _tabsOfDirectories());
   }
 
   Widget _tabsOfDirectories() {
     return Obx(() {
-      final currentPlayingMusicDirIndex = _controller.allDirectories.indexWhere(
-        (e) => e.dirEntity.id == _musicPlayerService.currentPlaylist?.id,
-      );
       return DefaultTabController(
         length: _controller.allDirectories.length,
-        initialIndex: currentPlayingMusicDirIndex != -1 ? currentPlayingMusicDirIndex : 0,
+        initialIndex: _controller.currentTapIndex.value,
         child: Stack(
           children: [
             Column(
@@ -71,6 +68,7 @@ class TracksListPage extends StatelessWidget {
       () => Row(
         children: [
           TabBar(
+            onTap: (index) => _controller.currentTapIndex.value = index,
             dividerColor: Colors.transparent,
             tabAlignment: TabAlignment.start,
             unselectedLabelColor: Get.isDarkMode

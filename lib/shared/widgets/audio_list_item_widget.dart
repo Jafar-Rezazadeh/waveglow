@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/shared/utils/custom_metadata_cacher.dart';
 
 class AudioListItemWidget extends StatelessWidget {
   final AudioItemEntity item;
@@ -18,7 +19,10 @@ class AudioListItemWidget extends StatelessWidget {
   });
 
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+
   late final _musicPlayer = Get.find<MusicPlayerService>();
+
+  // TODO: when CustomMetaDataCache adds a field the ui does not reflect to it solve it
 
   @override
   Widget build(BuildContext context) {
@@ -82,22 +86,35 @@ class AudioListItemWidget extends StatelessWidget {
   bool get _isCurrentlyPlaying => _musicPlayer.currentTrack?.path == item.path;
 
   Widget _albumArt() {
+    final albumArt = CustomMetaDataCacher.getMetaData(item.path)?.albumArt;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizes.borderRadius1)),
       width: 39,
       height: 39,
-      child: item.albumArt == null
-          ? Container(
-              color: Get.isDarkMode ? _colorPalette.neutral700 : _colorPalette.neutral200,
-              child: Icon(Icons.music_note_outlined),
-            )
-          : Image.memory(item.albumArt!, fit: BoxFit.cover),
+      child: albumArt == null
+          ? _noArtWorkPlaceHolder()
+          : Image.memory(
+              albumArt,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => _noArtWorkPlaceHolder(),
+            ),
+    );
+  }
+
+  Container _noArtWorkPlaceHolder() {
+    return Container(
+      color: Get.isDarkMode ? _colorPalette.neutral700 : _colorPalette.neutral200,
+      child: Icon(Icons.music_note_outlined),
     );
   }
 
   Widget _titleAndSubTitle() {
-    final artistNames = item.artistsNames?.join(" , ").ellipsSize(maxLength: 50) ?? "";
+    final artistNames =
+        CustomMetaDataCacher.getMetaData(
+          item.path,
+        )?.trackArtistNames?.join(" , ").ellipsSize(maxLength: 50) ??
+        "";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -122,7 +139,9 @@ class AudioListItemWidget extends StatelessWidget {
   }
 
   Widget _duration() {
-    final duration = Duration(seconds: item.durationInSeconds ?? 0);
+    final duration = Duration(
+      milliseconds: CustomMetaDataCacher.getMetaData(item.path)?.trackDuration ?? 0,
+    );
     return Text(
       "${duration.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration.inSeconds.remainder(60).toString().padLeft(2, "0")}",
       style: TextStyle(color: _isCurrentlyPlaying ? _colorPalette.neutral100 : null),

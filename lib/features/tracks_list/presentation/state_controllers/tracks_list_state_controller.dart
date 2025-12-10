@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/utils/test_mode_checker.dart';
 import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
+import 'package:waveglow/shared/utils/custom_metadata_cacher.dart';
+import 'package:waveglow/shared/utils/custom_task_queue.dart';
 
 class TracksListStateController extends GetxController {
   final MusicPlayerService _musicPlayerService;
@@ -15,6 +18,8 @@ class TracksListStateController extends GetxController {
   final IsTracksListDirectoryExistsUC _isDirectoryExistsUC;
   final TracksListSyncAudiosUC _syncAudiosUC;
   final TracksListToggleAudioFavoriteUC _toggleAudioFavoriteUC;
+  final CustomTaskQueue _customTaskQueue;
+  final currentTapIndex = Rx<int>(0);
   final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
 
   final _isLoadingDir = false.obs;
@@ -28,6 +33,7 @@ class TracksListStateController extends GetxController {
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
+    required CustomTaskQueue taskQueue,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -37,6 +43,7 @@ class TracksListStateController extends GetxController {
        _isDirectoryExistsUC = isDirectoryExistsUC,
        _syncAudiosUC = tracksListSyncAudiosUC,
        _toggleAudioFavoriteUC = toggleAudioFavoriteUC,
+       _customTaskQueue = taskQueue,
        _customDialogs = customDialogs;
 
   @visibleForTesting
@@ -50,18 +57,48 @@ class TracksListStateController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    rxListeners();
     if (!TestModeChecker.isTestMode()) {
       initData();
+    }
+  }
+
+  void rxListeners() {
+    ever(currentTapIndex, (index) {
+      _loadCurrentDirTracksMetaData(index);
+    });
+  }
+
+  Future<void> _loadCurrentDirTracksMetaData(int index) async {
+    if (_allDirectories.isNotEmpty) {
+      final dir = _allDirectories[index].dirEntity;
+
+      for (var audio in dir.audios) {
+        _customTaskQueue.add(() async {
+          await CustomMetaDataCacher.loadMetaData(audio.path);
+        });
+      }
     }
   }
 
   @visibleForTesting
   Future<void> initData() async {
     _isLoadingDir.value = true;
-
     await getDirectories();
 
     _isLoadingDir.value = false;
+  }
+
+  void setInitTabIndex() {
+    final index = _allDirectories.indexWhere(
+      (e) => e.dirEntity.id == _musicPlayerService.currentPlaylist?.id,
+    );
+
+    if (index != -1) {
+      currentTapIndex.value = index;
+    } else {
+      currentTapIndex.value = 0;
+    }
   }
 
   Future<void> pickDirectory() async {
@@ -77,6 +114,9 @@ class TracksListStateController extends GetxController {
         if (dir != null) {
           _allDirectories.add(TracksListDirectoryTemplate(isExists: true, dirEntity: dir));
           saveDirectory(dir);
+          final index = _allDirectories.indexWhere((e) => e.dirEntity.id == dir.id);
+          currentTapIndex.value = index;
+          _loadCurrentDirTracksMetaData(index);
         }
       },
     );

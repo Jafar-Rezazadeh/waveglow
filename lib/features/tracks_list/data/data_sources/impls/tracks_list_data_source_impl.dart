@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -98,14 +97,12 @@ class TracksListDataSourceImpl implements TracksListDataSource {
   Future<AudioItemModel?> _createAudioModel(File file, String dirId) async {
     final ext = file.path.toLowerCase();
 
-    final metaData = await MetadataRetriever.fromFile(File(file.path));
-
     if (audioExtensions.any((e) => ext.endsWith(e))) {
       return AudioItemModel(
         path: file.path,
-        albumArt: metaData.albumArt,
-        artistsNames: metaData.trackArtistNames,
-        durationInSeconds: Duration(milliseconds: metaData.trackDuration ?? 0).inSeconds,
+        albumArt: null,
+        artistsNames: [],
+        durationInSeconds: 0,
         trackName: file.uri.pathSegments.last,
         modifiedDate: file.statSync().modified.toIso8601String(),
         isFavorite: false,

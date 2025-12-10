@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
+import 'package:waveglow/shared/utils/custom_task_queue.dart';
 
 class TracksListPageBindings extends Bindings {
   final FilePicker? _filePicker;
@@ -53,6 +54,7 @@ class TracksListPageBindings extends Bindings {
         tracksListSyncAudiosUC: tracksListSyncAudiosUC,
         toggleAudioFavoriteUC: toggleAudioFavoriteUC,
         customDialogs: CustomDialogs(),
+        taskQueue: CustomTaskQueue(),
       ),
     );
   }
