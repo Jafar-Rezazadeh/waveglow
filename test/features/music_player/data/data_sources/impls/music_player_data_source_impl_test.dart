@@ -29,15 +29,19 @@ void main() {
   });
 
   group("saveCurrentPlayList -", () {
-    test("should call put with expected key of box when invoked", () async {
+    test("should call delete then put with expected key of box when invoked", () async {
       //arrange
       when(() => mockBox.put("play_list", any())).thenAnswer((_) async {});
+      when(() => mockBox.delete(any())).thenAnswer((_) async {});
 
       //act
       await dataSourceImpl.saveCurrentPlayList(_FakeMusicPlayerPlayListModel());
 
       //assert
-      verify(() => mockBox.put("play_list", any())).called(1);
+      verifyInOrder([
+        () => mockBox.delete(any()),
+        () => mockBox.put(dataSourceImpl.playlistKey, any()),
+      ]);
     });
   });
 

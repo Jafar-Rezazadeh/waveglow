@@ -78,7 +78,7 @@ class MusicPlayerServiceImpl extends GetxService implements MusicPlayerService {
 
   Future<void> _initAsync() async {
     _listeners();
-    initializeMediaControls();
+    await initializeMediaControls();
     await getLastSavedPlaylist();
     if (_currentPlaylist.value != null) {
       await openPlayList(_currentPlaylist.value!);
