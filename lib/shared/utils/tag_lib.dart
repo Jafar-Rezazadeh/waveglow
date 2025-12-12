@@ -9,8 +9,6 @@ class TagLib {
 
     final map = result?.map((key, value) => MapEntry(key.toString(), value)) ?? {};
 
-    print(map);
-
     return map;
   }
 }
