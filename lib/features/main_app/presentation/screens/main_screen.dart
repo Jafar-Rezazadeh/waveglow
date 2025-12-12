@@ -9,7 +9,6 @@ import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_w
 import 'package:waveglow/features/music_player/presentation/widgets/music_player_widget.dart';
 import 'package:waveglow/features/tracks_list/presentation/pages/tracks_list_page.dart';
 import 'package:waveglow/core/services/visualizer_service.dart';
-import 'package:waveglow/shared/utils/custom_audio_meta_data_extractor.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -30,16 +29,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _body(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await CustomAudioMetaDataExtractor().getMetaData(
-            Get.find<MusicPlayerService>().currentTrack?.path ?? "",
-          );
-        },
-      ),
-    );
+    return Scaffold(body: _body());
   }
 
   Widget _body() {

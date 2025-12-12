@@ -10,42 +10,51 @@ import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/shared/widgets/audio_list_item_widget.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
-class TracksListPage extends StatelessWidget {
-  TracksListPage({super.key});
+class TracksListPage extends StatefulWidget {
+  const TracksListPage({super.key});
 
+  @override
+  State<TracksListPage> createState() => _TracksListPageState();
+}
+
+class _TracksListPageState extends State<TracksListPage> with AutomaticKeepAliveClientMixin {
   late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+
   late final _controller = Get.find<TracksListStateController>();
+  late final int initialIndex;
+  @override
+  void initState() {
+    initialIndex = _controller.getInitTabIndex();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _controller.setInitTabIndex();
+    super.build(context);
     return Padding(padding: const EdgeInsets.only(top: 16), child: _tabsOfDirectories());
   }
 
   Widget _tabsOfDirectories() {
-    return Obx(() {
-      return DefaultTabController(
-        length: _controller.allDirectories.length,
-        initialIndex: _controller.currentTapIndex.value,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                _tabBar(),
-                _controller.allDirectories.isEmpty
-                    ? Expanded(child: _emptyInfo())
-                    : Expanded(child: _tabView()),
-              ],
+    return Obx(
+      () => Stack(
+        children: [
+          Column(
+            children: [
+              _tabBar(),
+              _controller.allDirectories.isEmpty
+                  ? Expanded(child: _emptyInfo())
+                  : Expanded(child: _tabView()),
+            ],
+          ),
+          if (_controller.isLoadingDir)
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Center(child: const CustomLoadingWidget()),
             ),
-            if (_controller.isLoadingDir)
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Center(child: const CustomLoadingWidget()),
-              ),
-          ],
-        ),
-      );
-    });
+        ],
+      ),
+    );
   }
 
   Widget _emptyInfo() {
@@ -68,7 +77,7 @@ class TracksListPage extends StatelessWidget {
       () => Row(
         children: [
           TabBar(
-            onTap: (index) => _controller.currentTapIndex.value = index,
+            controller: _controller.tabController,
             dividerColor: Colors.transparent,
             tabAlignment: TabAlignment.start,
             unselectedLabelColor: Get.isDarkMode
@@ -115,6 +124,7 @@ class TracksListPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16),
       child: Obx(
         () => TabBarView(
+          controller: _controller.tabController,
           physics: const NeverScrollableScrollPhysics(),
           children: _controller.allDirectories.map((e) => _tabViewItem(e)).toList(),
         ),
@@ -146,4 +156,7 @@ class TracksListPage extends StatelessWidget {
             child: Text("مسیر پوشه تغییر کرده یا حذف شده است.", textDirection: TextDirection.rtl),
           );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,14 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/utils/test_mode_checker.dart';
 import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/utils/custom_metadata_cacher.dart';
-import 'package:waveglow/shared/utils/custom_task_queue.dart';
 
-class TracksListStateController extends GetxController {
+class TracksListStateController extends GetxController with GetTickerProviderStateMixin {
   final MusicPlayerService _musicPlayerService;
   final CustomDialogs _customDialogs;
   final PickTracksListDirectoryUC _pickTracksListDirectoryUC;
@@ -18,9 +15,9 @@ class TracksListStateController extends GetxController {
   final IsTracksListDirectoryExistsUC _isDirectoryExistsUC;
   final TracksListSyncAudiosUC _syncAudiosUC;
   final TracksListToggleAudioFavoriteUC _toggleAudioFavoriteUC;
-  final CustomTaskQueue _customTaskQueue;
-  final currentTapIndex = Rx<int>(0);
+
   final _allDirectories = RxList<TracksListDirectoryTemplate>([]);
+  late final Rx<TabController> _tabController;
 
   final _isLoadingDir = false.obs;
 
@@ -33,7 +30,6 @@ class TracksListStateController extends GetxController {
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
-    required CustomTaskQueue taskQueue,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -43,7 +39,7 @@ class TracksListStateController extends GetxController {
        _isDirectoryExistsUC = isDirectoryExistsUC,
        _syncAudiosUC = tracksListSyncAudiosUC,
        _toggleAudioFavoriteUC = toggleAudioFavoriteUC,
-       _customTaskQueue = taskQueue,
+
        _customDialogs = customDialogs;
 
   @visibleForTesting
@@ -53,32 +49,33 @@ class TracksListStateController extends GetxController {
 
   List<TracksListDirectoryTemplate> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;
+  TabController get tabController => _tabController.value;
 
   @override
   void onInit() {
     super.onInit();
     rxListeners();
+    _tabController = Rx<TabController>(TabController(length: 0, vsync: this));
     if (!TestModeChecker.isTestMode()) {
       initData();
     }
   }
 
+  @override
+  void onClose() {
+    _tabController.value.dispose();
+    super.onClose();
+  }
+
   void rxListeners() {
-    ever(currentTapIndex, (index) {
-      _loadCurrentDirTracksMetaData(index);
+    ever(_allDirectories, (value) {
+      _setTabControllerLength();
     });
   }
 
-  Future<void> _loadCurrentDirTracksMetaData(int index) async {
-    if (_allDirectories.isNotEmpty) {
-      final dir = _allDirectories[index].dirEntity;
-
-      for (var audio in dir.audios) {
-        _customTaskQueue.add(() async {
-          await CustomMetaDataCacher.loadMetaData(audio.path);
-        });
-      }
-    }
+  void _setTabControllerLength() {
+    _tabController.value.dispose();
+    _tabController.value = TabController(length: _allDirectories.length, vsync: this);
   }
 
   @visibleForTesting
@@ -89,15 +86,15 @@ class TracksListStateController extends GetxController {
     _isLoadingDir.value = false;
   }
 
-  void setInitTabIndex() {
+  int getInitTabIndex() {
     final index = _allDirectories.indexWhere(
       (e) => e.dirEntity.id == _musicPlayerService.currentPlaylist?.id,
     );
 
     if (index != -1) {
-      currentTapIndex.value = index;
+      return index;
     } else {
-      currentTapIndex.value = 0;
+      return 0;
     }
   }
 
@@ -114,9 +111,8 @@ class TracksListStateController extends GetxController {
         if (dir != null) {
           _allDirectories.add(TracksListDirectoryTemplate(isExists: true, dirEntity: dir));
           saveDirectory(dir);
-          final index = _allDirectories.indexWhere((e) => e.dirEntity.id == dir.id);
-          currentTapIndex.value = index;
-          _loadCurrentDirTracksMetaData(index);
+          final index = _allDirectories.length > 1 ? _allDirectories.length - 1 : 0;
+          _tabController.value.animateTo(index);
         }
       },
     );
