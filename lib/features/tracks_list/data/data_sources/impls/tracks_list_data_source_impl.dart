@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -22,6 +23,7 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     Box<TracksListDirectoryModel>? testBox,
   }) : _filePicker = filePicker,
        _directoriesBox = testBox ?? Hive.box(HiveBoxEnum.tracksList.value),
+
        _testDirectory = directory;
 
   @override
@@ -98,12 +100,16 @@ class TracksListDataSourceImpl implements TracksListDataSource {
     final ext = file.path.toLowerCase();
 
     if (audioExtensions.any((e) => ext.endsWith(e))) {
+      final metaData = await MetadataRetriever.fromFile(file);
+
       return AudioItemModel(
         path: file.path,
-        albumArt: null,
-        artistsNames: [],
-        durationInSeconds: 0,
-        trackName: file.uri.pathSegments.last,
+        albumArt: metaData.albumArt,
+        artistsNames: metaData.trackArtistNames,
+        durationInSeconds: metaData.trackDuration != null ? metaData.trackDuration! ~/ 1000 : 0,
+        trackName: metaData.trackName?.isEmpty == true
+            ? file.uri.pathSegments.last
+            : metaData.trackName,
         modifiedDate: file.statSync().modified.toIso8601String(),
         isFavorite: false,
         dirId: dirId,

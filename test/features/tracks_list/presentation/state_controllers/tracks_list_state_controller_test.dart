@@ -8,7 +8,6 @@ import 'package:waveglow/core/constants/enums.dart';
 import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
-import 'package:waveglow/shared/utils/custom_task_queue.dart';
 
 class _MockPickTracksListDirectoryUC extends Mock implements PickTracksListDirectoryUC {}
 
@@ -124,7 +123,6 @@ void main() {
       isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
       toggleAudioFavoriteUC: mockToggleAudioFavoriteUC,
       tracksListSyncAudiosUC: mockSyncAudiosUC,
-      taskQueue: CustomTaskQueue(),
     );
   });
 
