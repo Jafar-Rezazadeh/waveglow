@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:waveglow/core/core_exports.dart';
 
 class CustomDialogs {
-  late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-
   Future<void> showFailure(Failure failure) async {
     await Get.dialog(FailureWidget(failure: failure));
   }
@@ -19,13 +17,15 @@ class CustomDialogs {
       onCancel: () => Get.back(),
       title: title,
       content: Text(content),
-      buttonColor: _colorPalette.primary500,
-      textConfirm: "بله",
-      textCancel: "لغو",
+      buttonColor: Get.context?.palette.primary500,
+      textConfirm: "yes".tr,
+      textCancel: "cancel".tr,
       contentPadding: EdgeInsets.all(16),
-      confirmTextColor: _colorPalette.surface,
-      cancelTextColor: _colorPalette.surface,
-      backgroundColor: _colorPalette.backgroundLow,
+      confirmTextColor: Get.context?.palette.surface,
+      cancelTextColor: Get.isDarkMode
+          ? Get.context?.palette.surface
+          : Get.context?.palette.neutral700,
+      backgroundColor: Get.context?.palette.backgroundLow,
       onConfirm: () {
         onAccept();
         if (autoCloseDialog) {

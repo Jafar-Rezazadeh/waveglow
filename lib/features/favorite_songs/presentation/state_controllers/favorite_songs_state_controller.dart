@@ -66,8 +66,8 @@ class FavoriteSongsStateController extends GetxController {
 
   Future<void> toggleFavorite(AudioItemEntity item) async {
     await _customDialogs.showAreYouSure(
-      title: "حذف",
-      content: "آیا از حذف آیتم از علاقمندی ها مطمئن هستید؟",
+      title: "delete".tr,
+      content: "areYouSureToDeleteFavoriteItem".tr,
       onAccept: () async {
         final result = await _tracksListService.toggleAudioFavorite(item);
 
