@@ -17,6 +17,7 @@ class AppTranslations extends Translations {
       "yes": "بله",
       "no": "خیر",
       "cancel": "لغو",
+      "error": "خطا!",
     },
     LanguageEnum.english.value: {
       "delete": "Delete",
@@ -31,6 +32,7 @@ class AppTranslations extends Translations {
       "yes": "Yes",
       "no": "No",
       "cancel": "Cancel",
+      "error": "Error!",
     },
   };
 }
