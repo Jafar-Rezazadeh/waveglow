@@ -19,5 +19,5 @@ public:
 
     void init(std::unique_ptr<flutter::FlutterViewController> &flutterController);
     void initEventChannel(std::unique_ptr<flutter::FlutterViewController> &flutterController);
-    void initMethodChannels(std::unique_ptr<flutter::FlutterViewController> &flutterController);
+    void initAudioMetaDataMethodChannels(std::unique_ptr<flutter::FlutterViewController> &flutterController);
 };

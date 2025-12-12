@@ -13,6 +13,7 @@
 #include <taglib/vorbisfile.h>
 #include <taglib/oggflacfile.h>
 #include <taglib/wavfile.h>
+#include <taglib/generalencapsulatedobjectframe.h>
 
 #include <iostream>
 #include <fstream>
@@ -29,7 +30,7 @@ struct AudioMetadata
     std::string title;
     std::string artist;
     std::string album;
-    int durationMs = 0;
+    int durationInSeconds = 0;
     int bitrate = 0;
     std::vector<unsigned char> albumArt;
 };
@@ -41,6 +42,3 @@ std::vector<unsigned char> ExtractArtwork(const std::string &path);
 
 // Flutter conversion helper
 flutter::EncodableMap MetadataToEncodableMap(const AudioMetadata &m);
-
-// TODO: just for debugging needs to be removed
-std::string DebugingAlbumArt(const std::string &path);

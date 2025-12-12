@@ -19,14 +19,14 @@ Future<void> main() async {
   await hiveInitialization();
   await mainInjections();
 
-  runApp(const WaveGlowApp());
-
   doWhenWindowReady(() {
     appWindow.minSize = const Size(800, 600);
     appWindow.size = const Size(1200, 800);
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
+
+  runApp(const WaveGlowApp());
 }
 
 class WaveGlowApp extends StatelessWidget {

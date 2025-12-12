@@ -1,6 +1,6 @@
 #include "channel_handler.h"
 
-CustomFlutterChannelHandler::CustomFlutterChannelHandler(/* args */) {}
+CustomFlutterChannelHandler::CustomFlutterChannelHandler() {}
 
 CustomFlutterChannelHandler::~CustomFlutterChannelHandler() {}
 
@@ -8,7 +8,7 @@ void CustomFlutterChannelHandler::init(std::unique_ptr<flutter::FlutterViewContr
 {
 
     initEventChannel(flutterController);
-    initMethodChannels(flutterController);
+    initAudioMetaDataMethodChannels(flutterController);
 }
 
 void CustomFlutterChannelHandler::initEventChannel(std::unique_ptr<flutter::FlutterViewController> &flutterController)
@@ -21,7 +21,7 @@ void CustomFlutterChannelHandler::initEventChannel(std::unique_ptr<flutter::Flut
     eventChannel->SetStreamHandler(std::make_unique<AudioEventStreamer>());
 }
 
-void CustomFlutterChannelHandler::initMethodChannels(std::unique_ptr<flutter::FlutterViewController> &flutterController)
+void CustomFlutterChannelHandler::initAudioMetaDataMethodChannels(std::unique_ptr<flutter::FlutterViewController> &flutterController)
 {
     auto audioMetaDataChannel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
         flutterController->engine()->messenger(),
@@ -41,15 +41,12 @@ void CustomFlutterChannelHandler::initMethodChannels(std::unique_ptr<flutter::Fl
                     result->Error("INVALID_ARGUMENT", "Expected a string argument");
                     return;
                 }
-                // Extract the string
+
                 std::string path = std::get<std::string>(*args_ptr);
 
                 auto metadata = ReadAudioMetadata(path);
-                auto debugInfo = DebugingAlbumArt(path);
 
                 auto map = MetadataToEncodableMap(metadata);
-                map[flutter::EncodableValue("debug")] =
-                    flutter::EncodableValue(debugInfo);
 
                 result->Success(flutter::EncodableValue(map));
             }
