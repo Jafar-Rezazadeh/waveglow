@@ -45,3 +45,7 @@ app.*.map.json
 # custom ignores
 windows/.vs
 windows/flutter
+
+
+# extras
+setup-file/
