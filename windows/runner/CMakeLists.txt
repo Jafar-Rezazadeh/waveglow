@@ -18,19 +18,21 @@ add_executable(${BINARY_NAME} WIN32
   "runner.exe.manifest"
   "channel_handler.cpp"
   "audio_event_streamer.cpp"
+  "audio_meta_data.cpp"
   )
 
-# Set FFTW root folder
-set(FFTW_ROOT "E:/projects/flutter/product/waveglow/fftw-3.3.5-dll64")
+# ! ----------FFTW----------
 
+# Set root folder
+set(FFTW_ROOT "${PROJECT_BUILD_DIR}/../fftw-3.3.5-dll64")
 
-# Add include directory for FFTW headers
+# Add include directory for headers
 include_directories(${FFTW_ROOT})
 
 # Link directory where the .lib file is located (optional if you use full path below)
 link_directories(${FFTW_ROOT})
 
-# Link your target with the FFTW lib (full path recommended)
+# Link your target with the lib (full path recommended)
 target_link_libraries(${BINARY_NAME} PRIVATE "${FFTW_ROOT}/libfftw3-3.lib")
 
 # Copy the DLL after build to the executable directory
@@ -38,6 +40,32 @@ add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${FFTW_ROOT}/libfftw3-3.dll"
         $<TARGET_FILE_DIR:${BINARY_NAME}>)
+
+# ! ----------FFTW-end----------
+
+
+# !INFO ----------Taglib----------
+
+#  Set root folder
+set(TAGLIB_ROOT "${PROJECT_BUILD_DIR}/../taglib")
+
+# Add include directory for headers
+include_directories("${TAGLIB_ROOT}/include")
+
+# Link directory where the .lib file is located (optional if you use full path below)
+link_directories("${TAGLIB_ROOT}/lib")
+
+#  Link your target with the lib (full path recommended)
+target_link_libraries(${BINARY_NAME} PRIVATE "${TAGLIB_ROOT}/lib/tag.lib")
+
+#  Copy the DLL after build to the executable directory
+add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${TAGLIB_ROOT}/lib/tag.dll"
+        $<TARGET_FILE_DIR:${BINARY_NAME}>)
+
+
+# ! ----------Taglib-end----------
 
 
 # Apply the standard set of build settings. This can be removed for applications

@@ -1,19 +1,96 @@
-[![Test Coverage](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml)
-![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Jafar-Rezazadeh/waveglow/master/badges/coverage.json)
+<style>
+    
+* {
+    direction:rtl;
+}
+    </style>
 
-# waveglow
+# 🎵 WaveGlow
 
-A new Flutter project.
+یک پخش‌کننده موسیقی برای ویندوز است که با **Flutter** ساخته شده و دارای **نمایش بصری لحظه‌ای صدا**، **پردازش صوتی بومی ویندوز** و **معماری تمیز (Clean Architecture)** می‌باشد.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ قابلیت‌ها
 
-A few resources to get you started if this is your first Flutter project:
+- 🎶 پخش موسیقی از پوشه‌های محلی انتخاب‌شده توسط کاربر
+- 📊 نمایش طیف فرکانسی صدا به‌صورت لحظه‌ای (۶۰ فریم بر ثانیه)
+- ⌨️ پشتیبانی از کلیدهای مدیای کیبورد (پخش / توقف / بعدی / قبلی)
+- 🌗 پشتیبانی از تم روشن و تیره
+- 🌍 پشتیبانی از چند زبان (انگلیسی و فارسی)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🏗 معماری
+
+- استفاده از **Clean Architecture**
+- جداسازی واضح لایه‌های Presentation، Domain و Data
+- کد قابل توسعه و نگهداری
+
+---
+
+## 🔌 یکپارچه‌سازی با پلتفرم
+
+- **MethodChannel**
+
+  - کنترل پخش موسیقی
+  - مدیریت کلیدهای مدیا
+
+- **EventChannel**
+  - ارسال داده‌های زنده طیف فرکانسی صدا به Flutter
+
+---
+
+## 🧠 پردازش صوتی بومی (C++)
+
+- استفاده از **WASAPI** برای دریافت صدای سیستم (PCM)
+- استفاده از **FFT** برای تبدیل نمونه‌های صوتی به باندهای فرکانسی
+- ارسال داده‌های فرکانسی به Flutter به‌صورت لحظه‌ای از طریق EventChannel
+
+---
+
+## 📊 نمایش بصری صدا
+
+- پیاده‌سازی با **CustomPaint** در Flutter
+- رندر طیف فرکانسی با نرخ **۶۰ فریم بر ثانیه**
+- مبتنی بر داده‌های FFT دریافتی از کد بومی
+
+---
+
+## 🧠 مدیریت وضعیت
+
+- استفاده از **GetX**
+  - مدیریت وضعیت (State Management)
+  - تزریق وابستگی‌ها (Dependency Injection)
+
+---
+
+## 🎨 تم‌ها و 🌍 چندزبانه بودن
+
+- پشتیبانی از تم روشن و تیره
+- پشتیبانی از زبان‌های انگلیسی و فارسی
+- امکان تغییر زبان و تم در زمان اجرا
+
+---
+
+## 🛠 تکنولوژی‌ها
+
+- Flutter (Dart)
+- C++ (ویندوز)
+- WASAPI
+- FFT
+- MethodChannel و EventChannel
+- GetX
+- CustomPaint
+
+---
+
+## 🪟 پلتفرم
+
+- ویندوز دسکتاپ
+
+---
+
+## 📄 لایسنس
+
+MIT License

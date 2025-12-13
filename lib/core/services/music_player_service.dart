@@ -1,20 +1,19 @@
-import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:waveglow/core/core_exports.dart';
+import 'package:waveglow/features/music_player/music_player_exports.dart';
 
 abstract class MusicPlayerService {
-  // TODO: consider loading the last played music on app start
-
-  Metadata? get currentMusicMetaData;
   bool get isPlaying;
   Stream<bool> get isPlayingStream;
   PlaylistMode get playListMode;
   double get volume;
-  Media? get currentMedia;
+  AudioItemEntity? get currentTrack;
   Duration? get currentMusicPosition;
   Duration? get currentMusicDuration;
   bool get isShuffle;
+  MusicPlayerPlayListEntity? get currentPlaylist;
 
-  Future<void> open(List<Media> media);
+  Future<void> openPlayList(MusicPlayerPlayListEntity playList, {bool play});
   Future<void> playOrPause();
   Future<void> goPrevious();
   Future<void> goNext();
@@ -22,4 +21,5 @@ abstract class MusicPlayerService {
   Future<void> setVolume(double value);
   Future<void> setPosition(double value);
   Future<void> toggleShuffle();
+  Future<void> playAt(int index);
 }

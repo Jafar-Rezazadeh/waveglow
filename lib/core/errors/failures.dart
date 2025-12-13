@@ -7,11 +7,7 @@ abstract class Failure {
 }
 
 class InternalFailure extends Failure {
-  InternalFailure({
-    required super.title,
-    required super.stackTrace,
-    required super.message,
-  });
+  InternalFailure({required super.title, required super.stackTrace, required super.message});
 }
 
 class FailureFactory {

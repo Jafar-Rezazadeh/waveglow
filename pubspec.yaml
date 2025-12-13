@@ -1,5 +1,5 @@
 name: waveglow
-description: "A new Flutter project."
+description: "music player app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.2.0+2
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.8.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -35,18 +35,30 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   get: ^4.7.2
-  fluent_ui: ^4.9.2
+  fluent_ui: ^4.13.0
   dartz: ^0.10.1
   mocktail: ^1.0.4
-  media_kit: ^1.2.0
+  media_kit: ^1.2.1
   media_kit_libs_windows_video: ^1.0.11
   bitsdojo_window: ^0.1.6
-  flutter_svg: ^2.1.0
+  flutter_svg: ^2.2.2
   flutter_handy_utils: ^2.2.3
   gap: ^3.0.1
   flutter_screenutil: ^5.9.3
   flutter_media_metadata: ^1.0.0+1
   file_picker: ^10.3.3
+  font_awesome_flutter: ^10.12.0
+  context_menus: ^2.0.0+1
+  logger: ^2.6.2
+  win32: ^5.15.0
+  ffi: ^2.1.4
+  hive: ^2.2.3
+  path_provider: ^2.1.5
+  uuid: ^4.5.2
+  shared_preferences: ^2.5.3
+  super_hot_key: ^0.9.1
+  flutter_animate: ^4.5.2
+  dyn_mouse_scroll: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -57,10 +69,19 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  hive_generator: ^2.0.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  windows:
+    generate: true
+    image_path: "assets/image/waveglow-icon.png"
+    icon_size: 256
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -72,6 +93,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/svgs/
+    - assets/image/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -84,13 +106,12 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
+  fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn-Regular.ttf
+
+    # - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf

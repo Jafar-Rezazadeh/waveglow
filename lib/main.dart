@@ -1,9 +1,14 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/core/theme/custom_theme.dart';
+import 'package:waveglow/hive_initialization.dart';
+import 'package:waveglow/main_injections.dart';
+import 'package:waveglow/shared/utils/app_translations.dart';
 
 import 'shared/routing/routes.dart';
 
@@ -11,15 +16,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
 
-  runApp(const WaveGlowApp());
+  await hiveInitialization();
+  await mainInjections();
 
-  doWhenWindowReady(
-    () {
-      appWindow.minSize = const Size(1024, 600);
-      appWindow.alignment = Alignment.center;
-      appWindow.show();
-    },
-  );
+  doWhenWindowReady(() {
+    appWindow.minSize = const Size(800, 600);
+    appWindow.size = const Size(1200, 800);
+    appWindow.alignment = Alignment.center;
+    appWindow.show();
+  });
+
+  runApp(const WaveGlowApp());
 }
 
 class WaveGlowApp extends StatelessWidget {
@@ -32,8 +39,35 @@ class WaveGlowApp extends StatelessWidget {
         initialRoute: mainScreenRoute,
         debugShowCheckedModeBanner: false,
         getPages: getXRoutes,
-        theme: CustomTheme.neonTheme,
+        theme: CustomTheme().lightTheme(),
+        darkTheme: CustomTheme().darkTheme(),
+        translations: AppTranslations(),
+        locale: Get.find<MainService>().settings?.languageEnum.locale,
+        builder: _body,
       ),
+    );
+  }
+
+  Widget _body(BuildContext context, Widget? child) {
+    return ContextMenuOverlay(
+      buttonStyle: ContextMenuButtonStyle(
+        fgColor: context.isDarkMode ? context.palette.neutral50 : context.palette.neutral700,
+        hoverFgColor: context.palette.neutral50,
+        hoverBgColor: context.palette.neutral700,
+      ),
+      cardBuilder: (context, children) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSizes.borderRadius1),
+          border: Border.all(
+            color: context.isDarkMode ? context.palette.neutral700 : context.palette.neutral200,
+          ),
+          color: context.palette.backgroundLow,
+        ),
+        clipBehavior: Clip.antiAlias,
+        width: 200,
+        child: Column(children: children),
+      ),
+      child: child ?? Container(),
     );
   }
 }

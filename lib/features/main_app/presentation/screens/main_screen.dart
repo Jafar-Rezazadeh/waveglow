@@ -1,12 +1,14 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:waveglow/core/core_exports.dart';
-import 'package:waveglow/features/home/presentation/pages/home_page.dart';
+import 'package:waveglow/features/favorite_songs/presentation/pages/favorite_songs_page.dart';
+import 'package:waveglow/features/settings/presentation/pages/settings_page.dart';
+import 'package:waveglow/features/visualizer/presentation/pages/visualizer_page.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_navigator_widget.dart';
 import 'package:waveglow/features/main_app/presentation/widgets/main_title_bar_widget.dart';
 import 'package:waveglow/features/music_player/presentation/widgets/music_player_widget.dart';
+import 'package:waveglow/features/tracks_list/presentation/pages/tracks_list_page.dart';
+import 'package:waveglow/core/services/visualizer_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,8 +18,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
-  late final _musicService = Get.find<MusicPlayerService>();
   late final PageController pageViewController;
   int currentPage = 0;
 
@@ -29,38 +29,15 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _body(),
-      floatingActionButton: _floatingActionButton(),
-    );
+    return Scaffold(body: _body());
   }
 
   Widget _body() {
     return Column(
       children: [
-        Expanded(
-          child: Stack(
-            children: [
-              _pageViewLayout(),
-              MainTitleBarWidget(),
-            ],
-          ),
-        ),
+        Expanded(child: Stack(children: [_pageViewLayout(), MainTitleBarWidget()])),
         MusicPlayerWidget(),
       ],
-    );
-  }
-
-  Widget _floatingActionButton() {
-    return FloatingActionButton(
-      onPressed: () async {
-        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-
-        if (result != null && result.count > 0) {
-          _musicService.open(result.files.map((e) => Media(e.path ?? "")).toList());
-        }
-      },
-      child: const Icon(Icons.file_open),
     );
   }
 
@@ -68,42 +45,56 @@ class _MainScreenState extends State<MainScreen> {
     return Stack(
       alignment: Alignment.center,
       fit: StackFit.expand,
-      children: [
-        _pageView(),
-        _navigator(),
-      ],
+      children: [_pageView(), _navigator()],
     );
   }
 
   Widget _pageView() {
-    return PageView(
-      controller: pageViewController,
-      scrollDirection: Axis.vertical,
-      physics: const NeverScrollableScrollPhysics(),
-      children: const [
-        HomePage(),
-        Text("musicPlaylist"),
-        Text("favorites"),
-        Text("setting"),
-      ],
+    return Container(
+      margin: const EdgeInsets.only(top: AppSizes.toolBarSize),
+      child: PageView(
+        controller: pageViewController,
+        scrollDirection: Axis.vertical,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          const VisualizerPage(),
+          _pageLayout(TracksListPage()),
+          _pageLayout(FavoriteSongsPage()),
+          _pageLayout(SettingsPage()),
+        ],
+      ),
     );
+  }
+
+  Widget _pageLayout(Widget child) {
+    return Padding(padding: const EdgeInsets.only(left: 106, right: 64), child: child);
   }
 
   Widget _navigator() {
     return Positioned(
       left: 24,
       top: 100,
-      child: MainNavigatorWidget(
-        currentIndex: currentPage,
-        onTab: (int index) {
-          setState(() => currentPage = index);
-          pageViewController.animateToPage(
-            index,
-            duration: Durations.medium3,
-            curve: Curves.easeInOutCubic,
-          );
-        },
-      ),
+      child: MainNavigatorWidget(currentIndex: currentPage, onTab: _onNavigationItemTap),
     );
+  }
+
+  void _onNavigationItemTap(int index) {
+    _toggleAudioVisualization(index);
+
+    setState(() => currentPage = index);
+    pageViewController.animateToPage(
+      index,
+      duration: Durations.medium3,
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  Future<void> _toggleAudioVisualization(int index) async {
+    if (index == 0) {
+      await Get.find<VisualizerService>().start();
+    }
+    if (index != 0) {
+      await Get.find<VisualizerService>().stop();
+    }
   }
 }

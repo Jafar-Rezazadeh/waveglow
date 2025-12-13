@@ -4,18 +4,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:waveglow/core/constants/app_sizes.dart';
 import 'package:waveglow/core/constants/svgs.dart';
-import 'package:waveglow/core/theme/color_palette.dart';
+import 'package:waveglow/core/utils/extensions.dart';
 
 class MainNavigatorWidget extends StatelessWidget {
   final int currentIndex;
   final Function(int index) onTab;
-  MainNavigatorWidget({
-    super.key,
-    required this.currentIndex,
-    required this.onTab,
-  });
-
-  late final _colorPalette = Get.theme.extension<AppColorPalette>()!;
+  const MainNavigatorWidget({super.key, required this.currentIndex, required this.onTab});
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +19,14 @@ class MainNavigatorWidget extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 100),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: _colorPalette.backgroundLow,
+        color: context.palette.backgroundLow,
         borderRadius: BorderRadius.circular(AppSizes.borderRadiusMax),
+        border: Border.all(
+          color: context.isDarkMode ? context.palette.neutral700 : context.palette.neutral200,
+        ),
       ),
       child: Column(
-        children: [
-          _home(),
-          _playlist(),
-          _likedMusics(),
-          _settings(),
-        ].withGapInBetween(10),
+        children: [_home(), _playlist(), _likedMusics(), _settings()].withGapInBetween(10),
       ),
     );
   }
@@ -49,23 +41,25 @@ class MainNavigatorWidget extends StatelessWidget {
     );
   }
 
-  _navigatorItem(
-      {required String svgPath,
-      required VoidCallback onTap,
-      required bool active}) {
+  Widget _navigatorItem({
+    required String svgPath,
+    required VoidCallback onTap,
+    required bool active,
+  }) {
     return IconButton(
       onPressed: onTap,
       icon: SvgPicture.asset(
         svgPath,
         colorFilter: ColorFilter.mode(
-          active
-              ? _colorPalette.surface
-              : _colorPalette.neutral400.withValues(alpha: 0.5),
+          (active ? _iconActiveColor : Get.context?.palette.neutral300) ?? Colors.grey,
           BlendMode.srcIn,
         ),
       ),
     );
   }
+
+  Color? get _iconActiveColor =>
+      Get.isDarkMode ? Get.context?.palette.surface : Get.context?.palette.neutral800;
 
   Widget _playlist() {
     return _navigatorItem(
