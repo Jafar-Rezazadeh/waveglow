@@ -30,6 +30,7 @@ class TracksListStateController extends GetxController with GetTickerProviderSta
     required IsTracksListDirectoryExistsUC isDirectoryExistsUC,
     required TracksListSyncAudiosUC tracksListSyncAudiosUC,
     required TracksListToggleAudioFavoriteUC toggleAudioFavoriteUC,
+    TabController? testTabController,
     required CustomDialogs customDialogs,
   }) : _pickTracksListDirectoryUC = pickTracksListDirectoryUC,
        _musicPlayerService = musicPlayerService,
@@ -39,13 +40,15 @@ class TracksListStateController extends GetxController with GetTickerProviderSta
        _isDirectoryExistsUC = isDirectoryExistsUC,
        _syncAudiosUC = tracksListSyncAudiosUC,
        _toggleAudioFavoriteUC = toggleAudioFavoriteUC,
-
        _customDialogs = customDialogs;
 
   @visibleForTesting
   set setAllDirectories(List<TracksListDirectoryTemplate> list) {
     _allDirectories.value = list;
   }
+
+  @visibleForTesting
+  set setTabController(TabController controller) => _tabController.value = controller;
 
   List<TracksListDirectoryTemplate> get allDirectories => _allDirectories;
   bool get isLoadingDir => _isLoadingDir.value;

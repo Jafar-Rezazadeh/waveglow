@@ -9,6 +9,8 @@ import 'package:waveglow/core/core_exports.dart';
 import 'package:waveglow/features/music_player/domain/entities/music_player_play_list_entity.dart';
 import 'package:waveglow/features/tracks_list/tracks_list_exports.dart';
 
+import '../../../visualizer/domain/use_cases/get_visualizer_frequencies_stream_test.dart';
+
 class _MockPickTracksListDirectoryUC extends Mock implements PickTracksListDirectoryUC {}
 
 class _MockMusicPlayerService extends Mock implements MusicPlayerService {}
@@ -113,16 +115,18 @@ void main() {
     mockIsTracksListDirectoryExistsUC = _MockIsTracksListDirectoryExistsUC();
     mockSyncAudiosUC = _MockTracksListSyncAudiosUC();
     mockToggleAudioFavoriteUC = _MockTracksListToggleAudioFavoriteUC();
-    controller = TracksListStateController(
-      customDialogs: mockCustomDialogs,
-      musicPlayerService: mockMusicPlayerService,
-      pickTracksListDirectoryUC: mockPickTracksListDirectoryUC,
-      saveDirectoryUC: mockSaveTracksListDirectoryUC,
-      getDirectoriesUC: mockGetTrackListDirectoriesUC,
-      deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
-      isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
-      toggleAudioFavoriteUC: mockToggleAudioFavoriteUC,
-      tracksListSyncAudiosUC: mockSyncAudiosUC,
+    controller = Get.put(
+      TracksListStateController(
+        customDialogs: mockCustomDialogs,
+        musicPlayerService: mockMusicPlayerService,
+        pickTracksListDirectoryUC: mockPickTracksListDirectoryUC,
+        saveDirectoryUC: mockSaveTracksListDirectoryUC,
+        getDirectoriesUC: mockGetTrackListDirectoriesUC,
+        deleteDirectoryUC: mockDeleteTracksListDirectoryUC,
+        isDirectoryExistsUC: mockIsTracksListDirectoryExistsUC,
+        toggleAudioFavoriteUC: mockToggleAudioFavoriteUC,
+        tracksListSyncAudiosUC: mockSyncAudiosUC,
+      ),
     );
   });
 
@@ -150,7 +154,8 @@ void main() {
       //arrange
       when(
         () => mockPickTracksListDirectoryUC.call(any()),
-      ).thenAnswer((_) async => right(_FakeTracksListDirectoryEntity()));
+      ).thenAnswer((_) async => left(FakeFailure()));
+      when(() => mockCustomDialogs.showFailure(any())).thenAnswer((_) async {});
 
       when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
 
@@ -161,7 +166,7 @@ void main() {
       verify(() => mockPickTracksListDirectoryUC.call(any())).called(1);
     });
 
-    test("should call $CustomDialogs.showFailure result is a failure", () async {
+    test("should call CustomDialogs.showFailure result is a failure", () async {
       //arrange
       when(
         () => mockPickTracksListDirectoryUC.call(any()),
@@ -176,7 +181,7 @@ void main() {
       verify(() => mockCustomDialogs.showFailure(any())).called(1);
     });
 
-    test("should set result to allDirectories when success", () async {
+    test("should set result to allDirectories and saveTracksList when success", () async {
       //arrange
       when(
         () => mockPickTracksListDirectoryUC.call(any()),
@@ -189,25 +194,8 @@ void main() {
 
       //assert
       expect(controller.allDirectories, isNotEmpty);
+      verify(() => mockSaveTracksListDirectoryUC.call(any())).called(1);
     });
-
-    test(
-      "should call expected uceCase to save picked directory when success with a directory",
-      () async {
-        //arrange
-        when(
-          () => mockPickTracksListDirectoryUC.call(any()),
-        ).thenAnswer((_) async => right(_FakeTracksListDirectoryEntity()));
-
-        when(() => mockSaveTracksListDirectoryUC.call(any())).thenAnswer((_) async => right(null));
-
-        //act
-        await controller.pickDirectory();
-
-        //assert
-        verify(() => mockSaveTracksListDirectoryUC.call(any())).called(1);
-      },
-    );
   });
 
   group("deleteDirectory -", () {

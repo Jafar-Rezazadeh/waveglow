@@ -261,22 +261,21 @@ void main() {
 
     test("should sort the files bases on it names when given $SortTypeEnum.byTitle", () async {
       //arrange
-      _setMetaReceiverMethodChannel();
+      final file3 = File("c:/test/file3.mp3");
+      final file1 = File("c:/test/file1.mp3");
+      final file2 = File("c:/test/file2.mp3");
+      _setMetaReceiverMethodChannel(trackName: "");
 
       when(() => mockFilePicker.getDirectoryPath()).thenAnswer((_) async => "c:/test/");
-      when(() => mockDirectory.list(recursive: false, followLinks: false)).thenAnswer(
-        (_) => Stream.fromIterable([
-          File("c:/test/file3.mp3"),
-          File("c:/test/file1.mp3"),
-          File("c:/test/file2.mp3"),
-        ]),
-      );
+      when(
+        () => mockDirectory.list(recursive: false, followLinks: false),
+      ).thenAnswer((_) => Stream.fromIterable([file3, file1, file2]));
 
       //act
       final result = await dataSourceImpl.pickDirectory(SortTypeEnum.byTitle);
 
       //assert
-      expect(result?.audios.first.trackName, "file1.mp3");
+      expect(result?.audios.first.trackName, file1.path.split("/").last);
     });
   });
 
@@ -758,14 +757,14 @@ void main() {
   });
 }
 
-void _setMetaReceiverMethodChannel() {
+void _setMetaReceiverMethodChannel({String trackName = "track name"}) {
   TestWidgetsFlutterBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
     const MethodChannel("flutter_media_metadata"),
     (message) {
       if (message.method == "MetadataRetriever") {
         return Future.value({
           'metadata': {
-            'trackName': 'Test Track',
+            'trackName': trackName,
             // plugin splits trackArtistNames by '/'
             'trackArtistNames': 'Artist1/Artist2',
             'trackDuration': '180000', // in ms as string
