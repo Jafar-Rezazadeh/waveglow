@@ -1,0 +1,74 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Test Coverage
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      # ✅ Extract coverage percentage and create badge JSON
+      - name: Generate coverage JSON
+        run: |
+          sudo apt-get update && sudo apt-get install -y lcov bc
+
+          # Parse total line coverage percentage
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>/dev/null | grep 'lines' | tail -1 | awk '{print $2}' | sed 's/%//')
+
+          # Fallback if parsing fails
+          if [ -z "$COVERAGE" ]; then
+            echo "⚠️ Coverage not found, defaulting to 0"
+            COVERAGE=0
+          fi
+
+          echo "Coverage is ${COVERAGE}%"
+
+          # Choose color based on percentage
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            COLOR=red
+          elif (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            COLOR=yellow
+          else
+            COLOR=green
+          fi
+
+          # ✅ Create Shields.io-style JSON file
+          mkdir -p badges
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > badges/coverage.json
+
+      - name: Commit coverage JSON badge
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add badges/coverage.json
+          git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+          git push
