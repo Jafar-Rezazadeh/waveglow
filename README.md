@@ -1,11 +1,7 @@
-<style>
-    
-* {
-    direction:rtl;
-}
-    </style>
+[![Test Coverage](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/Jafar-Rezazadeh/waveglow/actions/workflows/test_coverage.yml)
+![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Jafar-Rezazadeh/waveglow/master/badges/coverage.json)
 
-# 🎵 WaveGlow
+# نرم افزار WaveGlow
 
 یک پخش‌کننده موسیقی برای ویندوز است که با **Flutter** ساخته شده و دارای **نمایش بصری لحظه‌ای صدا**، **پردازش صوتی بومی ویندوز** و **معماری تمیز (Clean Architecture)** می‌باشد.
 
